@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alfven - Space Weather Simulator</title>
+    <link rel="stylesheet" href="css/space_theme.css">
+    <link rel="stylesheet" href="css/glass.css">
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MathJax for equations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="dashboard">
+        <div class="hero">
+            <h1>ALFVEN</h1>
+            <div class="subtitle">Space Weather & Plasma Physics Simulator</div>
+        </div>
+
+        <!-- Magnetosphere Panel -->
+        <div class="glass-panel">
+            <div class="panel-title">Magnetosphere Standoff</div>
+            <div class="control-group">
+                <label>Solar Wind Density (cm⁻³)</label>
+                <input type="range" id="sw-density" class="glass-range" min="1" max="100" value="5">
+                <div class="value-display"><span id="density-val">5</span> cm⁻³</div>
+            </div>
+            <div class="control-group">
+                <label>Solar Wind Velocity (km/s)</label>
+                <input type="range" id="sw-velocity" class="glass-range" min="200" max="1500" value="400">
+                <div class="value-display"><span id="velocity-val">400</span> km/s</div>
+            </div>
+            <div class="control-group">
+                <label>Standoff Distance ($R_{mp}$):</label>
+                <div class="value-display" id="standoff-display" style="font-size: 1.5rem;">Calculating...</div>
+            </div>
+            <div id="magnetosphere-viz" class="viz-container"></div>
+            <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
+                Visualizes the Chapman-Ferraro distance where solar wind dynamic pressure balances Earth's magnetic pressure.
+            </p>
+        </div>
+
+        <!-- Ionosphere Panel -->
+        <div class="glass-panel">
+            <div class="panel-title">Ionosphere Profile</div>
+            <div class="control-group">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <label style="margin: 0;">Day/Night Cycle</label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="checkbox" id="day-night-toggle" checked style="transform: scale(1.5); margin-right: 10px;">
+                        <span id="day-night-val" class="value-display">Day Mode</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="iono-chart"></canvas>
+            </div>
+            <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
+                Visualizes electron density ($N_e$) vs Altitude for D, E, and F layers based on Chapman production functions.
+            </p>
+        </div>
+
+        <!-- Plasma Parameters Panel -->
+        <div class="glass-panel">
+            <div class="panel-title">Plasma Parameters</div>
+            <div class="control-group">
+                <label>Density ($n_e$) [m⁻³]</label>
+                <input type="number" id="plasma-n" class="glass-input" value="1e6" step="any">
+            </div>
+            <div class="control-group">
+                <label>Temperature ($T_e$) [eV]</label>
+                <input type="number" id="plasma-T" class="glass-input" value="10" step="any">
+            </div>
+            <div class="control-group" style="margin-top: 20px;">
+                <button class="glass-button" onclick="calcPlasma()" style="width: 100%;">Calculate</button>
+            </div>
+            <div id="plasma-results" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                <!-- Results will go here -->
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span>Debye Length ($\lambda_D$):</span>
+                    <span class="value-display" id="res-debye">-</span>
+                </div>
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span>Plasma Freq ($\omega_{pe}$):</span>
+                    <span class="value-display" id="res-freq">-</span>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            &copy; 2024 Alfven Project. MIT License.
+        </footer>
+    </div>
+
+    <script src="js/background.js"></script>
+    <script src="js/magnetosphere.js"></script>
+    <script src="js/iono_profile.js"></script>
+    <script>
+        // Inline script for Plasma Calc
+        async function calcPlasma() {
+            const nInput = document.getElementById('plasma-n');
+            const TInput = document.getElementById('plasma-T');
+
+            if (!nInput || !TInput) return;
+
+            const n = parseFloat(nInput.value);
+            const T = parseFloat(TInput.value);
+
+            try {
+                const resDebye = await fetch(`/api/plasma/debye?n=${n}&T_ev=${T}`);
+                const dataDebye = await resDebye.json();
+
+                const resFreq = await fetch(`/api/plasma/frequency?n=${n}`);
+                const dataFreq = await resFreq.json();
+
+                document.getElementById('res-debye').innerText = dataDebye.debye_length.toExponential(2) + " m";
+                document.getElementById('res-freq').innerText = (dataFreq.plasma_frequency / (2*Math.PI)).toExponential(2) + " Hz"; // Displaying f = omega / 2pi
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        const toggle = document.getElementById('day-night-toggle');
+        if (toggle) {
+            toggle.addEventListener('change', (e) => {
+                 document.getElementById('day-night-val').innerText = e.target.checked ? "Day Mode" : "Night Mode";
+            });
+        }
+
+        // Initial calc
+        calcPlasma();
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Physical Constants
+e = 1.60217663e-19        # Elementary charge [C]
+m_e = 9.10938356e-31      # Electron mass [kg]
+m_p = 1.6726219e-27       # Proton mass [kg]
+mu_0 = 1.25663706212e-6   # Vacuum permeability [N/A^2]
+eps_0 = 8.8541878128e-12  # Vacuum permittivity [F/m]
+k_B = 1.380649e-23        # Boltzmann constant [J/K]
+c = 299792458             # Speed of light [m/s]
+Re = 6371e3               # Earth radius [m]
+AU = 1.496e11             # Astronomical Unit [m]
