@@ -1,5 +1,21 @@
 // public/js/magnetosphere.js
 
+/**
+ * Debounce function to limit the rate at which a function can fire.
+ * Improves performance by preventing excessive API calls and re-renders during rapid input events.
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 async function updateMagnetosphere() {
     const densityElement = document.getElementById('sw-density');
     const velocityElement = document.getElementById('sw-velocity');
@@ -122,17 +138,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const densityInput = document.getElementById('sw-density');
     const velocityInput = document.getElementById('sw-velocity');
 
+    // Create a debounced version of the update function
+    const debouncedUpdate = debounce(updateMagnetosphere, 300);
+
     if (densityInput) {
         densityInput.addEventListener('input', (e) => {
             document.getElementById('density-val').innerText = e.target.value;
-            updateMagnetosphere();
+            debouncedUpdate();
         });
     }
 
     if (velocityInput) {
         velocityInput.addEventListener('input', (e) => {
             document.getElementById('velocity-val').innerText = e.target.value;
-            updateMagnetosphere();
+            debouncedUpdate();
         });
     }
 
