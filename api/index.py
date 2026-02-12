@@ -1,46 +1,55 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, Request, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 import os
 from alfven import PlasmaState, ParkerSpiral, Magnetopause, ChapmanLayer, AuroraPower, sunspot_temperature
 
 app = FastAPI(title="Alfven API", description="Space Weather & Plasma Physics Simulator API")
 
+# Global Exception Handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error"}
+    )
+
 # Input Models
 
 class PlasmaInput(BaseModel):
-    n: float
-    T_ev: float
+    n: float = Field(..., gt=0)
+    T_ev: float = Field(..., gt=0)
 
 class LarmorInput(BaseModel):
-    T_ev: float
-    B: float
+    T_ev: float = Field(..., gt=0)
+    B: float = Field(..., description="Cannot be 0")
 
 class SolarInput(BaseModel):
-    v_sw: float
-    r: float
+    v_sw: float = Field(..., gt=0)
+    r: float = Field(..., ge=0)
 
 class MagnetosphereInput(BaseModel):
-    density: float
-    velocity: float
+    density: float = Field(..., gt=0)
+    velocity: float = Field(..., gt=0)
     Bz: float = 0
 
 class LayerParams(BaseModel):
-    h0: float
-    H: float
-    n_max: float
+    h0: float = Field(..., ge=0)
+    H: float = Field(..., gt=0)
+    n_max: float = Field(..., gt=0)
 
 class IonosphereInput(BaseModel):
     layers: List[LayerParams]
-    min_h: float
-    max_h: float
-    steps: int = 100
+    min_h: float = Field(..., ge=0)
+    max_h: float = Field(..., gt=0)
+    steps: int = Field(100, gt=0)
 
 class AuroraInput(BaseModel):
     E_field: float
-    sigma_P: float
-    area: float
+    sigma_P: float = Field(..., gt=0)
+    area: float = Field(..., gt=0)
 
 # Endpoints
 
@@ -49,7 +58,7 @@ def health_check():
     return {"status": "ok", "version": "1.0.0"}
 
 @app.get("/api/plasma/debye")
-def get_debye_length(n: float, T_ev: float):
+def get_debye_length(n: float = Query(..., gt=0), T_ev: float = Query(..., gt=0)):
     """
     Calculate Debye Length.
     """
@@ -57,16 +66,19 @@ def get_debye_length(n: float, T_ev: float):
     return {"debye_length": plasma.debye_length}
 
 @app.get("/api/plasma/larmor")
-def get_larmor_radius(T_ev: float, B: float):
+def get_larmor_radius(T_ev: float = Query(..., gt=0), B: float = Query(...)):
     """
     Calculate Larmor Radius.
     """
+    if B == 0:
+        raise HTTPException(status_code=422, detail="B cannot be 0")
+
     # Use dummy density n=1e6 since it doesn't affect Larmor radius
     plasma = PlasmaState(1e6, T_ev)
     return {"larmor_radius": plasma.larmor_radius(B)}
 
 @app.get("/api/plasma/frequency")
-def get_plasma_frequency(n: float):
+def get_plasma_frequency(n: float = Query(..., gt=0)):
     """
     Calculate Plasma Frequency.
     """
@@ -74,7 +86,7 @@ def get_plasma_frequency(n: float):
     return {"plasma_frequency": plasma.plasma_frequency}
 
 @app.get("/api/solar/parker")
-def get_parker_spiral(r: float, v_sw: float = 400000):
+def get_parker_spiral(r: float = Query(..., ge=0), v_sw: float = Query(400000, gt=0)):
     """
     Calculate Parker Spiral Angle.
     """
@@ -82,7 +94,7 @@ def get_parker_spiral(r: float, v_sw: float = 400000):
     return {"spiral_angle": ps.spiral_angle(r)}
 
 @app.get("/api/solar/sunspot")
-def get_sunspot_temperature(ratio: float):
+def get_sunspot_temperature(ratio: float = Query(..., ge=0)):
     """
     Estimate Sunspot Temperature.
     """
@@ -90,7 +102,7 @@ def get_sunspot_temperature(ratio: float):
     return {"temperature_k": T}
 
 @app.get("/api/magnetosphere/standoff")
-def get_magnetopause_standoff(density: float, velocity: float, Bz: float = 0):
+def get_magnetopause_standoff(density: float = Query(..., gt=0), velocity: float = Query(..., gt=0), Bz: float = 0):
     """
     Calculate Magnetopause Standoff Distance.
     """
