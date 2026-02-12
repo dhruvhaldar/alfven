@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,15 +15,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- MathJax for equations -->
     <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    };
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
     </script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
+
 <body>
     <div id="canvas-container"></div>
 
@@ -51,7 +53,8 @@
             </div>
             <div id="magnetosphere-viz" class="viz-container"></div>
             <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
-                Visualizes the Chapman-Ferraro distance where solar wind dynamic pressure balances Earth's magnetic pressure.
+                Visualizes the Chapman-Ferraro distance where solar wind dynamic pressure balances Earth's magnetic
+                pressure.
             </p>
         </div>
 
@@ -62,7 +65,8 @@
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <label style="margin: 0;">Day/Night Cycle</label>
                     <div style="display: flex; align-items: center;">
-                        <input type="checkbox" id="day-night-toggle" checked style="transform: scale(1.5); margin-right: 10px;">
+                        <input type="checkbox" id="day-night-toggle" checked
+                            style="transform: scale(1.5); margin-right: 10px;">
                         <span id="day-night-val" class="value-display">Day Mode</span>
                     </div>
                 </div>
@@ -71,7 +75,8 @@
                 <canvas id="iono-chart"></canvas>
             </div>
             <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
-                Visualizes electron density ($N_e$) vs Altitude for D, E, and F layers based on Chapman production functions.
+                Visualizes electron density ($N_e$) vs Altitude for D, E, and F layers based on Chapman production
+                functions.
             </p>
         </div>
 
@@ -89,7 +94,8 @@
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" onclick="calcPlasma()" style="width: 100%;">Calculate</button>
             </div>
-            <div id="plasma-results" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+            <div id="plasma-results"
+                style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <!-- Results will go here -->
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
                     <span>Debye Length ($\lambda_D$):</span>
@@ -103,7 +109,8 @@
         </div>
 
         <footer>
-            &copy; 2024 Alfven Project. MIT License.
+            &copy; 2026 Dhruv Haldar. MIT License. | <a href="https://github.com/dhruvhaldar/alfven" target="_blank"
+                style="color: inherit; text-decoration: none;">GitHub</a>
         </footer>
     </div>
 
@@ -129,7 +136,7 @@
                 const dataFreq = await resFreq.json();
 
                 document.getElementById('res-debye').innerText = dataDebye.debye_length.toExponential(2) + " m";
-                document.getElementById('res-freq').innerText = (dataFreq.plasma_frequency / (2*Math.PI)).toExponential(2) + " Hz"; // Displaying f = omega / 2pi
+                document.getElementById('res-freq').innerText = (dataFreq.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz"; // Displaying f = omega / 2pi
             } catch (e) {
                 console.error(e);
             }
@@ -138,7 +145,7 @@
         const toggle = document.getElementById('day-night-toggle');
         if (toggle) {
             toggle.addEventListener('change', (e) => {
-                 document.getElementById('day-night-val').innerText = e.target.checked ? "Day Mode" : "Night Mode";
+                document.getElementById('day-night-val').innerText = e.target.checked ? "Day Mode" : "Night Mode";
             });
         }
 
@@ -146,4 +153,5 @@
         calcPlasma();
     </script>
 </body>
+
 </html>
