@@ -16,14 +16,6 @@ This project strictly adheres to the course learning outcomes:
 | **Ionosphere** | *Origin, structure and dynamics* | **Chapman Layer** profiling to model Electron Density ($N_e$) vs. Altitude for D, E, and F layers. |
 | **Aurora** | *Power dissipated in the aurora* | Current sheet estimation and Joule heating calculations for geomagnetic storms. |
 
-## 🚀 Deployment (Vercel)
-
-Alfven is designed to run as a serverless physics engine with a static frontend.
-
-1. **Fork** this repository.
-2. Deploy to **Vercel** (Python runtime is auto-detected).
-3. Access the **Space Weather Dashboard** at `https://your-alfven.vercel.app`.
-
 ## 📊 Visualizations & Artifacts
 
 ### 1. The Magnetosphere (Interactive Field Tracing)
@@ -78,6 +70,14 @@ profile.plot_altitude_profile(0, 600)
 
 > *Figure 3: The Parker Spiral. Because the Sun rotates, the magnetic field lines frozen into the radially expanding solar wind are wound into an Archimedean spiral. The visualization animates plasma parcels traveling outwards along these field lines.*
 
+### 4. Sunspot Temperature (Solar Physics)
+
+*Estimates the temperature of a sunspot ($T_{spot}$) based on its intensity contrast ratio ($I_{spot}/I_{phot}$) with the surrounding photosphere ($T_{phot} \approx 5778K$). Includes a dynamic visualization of the sunspot darkening.*
+
+### 5. Aurora Power (Auroral Physics)
+
+*Calculates the total power dissipated in the auroral ionosphere and the height-integrated sheet current, given the ionospheric electric field ($E$), Pedersen conductivity ($\Sigma_P$), and the area of the active region.*
+
 ## 🧪 Testing Strategy
 
 ### Unit Tests (Fundamental Physics)
@@ -126,6 +126,3 @@ def test_geostationary_exposure():
 **MIT License**
 
 Copyright (c) 2026 Dhruv Haldar
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files... [Standard MIT Text]
