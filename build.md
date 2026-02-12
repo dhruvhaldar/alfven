@@ -15,14 +15,23 @@ This project is a **Python FastAPI** application with a static HTML/JS frontend.
     cd alfven
     ```
 
-2.  **Create a virtual environment (Recommended):**
+2.  **Create a Virtual Environment (Recommended):**
+    
+    This isolates dependencies from your system Python.
+
+    **Windows:**
     ```bash
     python -m venv venv
-    # Windows
     .\venv\Scripts\activate
-    # Mac/Linux
+    ```
+
+    **macOS / Linux:**
+    ```bash
+    python3 -m venv venv
     source venv/bin/activate
     ```
+
+    *To exit the virtual environment later, run:* `deactivate`
 
 3.  **Install dependencies:**
     ```bash

@@ -81,6 +81,14 @@ def get_parker_spiral(r: float, v_sw: float = 400000):
     ps = ParkerSpiral(v_sw=v_sw)
     return {"spiral_angle": ps.spiral_angle(r)}
 
+@app.get("/api/solar/sunspot")
+def get_sunspot_temperature(ratio: float):
+    """
+    Estimate Sunspot Temperature.
+    """
+    T = sunspot_temperature(ratio)
+    return {"temperature_k": T}
+
 @app.get("/api/magnetosphere/standoff")
 def get_magnetopause_standoff(density: float, velocity: float, Bz: float = 0):
     """
