@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Query, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
 from alfven import PlasmaState, ParkerSpiral, Magnetopause, ChapmanLayer, AuroraPower, sunspot_temperature
@@ -44,7 +44,14 @@ class IonosphereInput(BaseModel):
     layers: List[LayerParams]
     min_h: float = Field(..., ge=0)
     max_h: float = Field(..., gt=0)
-    steps: int = Field(100, gt=0)
+    steps: int = Field(100, gt=0, le=2000)
+
+    @field_validator('layers')
+    @classmethod
+    def check_layers_limit(cls, v):
+        if len(v) > 20:
+            raise ValueError('Too many layers (max 20)')
+        return v
 
 class AuroraInput(BaseModel):
     E_field: float
