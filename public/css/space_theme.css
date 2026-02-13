@@ -64,6 +64,12 @@ h1 {
     display: flow-root;
 }
 
+.control-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 label {
     display: block;
     margin-bottom: 8px;

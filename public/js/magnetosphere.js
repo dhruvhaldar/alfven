@@ -137,22 +137,27 @@ function drawMagnetosphere(standoff) {
 document.addEventListener('DOMContentLoaded', () => {
     const densityInput = document.getElementById('sw-density');
     const velocityInput = document.getElementById('sw-velocity');
+    const densityNum = document.getElementById('sw-density-num');
+    const velocityNum = document.getElementById('sw-velocity-num');
 
     // Create a debounced version of the update function
     const debouncedUpdate = debounce(updateMagnetosphere, 300);
 
-    if (densityInput) {
-        densityInput.addEventListener('input', (e) => {
-            document.getElementById('density-val').innerText = e.target.value;
-            debouncedUpdate();
-        });
+    function syncInputs(source, target) {
+        if (target) {
+            target.value = source.value;
+        }
+        debouncedUpdate();
     }
 
-    if (velocityInput) {
-        velocityInput.addEventListener('input', (e) => {
-            document.getElementById('velocity-val').innerText = e.target.value;
-            debouncedUpdate();
-        });
+    if (densityInput && densityNum) {
+        densityInput.addEventListener('input', () => syncInputs(densityInput, densityNum));
+        densityNum.addEventListener('input', () => syncInputs(densityNum, densityInput));
+    }
+
+    if (velocityInput && velocityNum) {
+        velocityInput.addEventListener('input', () => syncInputs(velocityInput, velocityNum));
+        velocityNum.addEventListener('input', () => syncInputs(velocityNum, velocityInput));
     }
 
     updateMagnetosphere();
