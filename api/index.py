@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
-from alfven import PlasmaState, ParkerSpiral, Magnetopause, ChapmanLayer, AuroraPower, sunspot_temperature
+from alfven import PlasmaState, ParkerSpiral, Magnetopause, ChapmanLayer, ChapmanProfile, AuroraPower, sunspot_temperature
 
 app = FastAPI(title="Alfven API", description="Space Weather & Plasma Physics Simulator API")
 
@@ -121,15 +121,12 @@ def get_ionosphere_profile(data: IonosphereInput):
     """
     Get Ionosphere Altitude Profile.
     """
-    profile = None
-    for layer_params in data.layers:
-        layer = ChapmanLayer(layer_params.h0, layer_params.H, layer_params.n_max)
-        if profile is None:
-            profile = layer
-        else:
-            profile += layer # __add__ returns ChapmanProfile
+    # Optimize: Create all layers first then construct profile once.
+    # This avoids O(N^2) list concatenation in the previous loop implementation.
+    layers = [ChapmanLayer(lp.h0, lp.H, lp.n_max) for lp in data.layers]
 
-    if profile:
+    if layers:
+        profile = ChapmanProfile(layers)
         result = profile.get_profile_data(data.min_h, data.max_h, data.steps)
         return result
     return {"altitude": [], "density": []}
