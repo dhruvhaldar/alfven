@@ -197,10 +197,13 @@
             const T = parseFloat(TInput.value);
 
             try {
-                const resDebye = await fetch(`/api/plasma/debye?n=${n}&T_ev=${T}`);
-                const dataDebye = await resDebye.json();
+                // Optimization: Run independent fetches in parallel
+                const [resDebye, resFreq] = await Promise.all([
+                    fetch(`/api/plasma/debye?n=${n}&T_ev=${T}`),
+                    fetch(`/api/plasma/frequency?n=${n}`)
+                ]);
 
-                const resFreq = await fetch(`/api/plasma/frequency?n=${n}`);
+                const dataDebye = await resDebye.json();
                 const dataFreq = await resFreq.json();
 
                 document.getElementById('res-debye').innerText = dataDebye.debye_length.toExponential(2) + " m";
