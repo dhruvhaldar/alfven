@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
+import logging
 from alfven import (
     PlasmaState,
     ParkerSpiral,
@@ -14,6 +15,10 @@ from alfven import (
     sunspot_temperature,
 )
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 app = FastAPI(
     title="Alfven API", description="Space Weather & Plasma Physics Simulator API"
 )
@@ -22,6 +27,10 @@ app = FastAPI(
 # Global Exception Handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(
+        f"Unhandled exception: {exc} | Path: {request.url.path} | Method: {request.method}",
+        exc_info=True,
+    )
     response = JSONResponse(
         status_code=500, content={"detail": "Internal Server Error"}
     )
