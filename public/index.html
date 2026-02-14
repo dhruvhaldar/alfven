@@ -67,7 +67,7 @@
             <div class="panel-title">Ionosphere Profile</div>
             <div class="control-group">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <label style="margin: 0;">Day/Night Cycle</label>
+                    <label for="day-night-toggle" style="margin: 0;">Day/Night Cycle</label>
                     <div style="display: flex; align-items: center;">
                         <input type="checkbox" id="day-night-toggle" checked
                             style="transform: scale(1.5); margin-right: 10px;">
@@ -98,7 +98,7 @@
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" onclick="calcPlasma(this)" style="width: 100%;">Calculate</button>
             </div>
-            <div id="plasma-results" aria-live="polite"
+            <div id="plasma-results" aria-live="polite" aria-busy="false"
                 style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <!-- Results will go here -->
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
@@ -122,7 +122,7 @@
                 <div class="value-display"><span id="ratio-val">0.3</span></div>
             </div>
             <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0;">
-                <div id="sunspot-visual"
+                <div id="sunspot-visual" role="img" aria-label="Sunspot visualization"
                     style="width: 100px; height: 100px; border-radius: 50%; background-color: #ffcc00; box-shadow: 0 0 20px #ffaa00;">
                 </div>
             </div>
@@ -154,7 +154,7 @@
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" onclick="calcAurora(this)" style="width: 100%;">Calculate Power</button>
             </div>
-            <div id="aurora-results" aria-live="polite"
+            <div id="aurora-results" aria-live="polite" aria-busy="false"
                 style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
                     <span>Dissipated Power ($P$):</span>
@@ -193,6 +193,10 @@
                 btn.style.cursor = "wait";
             }
 
+            // Indicate busy state
+            const resultsContainer = document.getElementById('plasma-results');
+            if (resultsContainer) resultsContainer.setAttribute('aria-busy', 'true');
+
             const n = parseFloat(nInput.value);
             const T = parseFloat(TInput.value);
 
@@ -208,6 +212,7 @@
             } catch (e) {
                 console.error(e);
             } finally {
+                if (resultsContainer) resultsContainer.setAttribute('aria-busy', 'false');
                 if (btn) {
                     btn.innerText = originalText;
                     btn.disabled = false;
@@ -241,10 +246,15 @@
             visual.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
             visual.style.boxShadow = `0 0 20px rgb(${r}, ${Math.floor(g * 0.8)}, 0)`;
 
+            // Update accessibility label
+            visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}`);
+
             try {
                 const res = await fetch(`/api/solar/sunspot?ratio=${ratio}`);
                 const data = await res.json();
                 document.getElementById('sunspot-temp').innerText = Math.round(data.temperature_k) + " K";
+                // Enhance aria-label with temperature once loaded
+                visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}, estimated temperature ${Math.round(data.temperature_k)} K`);
             } catch (e) {
                 console.error(e);
             }
@@ -263,6 +273,10 @@
                 btn.disabled = true;
                 btn.style.cursor = "wait";
             }
+
+            // Indicate busy state
+            const resultsContainer = document.getElementById('aurora-results');
+            if (resultsContainer) resultsContainer.setAttribute('aria-busy', 'true');
 
             try {
                 const res = await fetch('/api/aurora/power', {
@@ -283,6 +297,7 @@
             } catch (e) {
                 console.error(e);
             } finally {
+                if (resultsContainer) resultsContainer.setAttribute('aria-busy', 'false');
                 if (btn) {
                     btn.innerText = originalText;
                     btn.disabled = false;
