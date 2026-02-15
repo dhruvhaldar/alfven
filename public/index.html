@@ -243,13 +243,7 @@
             });
         }
 
-        // Initial calc
-        calcPlasma();
-        calcSunspot();
-
-        async function calcSunspot() {
-            const ratioInput = document.getElementById('sunspot-ratio');
-            const ratio = parseFloat(ratioInput.value);
+        function updateSunspotVisuals(ratio) {
             document.getElementById('ratio-val').innerText = ratio;
 
             // Visual update
@@ -263,16 +257,34 @@
 
             // Update accessibility label
             visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}`);
+        }
 
+        async function fetchSunspotData(ratio) {
             try {
                 const res = await fetch(`/api/solar/sunspot?ratio=${ratio}`);
                 const data = await res.json();
                 document.getElementById('sunspot-temp').innerText = Math.round(data.temperature_k) + " K";
                 // Enhance aria-label with temperature once loaded
+                const visual = document.getElementById('sunspot-visual');
                 visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}, estimated temperature ${Math.round(data.temperature_k)} K`);
             } catch (e) {
                 console.error(e);
             }
+        }
+
+        // Optimization: Debounce the API call to avoid flooding the server on slider input
+        // debounce is defined in js/magnetosphere.js
+        const debouncedFetchSunspot = debounce(fetchSunspotData, 300);
+
+        function calcSunspot() {
+            const ratioInput = document.getElementById('sunspot-ratio');
+            const ratio = parseFloat(ratioInput.value);
+
+            // Immediate visual feedback
+            updateSunspotVisuals(ratio);
+
+            // Debounced API call
+            debouncedFetchSunspot(ratio);
         }
 
         async function calcAurora(btn) {
@@ -314,6 +326,10 @@
                 setLoading(btn, resultsContainer, false);
             }
         }
+
+        // Initial calc
+        calcPlasma();
+        calcSunspot();
     </script>
 </body>
 
