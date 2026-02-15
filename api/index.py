@@ -38,6 +38,24 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+    # 🛡️ Sentinel: Content Security Policy
+    # Whitelist CDNs used in public/index.html (Three.js, D3, Chart.js, MathJax)
+    csp_policy = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://d3js.org https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; "
+        "font-src 'self' https://cdn.jsdelivr.net; "
+        "connect-src 'self'; "
+        "frame-ancestors 'self';"
+    )
+    response.headers["Content-Security-Policy"] = csp_policy
+
+    # 🛡️ Sentinel: HSTS & Permissions Policy
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+
     return response
 
 

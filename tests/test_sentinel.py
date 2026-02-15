@@ -17,6 +17,16 @@ def test_security_headers():
     assert "SAMEORIGIN" in response.headers.get("X-Frame-Options", "SAMEORIGIN")
     assert response.headers.get("Referrer-Policy") == "strict-origin-when-cross-origin"
 
+    # 🛡️ Sentinel: Verify CSP and other headers
+    csp = response.headers.get("Content-Security-Policy")
+    assert csp is not None
+    assert "default-src 'self'" in csp
+    assert "script-src 'self'" in csp
+    assert "https://cdnjs.cloudflare.com" in csp
+
+    assert response.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains"
+    assert response.headers.get("Permissions-Policy") == "geolocation=(), microphone=(), camera=()"
+
 
 def test_security_headers_on_error():
     """
