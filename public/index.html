@@ -89,11 +89,11 @@
             <div class="panel-title">Plasma Parameters</div>
             <div class="control-group">
                 <label for="plasma-n">Density ($n_e$) [m⁻³]</label>
-                <input type="number" id="plasma-n" class="glass-input" value="1e6" step="any">
+                <input type="number" id="plasma-n" class="glass-input" value="1e6" step="any" min="0">
             </div>
             <div class="control-group">
                 <label for="plasma-T">Temperature ($T_e$) [eV]</label>
-                <input type="number" id="plasma-T" class="glass-input" value="10" step="any">
+                <input type="number" id="plasma-T" class="glass-input" value="10" step="any" min="0">
             </div>
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" onclick="calcPlasma(this)" style="width: 100%;">Calculate</button>
@@ -141,15 +141,15 @@
             <div class="panel-title">Aurora Power</div>
             <div class="control-group">
                 <label for="aurora-E">Electric Field ($E$) [mV/m]</label>
-                <input type="number" id="aurora-E" class="glass-input" value="50">
+                <input type="number" id="aurora-E" class="glass-input" value="50" min="0">
             </div>
             <div class="control-group">
                 <label for="aurora-sigma">Conductivity ($\Sigma_P$) [S]</label>
-                <input type="number" id="aurora-sigma" class="glass-input" value="10">
+                <input type="number" id="aurora-sigma" class="glass-input" value="10" min="0">
             </div>
             <div class="control-group">
                 <label for="aurora-area">Area ($A$) [$10^{10} m^2$]</label>
-                <input type="number" id="aurora-area" class="glass-input" value="1">
+                <input type="number" id="aurora-area" class="glass-input" value="1" min="0">
             </div>
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" onclick="calcAurora(this)" style="width: 100%;">Calculate Power</button>
@@ -179,49 +179,61 @@
     <script>
         // Inline script for Plasma Calc
         async function calcPlasma(btn) {
-            const nInput = document.getElementById('plasma-n');
-            const TInput = document.getElementById('plasma-T');
-
-            if (!nInput || !TInput) return;
-
-            // Loading state
-            let originalText = "";
-            if (btn) {
-                originalText = btn.innerText;
-                btn.innerText = "Calculating...";
-                btn.disabled = true;
-                btn.style.cursor = "wait";
-            }
-
-            // Indicate busy state
             const resultsContainer = document.getElementById('plasma-results');
-            if (resultsContainer) resultsContainer.setAttribute('aria-busy', 'true');
+            const n = parseFloat(document.getElementById('plasma-n').value);
+            const T = parseFloat(document.getElementById('plasma-T').value);
 
-            const n = parseFloat(nInput.value);
-            const T = parseFloat(TInput.value);
+            if (isNaN(n) || n <= 0 || isNaN(T) || T <= 0) return showError(resultsContainer, "Positive values required.");
+
+            setLoading(btn, resultsContainer, true);
 
             try {
-                // Optimization: Run independent fetches in parallel
                 const [resDebye, resFreq] = await Promise.all([
                     fetch(`/api/plasma/debye?n=${n}&T_ev=${T}`),
                     fetch(`/api/plasma/frequency?n=${n}`)
                 ]);
 
+                if (!resDebye.ok || !resFreq.ok) throw new Error();
+
                 const dataDebye = await resDebye.json();
                 const dataFreq = await resFreq.json();
 
                 document.getElementById('res-debye').innerText = dataDebye.debye_length.toExponential(2) + " m";
-                document.getElementById('res-freq').innerText = (dataFreq.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz"; // Displaying f = omega / 2pi
+                document.getElementById('res-freq').innerText = (dataFreq.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz";
             } catch (e) {
-                console.error(e);
+                showError(resultsContainer, "Calculation failed.");
+                document.getElementById('res-debye').innerText = "-";
+                document.getElementById('res-freq').innerText = "-";
             } finally {
-                if (resultsContainer) resultsContainer.setAttribute('aria-busy', 'false');
-                if (btn) {
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                    btn.style.cursor = "pointer";
-                }
+                setLoading(btn, resultsContainer, false);
             }
+        }
+
+        function setLoading(btn, container, isLoading) {
+            if (isLoading) {
+                 btn.dataset.text = btn.innerText;
+                 btn.innerHTML = "Calculating... <span aria-hidden='true'>⏳</span>";
+                 btn.disabled = true;
+                 btn.style.cursor = "wait";
+                 container.setAttribute('aria-busy', 'true');
+                 const error = container.querySelector('.error-message');
+                 if(error) error.remove();
+            } else {
+                 btn.innerText = btn.dataset.text || "Calculate";
+                 btn.disabled = false;
+                 btn.style.cursor = "pointer";
+                 container.setAttribute('aria-busy', 'false');
+            }
+        }
+
+        function showError(container, msg) {
+             const errorDiv = document.createElement('div');
+             errorDiv.className = 'error-message';
+             errorDiv.style.color = '#ff6b6b';
+             errorDiv.style.marginTop = '10px';
+             errorDiv.style.fontSize = '0.9rem';
+             errorDiv.innerHTML = `⚠️ ${msg}`;
+             container.appendChild(errorDiv);
         }
 
         const toggle = document.getElementById('day-night-toggle');
@@ -264,48 +276,42 @@
         }
 
         async function calcAurora(btn) {
-            const E = parseFloat(document.getElementById('aurora-E').value) * 1e-3; // mV/m to V/m
+            const resultsContainer = document.getElementById('aurora-results');
+            const E_val = parseFloat(document.getElementById('aurora-E').value);
             const sigma = parseFloat(document.getElementById('aurora-sigma').value);
-            const area = parseFloat(document.getElementById('aurora-area').value) * 1e10; // 10^10 m^2 scale
+            const area_val = parseFloat(document.getElementById('aurora-area').value);
 
-            // Loading state
-            let originalText = "";
-            if (btn) {
-                originalText = btn.innerText;
-                btn.innerText = "Calculating...";
-                btn.disabled = true;
-                btn.style.cursor = "wait";
+            if (isNaN(E_val) || isNaN(sigma) || sigma <= 0 || isNaN(area_val) || area_val <= 0) {
+                 return showError(resultsContainer, "Positive values required.");
             }
 
-            // Indicate busy state
-            const resultsContainer = document.getElementById('aurora-results');
-            if (resultsContainer) resultsContainer.setAttribute('aria-busy', 'true');
+            setLoading(btn, resultsContainer, true);
 
             try {
                 const res = await fetch('/api/aurora/power', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ E_field: E, sigma_P: sigma, area: area })
+                    body: JSON.stringify({
+                        E_field: E_val * 1e-3,
+                        sigma_P: sigma,
+                        area: area_val * 1e10
+                    })
                 });
+
+                if (!res.ok) throw new Error();
                 const data = await res.json();
 
-                // Format Power
                 let powerStr = data.dissipated_power.toExponential(2) + " W";
-                if (data.dissipated_power > 1e9) {
-                    powerStr = (data.dissipated_power / 1e9).toFixed(2) + " GW";
-                }
+                if (data.dissipated_power > 1e9) powerStr = (data.dissipated_power / 1e9).toFixed(2) + " GW";
 
                 document.getElementById('res-power').innerText = powerStr;
                 document.getElementById('res-current').innerText = data.sheet_current.toFixed(2) + " A/m";
             } catch (e) {
-                console.error(e);
+                showError(resultsContainer, "Calculation failed.");
+                document.getElementById('res-power').innerText = "-";
+                document.getElementById('res-current').innerText = "-";
             } finally {
-                if (resultsContainer) resultsContainer.setAttribute('aria-busy', 'false');
-                if (btn) {
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                    btn.style.cursor = "pointer";
-                }
+                setLoading(btn, resultsContainer, false);
             }
         }
     </script>
