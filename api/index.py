@@ -4,6 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
+import time
+from collections import defaultdict
 from alfven import (
     PlasmaState,
     ParkerSpiral,
@@ -29,6 +31,35 @@ async def global_exception_handler(request: Request, exc: Exception):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
+
+
+# Rate Limiting
+# 🛡️ Sentinel: Rate Limiting
+# Simple in-memory rate limiter to prevent DoS
+request_counts = defaultdict(list)
+RATE_LIMIT = 100  # requests per minute
+WINDOW_SIZE = 60  # seconds
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    # ⚠️ Warning: In a production environment behind a reverse proxy, request.client.host
+    # might be the proxy's IP. A secure implementation should handle X-Forwarded-For
+    # with a trusted proxy list.
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+
+    # Clean up old timestamps
+    request_counts[client_ip] = [
+        t for t in request_counts[client_ip] if now - t < WINDOW_SIZE
+    ]
+
+    if len(request_counts[client_ip]) >= RATE_LIMIT:
+        return JSONResponse(status_code=429, content={"detail": "Too many requests"})
+
+    request_counts[client_ip].append(now)
+
+    return await call_next(request)
 
 
 # Security Headers Middleware
