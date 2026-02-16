@@ -126,6 +126,18 @@ def get_debye_length(n: float = Query(..., gt=0), T_ev: float = Query(..., gt=0)
     return {"debye_length": plasma.debye_length}
 
 
+@app.get("/api/plasma/parameters")
+def get_plasma_parameters(n: float = Query(..., gt=0), T_ev: float = Query(..., gt=0)):
+    """
+    Calculate both Debye Length and Plasma Frequency.
+    """
+    plasma = PlasmaState(n, T_ev)
+    return {
+        "debye_length": plasma.debye_length,
+        "plasma_frequency": plasma.plasma_frequency,
+    }
+
+
 @app.get("/api/plasma/larmor")
 def get_larmor_radius(T_ev: float = Query(..., gt=0), B: float = Query(...)):
     """

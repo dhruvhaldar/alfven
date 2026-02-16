@@ -188,18 +188,15 @@
             setLoading(btn, resultsContainer, true);
 
             try {
-                const [resDebye, resFreq] = await Promise.all([
-                    fetch(`/api/plasma/debye?n=${n}&T_ev=${T}`),
-                    fetch(`/api/plasma/frequency?n=${n}`)
-                ]);
+                // Optimization: Batch API calls
+                const res = await fetch(`/api/plasma/parameters?n=${n}&T_ev=${T}`);
 
-                if (!resDebye.ok || !resFreq.ok) throw new Error();
+                if (!res.ok) throw new Error();
 
-                const dataDebye = await resDebye.json();
-                const dataFreq = await resFreq.json();
+                const data = await res.json();
 
-                document.getElementById('res-debye').innerText = dataDebye.debye_length.toExponential(2) + " m";
-                document.getElementById('res-freq').innerText = (dataFreq.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz";
+                document.getElementById('res-debye').innerText = data.debye_length.toExponential(2) + " m";
+                document.getElementById('res-freq').innerText = (data.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz";
             } catch (e) {
                 showError(resultsContainer, "Calculation failed.");
                 document.getElementById('res-debye').innerText = "-";
@@ -210,6 +207,7 @@
         }
 
         function setLoading(btn, container, isLoading) {
+            if (!btn) return;
             if (isLoading) {
                  btn.dataset.text = btn.innerText;
                  btn.innerHTML = "Calculating... <span aria-hidden='true'>⏳</span>";
