@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
 import time
-from collections import defaultdict
+from collections import defaultdict, deque
 from alfven import (
     PlasmaState,
     ParkerSpiral,
@@ -36,7 +36,8 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Rate Limiting
 # 🛡️ Sentinel: Rate Limiting
 # Simple in-memory rate limiter to prevent DoS
-request_counts = defaultdict(list)
+# ⚡ Bolt: Optimized using deque for O(1) removals instead of O(N) list comprehension
+request_counts = defaultdict(deque)
 RATE_LIMIT = 100  # requests per minute
 WINDOW_SIZE = 60  # seconds
 
@@ -50,14 +51,15 @@ async def rate_limit_middleware(request: Request, call_next):
     now = time.time()
 
     # Clean up old timestamps
-    request_counts[client_ip] = [
-        t for t in request_counts[client_ip] if now - t < WINDOW_SIZE
-    ]
+    # ⚡ Bolt: Use deque.popleft() which is O(1) compared to list comprehension O(N)
+    dq = request_counts[client_ip]
+    while dq and now - dq[0] >= WINDOW_SIZE:
+        dq.popleft()
 
-    if len(request_counts[client_ip]) >= RATE_LIMIT:
+    if len(dq) >= RATE_LIMIT:
         return JSONResponse(status_code=429, content={"detail": "Too many requests"})
 
-    request_counts[client_ip].append(now)
+    dq.append(now)
 
     return await call_next(request)
 

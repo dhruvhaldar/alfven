@@ -9,3 +9,7 @@
 ## 2025-05-24 - [Debounce High-Frequency Inputs]
 **Learning:** Found that `oninput` handlers triggering API calls directly (e.g. `calcSunspot`) cause a flood of requests, degrading performance. Separating immediate visual updates from debounced network requests maintains responsiveness while reducing server load.
 **Action:** Always debounce event handlers that trigger network requests on rapid input events (like sliders or text inputs), but ensure local UI updates remain immediate.
+
+## 2025-05-25 - [Deque for Sliding Window]
+**Learning:** List comprehension for sliding window cleanup is O(N) and allocates a new list every request. Using `collections.deque.popleft()` allows O(1) amortized cleanup and in-place modification.
+**Action:** Use `deque` for FIFO queues or sliding windows where elements are removed from the front.
