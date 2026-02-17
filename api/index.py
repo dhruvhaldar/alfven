@@ -39,17 +39,55 @@ async def global_exception_handler(request: Request, exc: Exception):
 request_counts = defaultdict(list)
 RATE_LIMIT = 100  # requests per minute
 WINDOW_SIZE = 60  # seconds
-
+MAX_IPS = 2000    # Maximum number of tracked IPs to prevent memory exhaustion
+CLEANUP_INTERVAL = 100 # Cleanup every N requests
+request_counter = 0
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
+    global request_counter
+    request_counter += 1
+
     # ⚠️ Warning: In a production environment behind a reverse proxy, request.client.host
     # might be the proxy's IP. A secure implementation should handle X-Forwarded-For
     # with a trusted proxy list.
-    client_ip = request.client.host if request.client else "unknown"
+
+    # 🛡️ Sentinel: Enhanced IP extraction
+    # Try to get the real IP from X-Forwarded-For if available, but be aware of spoofing.
+    # We prioritize the first IP in the list as Vercel/Cloud platforms usually place the real IP there.
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        client_ip = forwarded.split(",")[0].strip()
+    else:
+        client_ip = request.client.host if request.client else "unknown"
+
     now = time.time()
 
-    # Clean up old timestamps
+    # Periodic Cleanup to prevent Memory Leak
+    if request_counter % CLEANUP_INTERVAL == 0:
+        # 1. Remove empty or expired entries
+        keys_to_remove = []
+        # Create a copy of items to avoid runtime error if dict changes size
+        # (though we only delete keys in the second loop, iterating over items() is generally safe for value modification)
+        for ip, timestamps in list(request_counts.items()):
+            # Keep only valid timestamps
+            valid = [t for t in timestamps if now - t < WINDOW_SIZE]
+            if valid:
+                request_counts[ip] = valid
+            else:
+                keys_to_remove.append(ip)
+
+        for k in keys_to_remove:
+            del request_counts[k]
+
+        # 2. Hard limit safeguard
+        if len(request_counts) > MAX_IPS:
+            # If still over limit, clear the whole cache to prevent OOM.
+            # This is a fail-safe.
+            request_counts.clear()
+
+    # Rate Limit Logic
+    # Clean up old timestamps for current user (lazy cleanup)
     request_counts[client_ip] = [
         t for t in request_counts[client_ip] if now - t < WINDOW_SIZE
     ]
