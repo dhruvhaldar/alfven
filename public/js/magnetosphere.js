@@ -32,11 +32,19 @@ async function updateMagnetosphere() {
         const standoff = data.radius_re;
 
         const display = document.getElementById('standoff-display');
-        if (display) display.innerText = standoff.toFixed(1) + " Re";
+        if (display) {
+             display.innerText = standoff.toFixed(1) + " Re";
+             display.setAttribute('aria-busy', 'false');
+        }
 
         drawMagnetosphere(standoff);
     } catch (error) {
         console.error('Error fetching magnetosphere data:', error);
+        const display = document.getElementById('standoff-display');
+        if (display) {
+             display.innerHTML = '<span style="color: #ff6b6b; font-size: 1rem;">⚠️ Error</span>';
+             display.setAttribute('aria-busy', 'false');
+        }
     }
 }
 
@@ -146,6 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function syncInputs(source, target) {
         if (target) {
             target.value = source.value;
+        }
+        // UX: Show loading state immediately
+        const display = document.getElementById('standoff-display');
+        if (display) {
+             display.innerHTML = '<span class="loading-spinner"></span> Calculating...';
+             display.setAttribute('aria-busy', 'true');
         }
         debouncedUpdate();
     }
