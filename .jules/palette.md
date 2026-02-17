@@ -9,3 +9,7 @@
 ## 2026-03-01 - Synchronized Input Precision
 **Learning:** Sliders are intuitive for exploration but poor for precision. Users often struggle to set exact values (e.g., `0.35`) using only a range input.
 **Action:** Always pair range inputs with a synchronized number input (`type="number"`) for scientific or precision-heavy controls. Ensure two-way binding updates both visuals and underlying models immediately.
+
+## 2026-05-27 - Loading Spinner Pattern
+**Learning:** Async operations like Magnetosphere Standoff calculation need immediate visual feedback to prevent user uncertainty.
+**Action:** Use the global `.loading-spinner` class and `aria-busy="true"` on the output container immediately upon user interaction, before the debounced request fires.

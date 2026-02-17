@@ -78,3 +78,20 @@ input[type="checkbox"]:focus-visible {
     outline-offset: 2px;
     box-shadow: 0 0 15px rgba(68, 221, 255, 0.6);
 }
+
+/* Loading Spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
