@@ -261,15 +261,21 @@
         }
 
         async function fetchSunspotData(ratio) {
+            const tempDisplay = document.getElementById('sunspot-temp');
             try {
                 const res = await fetch(`/api/solar/sunspot?ratio=${ratio}`);
+                if (!res.ok) throw new Error();
                 const data = await res.json();
-                document.getElementById('sunspot-temp').innerText = Math.round(data.temperature_k) + " K";
+                tempDisplay.innerHTML = Math.round(data.temperature_k) + " K";
+                tempDisplay.setAttribute('aria-busy', 'false');
+
                 // Enhance aria-label with temperature once loaded
                 const visual = document.getElementById('sunspot-visual');
                 visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}, estimated temperature ${Math.round(data.temperature_k)} K`);
             } catch (e) {
                 console.error(e);
+                tempDisplay.innerHTML = '<span style="color: #ff6b6b">Error</span>';
+                tempDisplay.setAttribute('aria-busy', 'false');
             }
         }
 
@@ -295,6 +301,13 @@
 
             // Immediate visual feedback
             updateSunspotVisuals(val);
+
+            // Show loading state
+            const tempDisplay = document.getElementById('sunspot-temp');
+            if (tempDisplay && tempDisplay.getAttribute('aria-busy') !== 'true') {
+                 tempDisplay.innerHTML = '<span class="loading-spinner"></span> Calculating...';
+                 tempDisplay.setAttribute('aria-busy', 'true');
+            }
 
             // Debounced API call
             debouncedFetchSunspot(val);
