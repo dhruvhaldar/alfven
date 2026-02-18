@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
 import time
-from collections import defaultdict
+from collections import defaultdict, deque
 from alfven import (
     PlasmaState,
     ParkerSpiral,
@@ -36,7 +36,8 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Rate Limiting
 # 🛡️ Sentinel: Rate Limiting
 # Simple in-memory rate limiter to prevent DoS
-request_counts = defaultdict(list)
+# Optimization: Use deque for O(1) appends and pops
+request_counts = defaultdict(deque)
 RATE_LIMIT = 100  # requests per minute
 WINDOW_SIZE = 60  # seconds
 MAX_IPS = 2000    # Maximum number of tracked IPs to prevent memory exhaustion
@@ -71,10 +72,10 @@ async def rate_limit_middleware(request: Request, call_next):
         # (though we only delete keys in the second loop, iterating over items() is generally safe for value modification)
         for ip, timestamps in list(request_counts.items()):
             # Keep only valid timestamps
-            valid = [t for t in timestamps if now - t < WINDOW_SIZE]
-            if valid:
-                request_counts[ip] = valid
-            else:
+            while timestamps and now - timestamps[0] > WINDOW_SIZE:
+                timestamps.popleft()
+
+            if not timestamps:
                 keys_to_remove.append(ip)
 
         for k in keys_to_remove:
@@ -88,14 +89,14 @@ async def rate_limit_middleware(request: Request, call_next):
 
     # Rate Limit Logic
     # Clean up old timestamps for current user (lazy cleanup)
-    request_counts[client_ip] = [
-        t for t in request_counts[client_ip] if now - t < WINDOW_SIZE
-    ]
+    dq = request_counts[client_ip]
+    while dq and now - dq[0] > WINDOW_SIZE:
+        dq.popleft()
 
-    if len(request_counts[client_ip]) >= RATE_LIMIT:
+    if len(dq) >= RATE_LIMIT:
         return JSONResponse(status_code=429, content={"detail": "Too many requests"})
 
-    request_counts[client_ip].append(now)
+    dq.append(now)
 
     return await call_next(request)
 
