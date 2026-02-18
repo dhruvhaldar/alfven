@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
 import time
+import logging
 from collections import defaultdict
 from alfven import (
     PlasmaState,
@@ -20,10 +21,18 @@ app = FastAPI(
     title="Alfven API", description="Space Weather & Plasma Physics Simulator API"
 )
 
+# 🛡️ Sentinel: Security Logging
+# Configure logging to capture critical errors without exposing them to users
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("alfven")
+
 
 # Global Exception Handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    # 🛡️ Sentinel: Log the exception for auditing/debugging
+    logger.error(f"Internal Server Error: {exc}", exc_info=True)
+
     response = JSONResponse(
         status_code=500, content={"detail": "Internal Server Error"}
     )
@@ -110,6 +119,7 @@ async def add_security_headers(request: Request, call_next):
 
     # 🛡️ Sentinel: Content Security Policy
     # Whitelist CDNs used in public/index.html (Three.js, D3, Chart.js, MathJax)
+    # Added object-src 'none', base-uri 'self', form-action 'self' for hardening
     csp_policy = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://d3js.org https://cdn.jsdelivr.net; "
@@ -117,7 +127,10 @@ async def add_security_headers(request: Request, call_next):
         "img-src 'self' data:; "
         "font-src 'self' https://cdn.jsdelivr.net; "
         "connect-src 'self'; "
-        "frame-ancestors 'self';"
+        "frame-ancestors 'self'; "
+        "object-src 'none'; "
+        "base-uri 'self'; "
+        "form-action 'self';"
     )
     response.headers["Content-Security-Policy"] = csp_policy
 
