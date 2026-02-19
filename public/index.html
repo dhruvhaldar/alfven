@@ -71,8 +71,10 @@
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <label for="day-night-toggle" style="margin: 0;">Day/Night Cycle</label>
                     <div style="display: flex; align-items: center;">
-                        <input type="checkbox" id="day-night-toggle" checked
-                            style="transform: scale(1.5); margin-right: 10px;">
+                        <label class="glass-toggle">
+                            <input type="checkbox" id="day-night-toggle" checked>
+                            <span class="glass-toggle-slider"></span>
+                        </label>
                         <span id="day-night-val" class="value-display">Day Mode</span>
                     </div>
                 </div>
@@ -215,7 +217,7 @@
             if (!btn) return;
             if (isLoading) {
                  btn.dataset.text = btn.innerText;
-                 btn.innerHTML = "Calculating... <span aria-hidden='true'>⏳</span>";
+                 btn.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
                  btn.disabled = true;
                  btn.style.cursor = "wait";
                  container.setAttribute('aria-busy', 'true');
