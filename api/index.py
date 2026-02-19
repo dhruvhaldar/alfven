@@ -67,19 +67,16 @@ async def rate_limit_middleware(request: Request, call_next):
     # Periodic Cleanup to prevent Memory Leak
     if request_counter % CLEANUP_INTERVAL == 0:
         # 1. Remove empty or expired entries
-        keys_to_remove = []
-        # Create a copy of items to avoid runtime error if dict changes size
-        # (though we only delete keys in the second loop, iterating over items() is generally safe for value modification)
-        for ip, timestamps in list(request_counts.items()):
+        # Optimization: Iterate over keys copy to avoid creating O(N) list of tuples (items())
+        # and allow safe modification (deletion) of the dictionary.
+        for ip in list(request_counts):
+            timestamps = request_counts[ip]
             # Keep only valid timestamps
             while timestamps and now - timestamps[0] > WINDOW_SIZE:
                 timestamps.popleft()
 
             if not timestamps:
-                keys_to_remove.append(ip)
-
-        for k in keys_to_remove:
-            del request_counts[k]
+                del request_counts[ip]
 
         # 2. Hard limit safeguard
         if len(request_counts) > MAX_IPS:
