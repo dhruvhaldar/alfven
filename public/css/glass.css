@@ -95,3 +95,61 @@ input[type="checkbox"]:focus-visible {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* Glass Toggle Switch */
+.glass-toggle {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    margin-right: 12px;
+}
+
+.glass-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.glass-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+    border-radius: 34px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.glass-toggle input:checked + .glass-toggle-slider {
+    background-color: rgba(68, 221, 255, 0.4);
+    border-color: #4df;
+}
+
+.glass-toggle input:focus-visible + .glass-toggle-slider {
+    box-shadow: 0 0 1px #4df;
+    outline: 2px solid #4df;
+    outline-offset: 2px;
+}
+
+.glass-toggle input:checked + .glass-toggle-slider:before {
+    transform: translateX(24px);
+    background-color: #fff;
+    box-shadow: 0 0 10px #4df;
+}
