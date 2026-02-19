@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
 import time
+import logging
 from collections import defaultdict, deque
 from alfven import (
     PlasmaState,
@@ -20,10 +21,16 @@ app = FastAPI(
     title="Alfven API", description="Space Weather & Plasma Physics Simulator API"
 )
 
+# Configure logging
+logger = logging.getLogger("alfven")
+
 
 # Global Exception Handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    # 🛡️ Sentinel: Log the exception with traceback for debugging/auditing
+    logger.error("Unhandled exception: %s", exc, exc_info=True)
+
     response = JSONResponse(
         status_code=500, content={"detail": "Internal Server Error"}
     )
