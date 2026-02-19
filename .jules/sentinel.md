@@ -12,3 +12,8 @@
 **Vulnerability:** Simple in-memory rate limiting using `client.host` is vulnerable to IP spoofing (if not behind a proxy) or blocking the load balancer (if behind a proxy). It also leaks memory over time if old IPs are not cleaned up.
 **Learning:** While quick to implement, in-memory rate limiting is insufficient for production at scale. It requires external state (Redis) and trusted proxy configuration (`X-Forwarded-For`).
 **Prevention:** Use a dedicated rate limiting library (like `slowapi`) backed by Redis and configure trusted proxies explicitly.
+
+## 2026-02-19 - Silent Failure in Global Exception Handling
+**Vulnerability:** The global exception handler correctly sanitized 500 error responses to prevent stack trace leakage but failed to log the original exception internally.
+**Learning:** Security by obscurity (hiding errors) must be paired with observability (logging errors). A silent failure prevents administrators from detecting and analyzing attack attempts or application bugs.
+**Prevention:** Always ensure that exception handlers log the full traceback (`logger.error(..., exc_info=True)`) before returning a sanitized response to the client.
