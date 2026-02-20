@@ -45,17 +45,16 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Simple in-memory rate limiter to prevent DoS
 # Optimization: Use deque for O(1) appends and pops
 request_counts = defaultdict(deque)
+# Global log for O(1) continuous cleanup
+# Stores (timestamp, ip) tuples for all requests
+request_log = deque()
+
 RATE_LIMIT = 100  # requests per minute
 WINDOW_SIZE = 60  # seconds
 MAX_IPS = 2000    # Maximum number of tracked IPs to prevent memory exhaustion
-CLEANUP_INTERVAL = 100 # Cleanup every N requests
-request_counter = 0
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
-    global request_counter
-    request_counter += 1
-
     # ⚠️ Warning: In a production environment behind a reverse proxy, request.client.host
     # might be the proxy's IP. A secure implementation should handle X-Forwarded-For
     # with a trusted proxy list.
@@ -72,29 +71,41 @@ async def rate_limit_middleware(request: Request, call_next):
 
     now = time.time()
 
-    # Periodic Cleanup to prevent Memory Leak
-    if request_counter % CLEANUP_INTERVAL == 0:
-        # 1. Remove empty or expired entries
-        # Optimization: Iterate over keys copy to avoid creating O(N) list of tuples (items())
-        # and allow safe modification (deletion) of the dictionary.
-        for ip in list(request_counts):
-            timestamps = request_counts[ip]
-            # Keep only valid timestamps
-            while timestamps and now - timestamps[0] > WINDOW_SIZE:
-                timestamps.popleft()
+    # 1. Continuous Cleanup (Amortized O(1))
+    # Remove expired requests from the global log and update user counts
+    # This avoids the O(N) iteration over all IPs that was previously done periodically
+    while request_log:
+        # Check the oldest request in the system
+        old_ts, old_ip = request_log[0]
+        if now - old_ts > WINDOW_SIZE:
+            request_log.popleft()
 
-            if not timestamps:
-                del request_counts[ip]
+            # Clean up the specific user's deque if they are still tracked
+            if old_ip in request_counts:
+                dq = request_counts[old_ip]
+                # Remove expired timestamps for this user
+                # Since deques are sorted by time, we can just pop from left
+                while dq and now - dq[0] > WINDOW_SIZE:
+                    dq.popleft()
 
-        # 2. Hard limit safeguard
-        if len(request_counts) > MAX_IPS:
-            # If still over limit, clear the whole cache to prevent OOM.
-            # This is a fail-safe.
-            request_counts.clear()
+                # If user has no more valid requests, remove from tracking map
+                if not dq:
+                    del request_counts[old_ip]
+        else:
+            # If the oldest request hasn't expired, no other request has
+            break
+
+    # 2. Hard limit safeguard
+    if len(request_counts) > MAX_IPS:
+        # If still over limit, clear the whole cache to prevent OOM.
+        # This is a fail-safe.
+        request_counts.clear()
+        request_log.clear()
 
     # Rate Limit Logic
-    # Clean up old timestamps for current user (lazy cleanup)
     dq = request_counts[client_ip]
+    # Note: cleanup above handles general expiry, but checking here is cheap double-check
+    # specifically for the current user to ensure absolute precision
     while dq and now - dq[0] > WINDOW_SIZE:
         dq.popleft()
 
@@ -102,6 +113,7 @@ async def rate_limit_middleware(request: Request, call_next):
         return JSONResponse(status_code=429, content={"detail": "Too many requests"})
 
     dq.append(now)
+    request_log.append((now, client_ip))
 
     return await call_next(request)
 

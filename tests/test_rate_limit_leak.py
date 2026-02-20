@@ -2,7 +2,7 @@ import time
 import asyncio
 from unittest.mock import MagicMock, patch
 import api.index
-from api.index import rate_limit_middleware, request_counts
+from api.index import rate_limit_middleware, request_counts, request_log
 
 # Create a mock request
 class MockRequest:
@@ -21,10 +21,11 @@ async def _run_test_logic():
 
     # Reset state
     request_counts.clear()
+    request_log.clear()
 
     # Patch MAX_IPS to a small number for testing
     # We need to patch where it is used. api.index.MAX_IPS
-    with patch("api.index.MAX_IPS", 50), patch("api.index.CLEANUP_INTERVAL", 10):
+    with patch("api.index.MAX_IPS", 50):
         # 1. Fill up to limit
         for i in range(50):
             req = MockRequest(client_host=f"10.0.0.{i}")
@@ -45,6 +46,7 @@ async def _run_test_logic():
 
     # 3. Test IP Extraction from X-Forwarded-For
     request_counts.clear()
+    request_log.clear()
 
     req = MockRequest(client_host="127.0.0.1", x_forwarded_for="203.0.113.1, 10.0.0.1")
     await rate_limit_middleware(req, mock_call_next)

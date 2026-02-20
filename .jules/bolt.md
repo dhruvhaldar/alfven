@@ -1,7 +1,3 @@
-## 2026-03-08 - Rate Limiter O(N) Anti-Pattern
-**Learning:** Using `defaultdict(list)` for sliding window rate limiting creates an O(N) performance bottleneck because filtering expired timestamps requires rebuilding the list on every request.
-**Action:** Use `collections.deque` for time-series data where elements are strictly ordered. This allows O(1) removal of old elements using `popleft()` and avoids memory allocation overhead from list comprehensions.
-
-## 2026-03-08 - Rate Limiter O(N) Tuple Allocation
-**Learning:** Iterating over `list(dict.items())` for periodic cleanup creates a full copy of the dictionary as tuples, which is O(N) memory and time.
-**Action:** Iterate over `list(dict)` (keys only) to avoid tuple creation and allow in-place deletion (`del dict[key]`) within the loop, reducing memory pressure.
+## 2026-05-20 - Rate Limiter Optimization
+**Learning:** Periodic cleanup of resources (like rate limiter keys) can cause latency spikes proportional to the number of tracked items (O(N)).
+**Action:** Use a continuous, amortized O(1) cleanup strategy. By maintaining a global deque of all request timestamps, we can check only the oldest (expired) requests on each call, eliminating bursty cleanup cycles.
