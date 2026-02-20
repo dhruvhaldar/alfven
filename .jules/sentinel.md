@@ -17,3 +17,7 @@
 **Vulnerability:** The global exception handler correctly sanitized 500 error responses to prevent stack trace leakage but failed to log the original exception internally.
 **Learning:** Security by obscurity (hiding errors) must be paired with observability (logging errors). A silent failure prevents administrators from detecting and analyzing attack attempts or application bugs.
 **Prevention:** Always ensure that exception handlers log the full traceback (`logger.error(..., exc_info=True)`) before returning a sanitized response to the client.
+## 2025-02-18 - IP Spoofing in Rate Limiter
+**Vulnerability:** The application was using the *first* IP in the 'X-Forwarded-For' header for rate limiting, allowing attackers to bypass limits by spoofing the header (e.g., 'X-Forwarded-For: fake_ip, real_ip').
+**Learning:** Prioritizing the first IP is insecure when trusted proxies append the client IP to the end of the list. The first IP is user-controlled and easily forged.
+**Prevention:** Always use the *last* untrusted IP (or the last IP if behind a single trusted proxy like a load balancer) in the 'X-Forwarded-For' list. Use 'forwarded.split(",")[-1].strip()' instead of '[0]'.

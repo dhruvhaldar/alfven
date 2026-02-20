@@ -62,10 +62,11 @@ async def rate_limit_middleware(request: Request, call_next):
 
     # 🛡️ Sentinel: Enhanced IP extraction
     # Try to get the real IP from X-Forwarded-For if available, but be aware of spoofing.
-    # We prioritize the first IP in the list as Vercel/Cloud platforms usually place the real IP there.
+    # We prioritize the LAST IP in the list as trusted proxies/LBs usually append the connecting IP there.
+    # Trusting the first IP allows clients to spoof their IP by sending a fake X-Forwarded-For header.
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
-        client_ip = forwarded.split(",")[0].strip()
+        client_ip = forwarded.split(",")[-1].strip()
     else:
         client_ip = request.client.host if request.client else "unknown"
 

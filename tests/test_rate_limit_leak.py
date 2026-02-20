@@ -49,7 +49,8 @@ async def _run_test_logic():
     req = MockRequest(client_host="127.0.0.1", x_forwarded_for="203.0.113.1, 10.0.0.1")
     await rate_limit_middleware(req, mock_call_next)
 
-    assert "203.0.113.1" in request_counts
+    # We now trust the LAST IP in the list (10.0.0.1) as it is the one appended by the LB.
+    assert "10.0.0.1" in request_counts
     assert "127.0.0.1" not in request_counts
     print("X-Forwarded-For passed.")
 
