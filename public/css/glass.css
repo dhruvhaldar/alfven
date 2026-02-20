@@ -153,3 +153,13 @@ input[type="checkbox"]:focus-visible {
     background-color: #fff;
     box-shadow: 0 0 10px #4df;
 }
+
+/* Invalid Input State */
+.glass-input.invalid {
+    border-color: #ff6b6b;
+    box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
+.glass-input.invalid:focus {
+    outline-color: #ff6b6b;
+}
