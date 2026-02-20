@@ -151,27 +151,68 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create a debounced version of the update function
     const debouncedUpdate = debounce(updateMagnetosphere, 300);
 
-    function syncInputs(source, target) {
-        if (target) {
-            target.value = source.value;
-        }
-        // UX: Show loading state immediately
+    function setLoadingState() {
         const display = document.getElementById('standoff-display');
         if (display) {
              display.innerHTML = '<span class="loading-spinner"></span> Calculating...';
              display.setAttribute('aria-busy', 'true');
         }
+    }
+
+    function updateFromRange(rangeInput, numberInput) {
+        numberInput.value = rangeInput.value;
+        numberInput.classList.remove('invalid');
+        setLoadingState();
         debouncedUpdate();
     }
 
+    function updateFromNumber(numberInput, rangeInput) {
+        const val = parseFloat(numberInput.value);
+        const min = parseFloat(numberInput.min);
+        const max = parseFloat(numberInput.max);
+
+        // Allow partial typing, but don't update if invalid
+        if (isNaN(val) || val < min || val > max) {
+            numberInput.classList.add('invalid');
+            return;
+        }
+
+        numberInput.classList.remove('invalid');
+        rangeInput.value = val;
+        setLoadingState();
+        debouncedUpdate();
+    }
+
+    function clampNumberInput(numberInput, rangeInput) {
+        let val = parseFloat(numberInput.value);
+        const min = parseFloat(numberInput.min);
+        const max = parseFloat(numberInput.max);
+
+        if (isNaN(val)) val = min;
+        if (val < min) val = min;
+        if (val > max) val = max;
+
+        numberInput.value = val;
+        numberInput.classList.remove('invalid');
+
+        // Only update if effective change or to ensure sync
+        if (rangeInput.value != val) {
+            rangeInput.value = val;
+            setLoadingState();
+            debouncedUpdate();
+        }
+    }
+
     if (densityInput && densityNum) {
-        densityInput.addEventListener('input', () => syncInputs(densityInput, densityNum));
-        densityNum.addEventListener('input', () => syncInputs(densityNum, densityInput));
+        densityInput.addEventListener('input', () => updateFromRange(densityInput, densityNum));
+        densityNum.addEventListener('input', () => updateFromNumber(densityNum, densityInput));
+        densityNum.addEventListener('change', () => clampNumberInput(densityNum, densityInput));
     }
 
     if (velocityInput && velocityNum) {
-        velocityInput.addEventListener('input', () => syncInputs(velocityInput, velocityNum));
-        velocityNum.addEventListener('input', () => syncInputs(velocityNum, velocityInput));
+        velocityInput.addEventListener('input', () => updateFromRange(velocityInput, velocityNum));
+        velocityNum.addEventListener('input', () => updateFromNumber(velocityNum, velocityInput));
+        velocityNum.addEventListener('change', () => clampNumberInput(velocityNum, velocityInput));
     }
 
     updateMagnetosphere();
