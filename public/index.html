@@ -75,12 +75,12 @@
                             <input type="checkbox" id="day-night-toggle" checked>
                             <span class="glass-toggle-slider"></span>
                         </label>
-                        <span id="day-night-val" class="value-display">Day Mode</span>
+                        <span id="day-night-val" class="value-display" aria-live="polite">Day Mode</span>
                     </div>
                 </div>
             </div>
             <div class="chart-container">
-                <canvas id="iono-chart"></canvas>
+                <canvas id="iono-chart" role="img" aria-label="Ionosphere electron density profile chart"></canvas>
             </div>
             <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
                 Visualizes electron density ($N_e$) vs Altitude for D, E, and F layers based on Chapman production
@@ -241,12 +241,6 @@
              container.appendChild(errorDiv);
         }
 
-        const toggle = document.getElementById('day-night-toggle');
-        if (toggle) {
-            toggle.addEventListener('change', (e) => {
-                document.getElementById('day-night-val').innerText = e.target.checked ? "Day Mode" : "Night Mode";
-            });
-        }
 
         function updateSunspotVisuals(ratio) {
             // Visual update
