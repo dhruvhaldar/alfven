@@ -21,3 +21,8 @@
 **Vulnerability:** The application was using the *first* IP in the 'X-Forwarded-For' header for rate limiting, allowing attackers to bypass limits by spoofing the header (e.g., 'X-Forwarded-For: fake_ip, real_ip').
 **Learning:** Prioritizing the first IP is insecure when trusted proxies append the client IP to the end of the list. The first IP is user-controlled and easily forged.
 **Prevention:** Always use the *last* untrusted IP (or the last IP if behind a single trusted proxy like a load balancer) in the 'X-Forwarded-For' list. Use 'forwarded.split(",")[-1].strip()' instead of '[0]'.
+
+## 2026-02-19 - DoS via Rate Limiter Reset ("Fail Open")
+**Vulnerability:** The in-memory rate limiter cleared its entire state when the IP tracking limit (`MAX_IPS`) was reached to prevent OOM. Attackers could exploit this by flooding the system with distinct spoofed IPs to trigger a reset, effectively bypassing rate limits for themselves.
+**Learning:** Security controls that "fail open" (disable themselves) under load become attack vectors.
+**Prevention:** Implement LRU (Least Recently Used) eviction policies instead of clearing caches entirely. Drop the least active users to preserve protection for current threats.

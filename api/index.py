@@ -95,15 +95,24 @@ async def rate_limit_middleware(request: Request, call_next):
             # If the oldest request hasn't expired, no other request has
             break
 
-    # 2. Hard limit safeguard
-    if len(request_counts) > MAX_IPS:
-        # If still over limit, clear the whole cache to prevent OOM.
-        # This is a fail-safe.
-        request_counts.clear()
-        request_log.clear()
+    # 2. Hard limit safeguard with LRU Eviction
+    # 🛡️ Sentinel: Prevent "Fail Open" by evicting LRU instead of clearing all
+    if client_ip in request_counts:
+        # Existing IP: Move to end (Mark as recently used)
+        dq = request_counts.pop(client_ip)
+        request_counts[client_ip] = dq
+    else:
+        # New IP: Check limit before adding
+        if len(request_counts) >= MAX_IPS:
+            # Evict LRU (first item) to make space
+            # next(iter(dict)) gives the first inserted key (oldest)
+            victim_ip = next(iter(request_counts))
+            del request_counts[victim_ip]
+
+        # Create new entry
+        dq = request_counts[client_ip]
 
     # Rate Limit Logic
-    dq = request_counts[client_ip]
     # Note: cleanup above handles general expiry, but checking here is cheap double-check
     # specifically for the current user to ensure absolute precision
     while dq and now - dq[0] > WINDOW_SIZE:

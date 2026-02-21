@@ -38,9 +38,9 @@ async def _run_test_logic():
             req = MockRequest(client_host=f"10.0.0.{i}")
             await rate_limit_middleware(req, mock_call_next)
 
-        # Should have cleared
-        assert len(request_counts) <= 10
-        assert len(request_counts) > 0
+        # Should NOT clear anymore, but evict LRU
+        # With LRU eviction, size should remain at MAX_IPS (50)
+        assert len(request_counts) == 50
 
     print("Memory leak safeguard passed.")
 
