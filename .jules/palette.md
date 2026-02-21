@@ -13,3 +13,7 @@
 ## 2026-05-27 - Loading Spinner Pattern
 **Learning:** Async operations like Magnetosphere Standoff calculation need immediate visual feedback to prevent user uncertainty.
 **Action:** Use the global `.loading-spinner` class and `aria-busy="true"` on the output container immediately upon user interaction, before the debounced request fires.
+
+## 2026-05-28 - Canvas Accessibility
+**Learning:** Canvas elements used for data visualization (like charts) are completely invisible to screen readers without explicit roles and labels.
+**Action:** Always add `role="img"` and a descriptive `aria-label` to `<canvas>` elements. For complex charts, provide a summary or data table if possible.

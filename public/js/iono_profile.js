@@ -5,6 +5,14 @@ async function updateIonosphere() {
     const toggle = document.getElementById('day-night-toggle');
     if (!toggle) return;
 
+    const valDisplay = document.getElementById('day-night-val');
+
+    // Loading State
+    if (valDisplay) {
+        valDisplay.innerHTML = '<span class="loading-spinner"></span> Updating...';
+        valDisplay.setAttribute('aria-busy', 'true');
+    }
+
     const isDay = toggle.checked;
 
     // Layers
@@ -45,8 +53,19 @@ async function updateIonosphere() {
         const data = await response.json();
 
         drawChart(data);
+
+        // Success State
+        if (valDisplay) {
+             valDisplay.innerText = isDay ? "Day Mode" : "Night Mode";
+             valDisplay.setAttribute('aria-busy', 'false');
+        }
     } catch (error) {
         console.error('Error fetching ionosphere data:', error);
+        // Error State
+        if (valDisplay) {
+             valDisplay.innerHTML = '<span style="color: #ff6b6b">⚠️ Error</span>';
+             valDisplay.setAttribute('aria-busy', 'false');
+        }
     }
 }
 
