@@ -53,6 +53,19 @@ RATE_LIMIT = 100  # requests per minute
 WINDOW_SIZE = 60  # seconds
 MAX_IPS = 2000    # Maximum number of tracked IPs to prevent memory exhaustion
 
+# 🛡️ Sentinel: Content Security Policy
+# Whitelist CDNs used in public/index.html (Three.js, D3, Chart.js, MathJax)
+CSP_POLICY = (
+    "default-src 'self'; "
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://d3js.org https://cdn.jsdelivr.net; "
+    "style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; "
+    "font-src 'self' https://cdn.jsdelivr.net; "
+    "connect-src 'self'; "
+    "frame-ancestors 'self';"
+)
+
+
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
     # ⚠️ Warning: In a production environment behind a reverse proxy, request.client.host
@@ -69,7 +82,8 @@ async def rate_limit_middleware(request: Request, call_next):
     else:
         client_ip = request.client.host if request.client else "unknown"
 
-    now = time.time()
+    # Optimization: Use monotonic time for robust rate limiting regardless of system clock changes
+    now = time.monotonic()
 
     # 1. Continuous Cleanup (Amortized O(1))
     # Remove expired requests from the global log and update user counts
@@ -104,10 +118,9 @@ async def rate_limit_middleware(request: Request, call_next):
 
     # Rate Limit Logic
     dq = request_counts[client_ip]
-    # Note: cleanup above handles general expiry, but checking here is cheap double-check
-    # specifically for the current user to ensure absolute precision
-    while dq and now - dq[0] > WINDOW_SIZE:
-        dq.popleft()
+    # Optimization: The global cleanup loop above guarantees that request_counts contains
+    # no expired timestamps (since request_log is strictly ordered and covers all requests).
+    # Thus, checking again for expired timestamps here is redundant.
 
     if len(dq) >= RATE_LIMIT:
         return JSONResponse(status_code=429, content={"detail": "Too many requests"})
@@ -126,18 +139,7 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
-    # 🛡️ Sentinel: Content Security Policy
-    # Whitelist CDNs used in public/index.html (Three.js, D3, Chart.js, MathJax)
-    csp_policy = (
-        "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://d3js.org https://cdn.jsdelivr.net; "
-        "style-src 'self' 'unsafe-inline'; "
-        "img-src 'self' data:; "
-        "font-src 'self' https://cdn.jsdelivr.net; "
-        "connect-src 'self'; "
-        "frame-ancestors 'self';"
-    )
-    response.headers["Content-Security-Policy"] = csp_policy
+    response.headers["Content-Security-Policy"] = CSP_POLICY
 
     # 🛡️ Sentinel: HSTS & Permissions Policy
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
