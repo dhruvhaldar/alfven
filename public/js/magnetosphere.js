@@ -60,7 +60,9 @@ function drawMagnetosphere(standoff) {
     const svg = container.append("svg")
         .attr("width", "100%")
         .attr("height", "100%")
-        .attr("viewBox", `0 0 ${width} ${height}`);
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("role", "img")
+        .attr("aria-label", `Magnetosphere visualization. Standoff distance is ${standoff.toFixed(1)} Earth Radii.`);
 
     const centerX = width * 0.7;
     const centerY = height / 2;
