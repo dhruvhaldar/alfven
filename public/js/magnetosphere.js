@@ -52,15 +52,63 @@ function drawMagnetosphere(standoff) {
     const container = d3.select("#magnetosphere-viz");
     if (container.empty()) return;
 
-    container.selectAll("*").remove(); // Clear previous
+    // Optimization: Reuse SVG and elements instead of removing/recreating on every update
+    // This reduces DOM thrashing and memory churn.
 
     const width = container.node().getBoundingClientRect().width || 400;
     const height = container.node().getBoundingClientRect().height || 300;
 
-    const svg = container.append("svg")
-        .attr("width", "100%")
-        .attr("height", "100%")
-        .attr("viewBox", `0 0 ${width} ${height}`);
+    let svg = container.select("svg");
+
+    // Create SVG and static elements if they don't exist
+    if (svg.empty()) {
+        svg = container.append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%");
+
+        // Define marker
+        svg.append("defs").append("marker")
+            .attr("id", "arrow")
+            .attr("viewBox", "0 0 10 10")
+            .attr("refX", 5)
+            .attr("refY", 5)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto-start-reverse")
+            .append("path")
+            .attr("d", "M 0 0 L 10 5 L 0 10 z")
+            .attr("fill", "#ffaa00");
+
+        // Static Earth
+        svg.append("circle")
+            .attr("class", "earth")
+            .attr("fill", "#0044ff")
+            .attr("stroke", "#ffffff")
+            .attr("stroke-width", 1);
+
+        // Magnetopause Path
+        svg.append("path")
+            .attr("class", "magnetopause-boundary")
+            .attr("fill", "none")
+            .attr("stroke", "#ffaa00")
+            .attr("stroke-width", 2)
+            .attr("filter", "drop-shadow(0 0 5px #ffaa00)");
+
+        // Solar Wind Arrow Group
+        const arrowGroup = svg.append("g").attr("class", "solar-wind-arrow");
+        arrowGroup.append("line")
+            .attr("stroke", "#ffaa00")
+            .attr("stroke-width", 2)
+            .attr("marker-end", "url(#arrow)");
+
+        arrowGroup.append("text")
+            .attr("fill", "#ffaa00")
+            .attr("font-size", "12px")
+            .text("Solar Wind");
+    }
+
+    // Update dimensions and ViewBox
+    svg.attr("viewBox", `0 0 ${width} ${height}`);
 
     const centerX = width * 0.7;
     const centerY = height / 2;
@@ -68,16 +116,13 @@ function drawMagnetosphere(standoff) {
     // Scale: Fit roughly 20 Re in half width
     const scale = (width * 0.4) / 20;
 
-    // Draw Earth
-    svg.append("circle")
+    // Update Earth position/radius
+    svg.select(".earth")
         .attr("cx", centerX)
         .attr("cy", centerY)
-        .attr("r", 1 * scale) // Earth radius = 1 Re
-        .attr("fill", "#0044ff")
-        .attr("stroke", "#ffffff")
-        .attr("stroke-width", 1);
+        .attr("r", 1 * scale);
 
-    // Draw Magnetopause (Approximate Parabola)
+    // Update Magnetopause (Approximate Parabola)
     // x = -standoff + k * y^2
     // k = 1 / (2.25 * standoff) for flank at 1.5 * standoff
 
@@ -99,46 +144,28 @@ function drawMagnetosphere(standoff) {
         .y(d => centerY + d.y * scale)
         .curve(d3.curveBasis);
 
-    svg.append("path")
+    svg.select(".magnetopause-boundary")
         .datum(curveData)
-        .attr("fill", "none")
-        .attr("stroke", "#ffaa00")
-        .attr("stroke-width", 2)
-        .attr("filter", "drop-shadow(0 0 5px #ffaa00)")
         .attr("d", line);
 
-    // Draw Sun direction arrow
+    // Update Sun direction arrow
     const arrowStart = 20;
     const arrowEnd = centerX - standoff * scale - 20;
+    const arrowGroup = svg.select(".solar-wind-arrow");
 
     if (arrowEnd > arrowStart) {
-        svg.append("defs").append("marker")
-            .attr("id", "arrow")
-            .attr("viewBox", "0 0 10 10")
-            .attr("refX", 5)
-            .attr("refY", 5)
-            .attr("markerWidth", 6)
-            .attr("markerHeight", 6)
-            .attr("orient", "auto-start-reverse")
-            .append("path")
-            .attr("d", "M 0 0 L 10 5 L 0 10 z")
-            .attr("fill", "#ffaa00");
-
-        svg.append("line")
+        arrowGroup.style("display", null);
+        arrowGroup.select("line")
             .attr("x1", arrowStart)
             .attr("y1", centerY)
             .attr("x2", arrowEnd)
-            .attr("y2", centerY)
-            .attr("stroke", "#ffaa00")
-            .attr("stroke-width", 2)
-            .attr("marker-end", "url(#arrow)");
+            .attr("y2", centerY);
 
-        svg.append("text")
+        arrowGroup.select("text")
             .attr("x", arrowStart)
-            .attr("y", centerY - 10)
-            .attr("fill", "#ffaa00")
-            .attr("font-size", "12px")
-            .text("Solar Wind");
+            .attr("y", centerY - 10);
+    } else {
+        arrowGroup.style("display", "none");
     }
 }
 
