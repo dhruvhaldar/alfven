@@ -52,6 +52,7 @@ request_log = deque()
 RATE_LIMIT = 100  # requests per minute
 WINDOW_SIZE = 60  # seconds
 MAX_IPS = 2000    # Maximum number of tracked IPs to prevent memory exhaustion
+MAX_LOG_SIZE = 100000 # Cap for request_log to prevent OOM
 
 # 🛡️ Sentinel: Content Security Policy
 # Whitelist CDNs used in public/index.html (Three.js, D3, Chart.js, MathJax)
@@ -111,22 +112,34 @@ async def rate_limit_middleware(request: Request, call_next):
 
     # 2. Hard limit safeguard
     if len(request_counts) > MAX_IPS:
-        # If still over limit, clear the whole cache to prevent OOM.
-        # This is a fail-safe.
-        request_counts.clear()
-        request_log.clear()
+        # 🛡️ Sentinel: Evict the Least Recently Used IP instead of clearing all.
+        # Clearing all allows an attacker to reset rate limits for everyone.
+        # LRU strategy: Remove the IP whose most recent request is the oldest.
+        try:
+            # Find IP with the oldest "most recent" request
+            lru_ip = min(request_counts, key=lambda ip: request_counts[ip][-1])
+            del request_counts[lru_ip]
+        except (ValueError, IndexError):
+            # Fallback for safety (e.g., empty deques)
+            request_counts.clear()
+            request_log.clear()
 
     # Rate Limit Logic
     dq = request_counts[client_ip]
-    # Optimization: The global cleanup loop above guarantees that request_counts contains
-    # no expired timestamps (since request_log is strictly ordered and covers all requests).
-    # Thus, checking again for expired timestamps here is redundant.
+
+    # 🛡️ Sentinel: Ensure per-user cleanup even if global log overflows or desyncs
+    while dq and now - dq[0] > WINDOW_SIZE:
+        dq.popleft()
 
     if len(dq) >= RATE_LIMIT:
         return JSONResponse(status_code=429, content={"detail": "Too many requests"})
 
     dq.append(now)
     request_log.append((now, client_ip))
+
+    # 🛡️ Sentinel: Cap request_log size to prevent OOM during DoS
+    if len(request_log) > MAX_LOG_SIZE:
+        request_log.popleft()
 
     return await call_next(request)
 
