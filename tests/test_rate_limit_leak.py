@@ -38,11 +38,13 @@ async def _run_test_logic():
             req = MockRequest(client_host=f"10.0.0.{i}")
             await rate_limit_middleware(req, mock_call_next)
 
-        # Should have cleared
-        assert len(request_counts) <= 10
-        assert len(request_counts) > 0
+        # Should NOT have cleared everything (security fix), but should be capped near limit
+        # Old behavior: cleared to 0 (vulnerability).
+        # New behavior: Maintains size around MAX_IPS (LRU eviction).
+        assert len(request_counts) >= 50
+        assert len(request_counts) <= 52  # Allow small buffer for current request
 
-    print("Memory leak safeguard passed.")
+    print("Memory leak safeguard passed (LRU verified).")
 
     # 3. Test IP Extraction from X-Forwarded-For
     request_counts.clear()
@@ -55,6 +57,56 @@ async def _run_test_logic():
     assert "10.0.0.1" in request_counts
     assert "127.0.0.1" not in request_counts
     print("X-Forwarded-For passed.")
+
+    # 4. Test request_log Capping (DoS Prevention)
+    print("\n--- Testing request_log Capping ---")
+    request_counts.clear()
+    request_log.clear()
+
+    # Reduce MAX_LOG_SIZE to a small number
+    with patch("api.index.MAX_LOG_SIZE", 5):
+        # Add 6 requests (limit 5)
+        for i in range(6):
+            req = MockRequest(client_host=f"10.0.0.{i}")
+            await rate_limit_middleware(req, mock_call_next)
+
+        # request_log should be capped at 5
+        assert len(request_log) == 5
+        # The oldest (10.0.0.0) should have been popped from log
+        # But it should still be in request_counts (unless expired)
+        # Since time hasn't advanced much, it should be there
+        assert "10.0.0.0" in request_counts
+
+        # Verify that per-user cleanup still works (redundant check)
+        # We simulate expiration manually for 10.0.0.0
+        # By moving time forward past WINDOW_SIZE (61s)
+
+        # We patch time.monotonic to ensure expiration
+        with patch("time.monotonic", return_value=1000.0):
+             # Initial request
+             req = MockRequest(client_host="10.0.0.99")
+             await rate_limit_middleware(req, mock_call_next)
+
+        # Force eviction from log by adding other requests (limit is 5)
+        # Use time close to initial so they don't expire
+        with patch("time.monotonic", return_value=1000.1):
+            for i in range(10):
+                 req = MockRequest(client_host=f"10.1.0.{i}")
+                 await rate_limit_middleware(req, mock_call_next)
+
+        # Now 10.0.0.99 is definitely not in request_log (size 5)
+        # But it is in request_counts
+
+        # Make another request with 10.0.0.99 after expiration
+        with patch("time.monotonic", return_value=1000.0 + 61.0):
+             req = MockRequest(client_host="10.0.0.99")
+             await rate_limit_middleware(req, mock_call_next)
+
+        # If cleanup worked, count should be 1 (new request only)
+        # If failed, count would be 2 (old + new)
+        assert len(request_counts["10.0.0.99"]) == 1
+
+    print("request_log Capping and Redundant Cleanup passed.")
 
 def test_memory_leak_fix():
     asyncio.run(_run_test_logic())
