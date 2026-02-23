@@ -115,17 +115,23 @@ async def rate_limit_middleware(request: Request, call_next):
         # 🛡️ Sentinel: Evict the Least Recently Used IP instead of clearing all.
         # Clearing all allows an attacker to reset rate limits for everyone.
         # LRU strategy: Remove the IP whose most recent request is the oldest.
+        # Optimization: Use O(1) eviction by relying on Python's insertion-ordered dicts.
+        # Since we refresh the key position on every access (see below), the first key is the LRU.
         try:
-            # Find IP with the oldest "most recent" request
-            lru_ip = min(request_counts, key=lambda ip: request_counts[ip][-1])
+            lru_ip = next(iter(request_counts))
             del request_counts[lru_ip]
-        except (ValueError, IndexError):
-            # Fallback for safety (e.g., empty deques)
+        except (StopIteration, RuntimeError):
+            # Fallback for safety
             request_counts.clear()
             request_log.clear()
 
     # Rate Limit Logic
-    dq = request_counts[client_ip]
+    # Optimization: Refresh LRU position by moving accessed key to the end
+    if client_ip in request_counts:
+        dq = request_counts.pop(client_ip)
+        request_counts[client_ip] = dq
+    else:
+        dq = request_counts[client_ip]
 
     # 🛡️ Sentinel: Ensure per-user cleanup even if global log overflows or desyncs
     while dq and now - dq[0] > WINDOW_SIZE:
