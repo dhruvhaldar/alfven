@@ -17,3 +17,7 @@
 ## 2026-05-28 - Canvas Accessibility
 **Learning:** Canvas elements used for data visualization (like charts) are completely invisible to screen readers without explicit roles and labels.
 **Action:** Always add `role="img"` and a descriptive `aria-label` to `<canvas>` elements. For complex charts, provide a summary or data table if possible.
+
+## 2026-05-29 - Inline Validation Feedback
+**Learning:** Generic error messages ("Positive values required") without visual cues cause frustration as users must guess which input is invalid.
+**Action:** Implement `validateInput` helper to apply `.invalid` class and `aria-invalid="true"` to specific fields, and auto-clear these states on user input.
