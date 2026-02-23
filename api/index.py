@@ -74,14 +74,11 @@ async def rate_limit_middleware(request: Request, call_next):
     # with a trusted proxy list.
 
     # 🛡️ Sentinel: Enhanced IP extraction
-    # Try to get the real IP from X-Forwarded-For if available, but be aware of spoofing.
-    # We prioritize the LAST IP in the list as trusted proxies/LBs usually append the connecting IP there.
-    # Trusting the first IP allows clients to spoof their IP by sending a fake X-Forwarded-For header.
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        client_ip = forwarded.split(",")[-1].strip()
-    else:
-        client_ip = request.client.host if request.client else "unknown"
+    # Trusting X-Forwarded-For directly allows IP spoofing if the app is reachable directly or via
+    # an untrusted proxy. We rely on the ASGI server (Uvicorn/Gunicorn) to populate
+    # request.client.host correctly (e.g. using --proxy-headers with trusted IPs).
+    # Application code should not guess network topology.
+    client_ip = request.client.host if request.client else "unknown"
 
     # Optimization: Use monotonic time for robust rate limiting regardless of system clock changes
     now = time.monotonic()
