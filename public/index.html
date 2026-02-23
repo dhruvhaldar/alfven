@@ -184,13 +184,45 @@
     <script src="js/magnetosphere.js"></script>
     <script src="js/iono_profile.js"></script>
     <script>
+        // Form Validation Helper
+        function validateInput(input) {
+            const val = parseFloat(input.value);
+            if (isNaN(val) || val <= 0) {
+                input.classList.add('invalid');
+                input.setAttribute('aria-invalid', 'true');
+                return false;
+            }
+            input.classList.remove('invalid');
+            input.setAttribute('aria-invalid', 'false');
+            return true;
+        }
+
+        function clearErrorState(e) {
+             e.target.classList.remove('invalid');
+             e.target.setAttribute('aria-invalid', 'false');
+        }
+
+        // Add listeners for auto-clearing errors
+        document.addEventListener('DOMContentLoaded', () => {
+            ['plasma-n', 'plasma-T', 'aurora-E', 'aurora-sigma', 'aurora-area'].forEach(id => {
+                 const el = document.getElementById(id);
+                 if(el) el.addEventListener('input', clearErrorState);
+            });
+        });
+
         // Inline script for Plasma Calc
         async function calcPlasma(btn) {
             const resultsContainer = document.getElementById('plasma-results');
-            const n = parseFloat(document.getElementById('plasma-n').value);
-            const T = parseFloat(document.getElementById('plasma-T').value);
+            const nInput = document.getElementById('plasma-n');
+            const TInput = document.getElementById('plasma-T');
 
-            if (isNaN(n) || n <= 0 || isNaN(T) || T <= 0) return showError(resultsContainer, "Positive values required.");
+            const nValid = validateInput(nInput);
+            const TValid = validateInput(TInput);
+
+            if (!nValid || !TValid) return showError(resultsContainer, "Positive values required.");
+
+            const n = parseFloat(nInput.value);
+            const T = parseFloat(TInput.value);
 
             setLoading(btn, resultsContainer, true);
 
@@ -311,13 +343,21 @@
 
         async function calcAurora(btn) {
             const resultsContainer = document.getElementById('aurora-results');
-            const E_val = parseFloat(document.getElementById('aurora-E').value);
-            const sigma = parseFloat(document.getElementById('aurora-sigma').value);
-            const area_val = parseFloat(document.getElementById('aurora-area').value);
+            const EInput = document.getElementById('aurora-E');
+            const sigmaInput = document.getElementById('aurora-sigma');
+            const areaInput = document.getElementById('aurora-area');
 
-            if (isNaN(E_val) || isNaN(sigma) || sigma <= 0 || isNaN(area_val) || area_val <= 0) {
+            const EValid = validateInput(EInput);
+            const sigmaValid = validateInput(sigmaInput);
+            const areaValid = validateInput(areaInput);
+
+            if (!EValid || !sigmaValid || !areaValid) {
                  return showError(resultsContainer, "Positive values required.");
             }
+
+            const E_val = parseFloat(EInput.value);
+            const sigma = parseFloat(sigmaInput.value);
+            const area_val = parseFloat(areaInput.value);
 
             setLoading(btn, resultsContainer, true);
 
