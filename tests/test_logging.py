@@ -2,7 +2,7 @@ import logging
 import pytest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
-from api.index import app
+from api.index import app, request_counts
 
 client = TestClient(app, raise_server_exceptions=False)
 
@@ -10,6 +10,8 @@ def test_exception_logging(caplog):
     """
     Verify that unhandled exceptions are logged with ERROR level and include traceback.
     """
+    request_counts.clear()
+
     # Configure the logger to capture logs
     logger = logging.getLogger("alfven")
     logger.setLevel(logging.ERROR)
