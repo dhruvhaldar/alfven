@@ -6,7 +6,6 @@ from typing import List
 import os
 import time
 import logging
-from collections import defaultdict, deque
 from alfven import (
     PlasmaState,
     ParkerSpiral,
@@ -43,16 +42,13 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Rate Limiting
 # 🛡️ Sentinel: Rate Limiting
 # Simple in-memory rate limiter to prevent DoS
-# Optimization: Use deque for O(1) appends and pops
-request_counts = defaultdict(deque)
-# Global log for O(1) continuous cleanup
-# Stores (timestamp, ip) tuples for all requests
-request_log = deque()
+# Optimization: Use Token Bucket for O(1) time and O(1) space per user
+request_counts = {}  # Dict[str, List[float]] -> [tokens, last_updated]
 
 RATE_LIMIT = 100  # requests per minute
 WINDOW_SIZE = 60  # seconds
+REFILL_RATE = RATE_LIMIT / WINDOW_SIZE # tokens per second
 MAX_IPS = 2000    # Maximum number of tracked IPs to prevent memory exhaustion
-MAX_LOG_SIZE = 100000 # Cap for request_log to prevent OOM
 
 # 🛡️ Sentinel: Content Security Policy
 # Whitelist CDNs used in public/index.html (Three.js, D3, Chart.js, MathJax)
@@ -83,68 +79,45 @@ async def rate_limit_middleware(request: Request, call_next):
     # Optimization: Use monotonic time for robust rate limiting regardless of system clock changes
     now = time.monotonic()
 
-    # 1. Continuous Cleanup (Amortized O(1))
-    # Remove expired requests from the global log and update user counts
-    # This avoids the O(N) iteration over all IPs that was previously done periodically
-    while request_log:
-        # Check the oldest request in the system
-        old_ts, old_ip = request_log[0]
-        if now - old_ts > WINDOW_SIZE:
-            request_log.popleft()
-
-            # Clean up the specific user's deque if they are still tracked
-            if old_ip in request_counts:
-                dq = request_counts[old_ip]
-                # Remove expired timestamps for this user
-                # Since deques are sorted by time, we can just pop from left
-                while dq and now - dq[0] > WINDOW_SIZE:
-                    dq.popleft()
-
-                # If user has no more valid requests, remove from tracking map
-                if not dq:
-                    del request_counts[old_ip]
-        else:
-            # If the oldest request hasn't expired, no other request has
-            break
-
-    # 2. Hard limit safeguard
-    if len(request_counts) > MAX_IPS:
-        # 🛡️ Sentinel: Evict the Least Recently Used IP instead of clearing all.
-        # Clearing all allows an attacker to reset rate limits for everyone.
-        # LRU strategy: Remove the IP whose most recent request is the oldest.
-        # Optimization: Use O(1) eviction by relying on Python's insertion-ordered dicts.
-        # Since we refresh the key position on every access (see below), the first key is the LRU.
-        try:
-            lru_ip = next(iter(request_counts))
-            del request_counts[lru_ip]
-        except (StopIteration, RuntimeError):
-            # Fallback for safety
-            request_counts.clear()
-            request_log.clear()
-
-    # Rate Limit Logic
-    # Optimization: Refresh LRU position by moving accessed key to the end
+    # Rate Limit Logic (Token Bucket)
     if client_ip in request_counts:
-        dq = request_counts.pop(client_ip)
-        request_counts[client_ip] = dq
+        # Refresh LRU position by moving accessed key to the end
+        bucket = request_counts.pop(client_ip)
+        request_counts[client_ip] = bucket
+
+        # Refill tokens based on elapsed time
+        tokens, last_update = bucket
+        elapsed = now - last_update
+        if elapsed < 0: elapsed = 0 # Safety against clock skew
+
+        # Refill tokens up to capacity
+        tokens = min(RATE_LIMIT, tokens + elapsed * REFILL_RATE)
+
+        # Update bucket state
+        bucket[0] = tokens
+        bucket[1] = now
     else:
-        dq = request_counts[client_ip]
+        # Hard limit safeguard
+        if len(request_counts) >= MAX_IPS:
+            # 🛡️ Sentinel: Evict the Least Recently Used IP
+            # Optimization: Use O(1) eviction by relying on Python's insertion-ordered dicts.
+            try:
+                lru_ip = next(iter(request_counts))
+                del request_counts[lru_ip]
+            except StopIteration:
+                pass
 
-    # 🛡️ Sentinel: Ensure per-user cleanup even if global log overflows or desyncs
-    while dq and now - dq[0] > WINDOW_SIZE:
-        dq.popleft()
+        # New bucket starts full
+        tokens = RATE_LIMIT
+        bucket = [tokens, now]
+        request_counts[client_ip] = bucket
 
-    if len(dq) >= RATE_LIMIT:
+    # Consume token
+    if bucket[0] >= 1:
+        bucket[0] -= 1
+        return await call_next(request)
+    else:
         return JSONResponse(status_code=429, content={"detail": "Too many requests"})
-
-    dq.append(now)
-    request_log.append((now, client_ip))
-
-    # 🛡️ Sentinel: Cap request_log size to prevent OOM during DoS
-    if len(request_log) > MAX_LOG_SIZE:
-        request_log.popleft()
-
-    return await call_next(request)
 
 
 # Security Headers Middleware
