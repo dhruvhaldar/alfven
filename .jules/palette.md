@@ -21,3 +21,7 @@
 ## 2026-05-29 - Inline Validation Feedback
 **Learning:** Generic error messages ("Positive values required") without visual cues cause frustration as users must guess which input is invalid.
 **Action:** Implement `validateInput` helper to apply `.invalid` class and `aria-invalid="true"` to specific fields, and auto-clear these states on user input.
+
+## 2026-05-30 - Immediate Input Feedback
+**Learning:** Validating only on submit creates friction. Users prefer knowing immediately (on blur) if a field is invalid.
+**Action:** Attach `blur` event listeners to inputs to trigger validation logic as soon as focus leaves the field.

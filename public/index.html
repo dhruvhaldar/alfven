@@ -175,7 +175,7 @@
         </div>
 
         <footer>
-            &copy; 2026 Dhruv Haldar. MIT License. | <a href="https://github.com/dhruvhaldar/alfven" target="_blank"
+            &copy; 2026 Dhruv Haldar. MIT License. | <a href="https://github.com/dhruvhaldar/alfven" target="_blank" rel="noopener noreferrer" aria-label="GitHub (opens in a new tab)"
                 style="color: inherit; text-decoration: none;">GitHub</a>
         </footer>
     </div>
@@ -202,11 +202,14 @@
              e.target.setAttribute('aria-invalid', 'false');
         }
 
-        // Add listeners for auto-clearing errors
+        // Add listeners for auto-clearing errors and blur validation
         document.addEventListener('DOMContentLoaded', () => {
             ['plasma-n', 'plasma-T', 'aurora-E', 'aurora-sigma', 'aurora-area'].forEach(id => {
                  const el = document.getElementById(id);
-                 if(el) el.addEventListener('input', clearErrorState);
+                 if(el) {
+                     el.addEventListener('input', clearErrorState);
+                     el.addEventListener('blur', () => validateInput(el));
+                 }
             });
         });
 
