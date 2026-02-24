@@ -58,7 +58,7 @@ MAX_LOG_SIZE = 100000 # Cap for request_log to prevent OOM
 # Whitelist CDNs used in public/index.html (Three.js, D3, Chart.js, MathJax)
 CSP_POLICY = (
     "default-src 'self'; "
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://d3js.org https://cdn.jsdelivr.net; "
+    "script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://d3js.org https://cdn.jsdelivr.net; "
     "style-src 'self' 'unsafe-inline'; "
     "img-src 'self' data:; "
     "font-src 'self' https://cdn.jsdelivr.net; "

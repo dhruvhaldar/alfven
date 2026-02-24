@@ -1,0 +1,264 @@
+// Form Validation Helper
+function validateInput(input) {
+    const val = parseFloat(input.value);
+    if (isNaN(val) || val <= 0) {
+        input.classList.add('invalid');
+        input.setAttribute('aria-invalid', 'true');
+        return false;
+    }
+    input.classList.remove('invalid');
+    input.setAttribute('aria-invalid', 'false');
+    return true;
+}
+
+function clearErrorState(e) {
+     e.target.classList.remove('invalid');
+     e.target.setAttribute('aria-invalid', 'false');
+}
+
+function setLoading(btn, container, isLoading) {
+    if (!btn) return;
+    if (isLoading) {
+         btn.dataset.text = btn.innerText;
+         btn.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
+         btn.disabled = true;
+         btn.style.cursor = "wait";
+         container.setAttribute('aria-busy', 'true');
+         const error = container.querySelector('.error-message');
+         if(error) error.remove();
+    } else {
+         btn.innerText = btn.dataset.text || "Calculate";
+         btn.disabled = false;
+         btn.style.cursor = "pointer";
+         container.setAttribute('aria-busy', 'false');
+    }
+}
+
+function showError(container, msg) {
+     const errorDiv = document.createElement('div');
+     errorDiv.className = 'error-message';
+     errorDiv.style.color = '#ff6b6b';
+     errorDiv.style.marginTop = '10px';
+     errorDiv.style.fontSize = '0.9rem';
+     errorDiv.innerHTML = `⚠️ ${msg}`;
+     container.appendChild(errorDiv);
+}
+
+// Plasma Calculation
+async function calcPlasma(btn) {
+    const resultsContainer = document.getElementById('plasma-results');
+    const nInput = document.getElementById('plasma-n');
+    const TInput = document.getElementById('plasma-T');
+
+    const nValid = validateInput(nInput);
+    const TValid = validateInput(TInput);
+
+    if (!nValid || !TValid) return showError(resultsContainer, "Positive values required.");
+
+    const n = parseFloat(nInput.value);
+    const T = parseFloat(TInput.value);
+
+    setLoading(btn, resultsContainer, true);
+
+    try {
+        // Optimization: Batch API calls
+        const res = await fetch(`/api/plasma/parameters?n=${n}&T_ev=${T}`);
+
+        if (!res.ok) throw new Error();
+
+        const data = await res.json();
+
+        document.getElementById('res-debye').innerText = data.debye_length.toExponential(2) + " m";
+        document.getElementById('res-freq').innerText = (data.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz";
+    } catch (e) {
+        showError(resultsContainer, "Calculation failed.");
+        document.getElementById('res-debye').innerText = "-";
+        document.getElementById('res-freq').innerText = "-";
+    } finally {
+        setLoading(btn, resultsContainer, false);
+    }
+}
+
+// Sunspot Logic
+function updateSunspotVisuals(ratio) {
+    // Visual update
+    const visual = document.getElementById('sunspot-visual');
+    if (!visual) return;
+
+    // Max brightness (ratio 1) -> #ffcc00 (RGB 255, 204, 0)
+    // We scale the color based on ratio.
+    const r = Math.floor(255 * ratio);
+    const g = Math.floor(204 * ratio);
+    visual.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
+    visual.style.boxShadow = `0 0 20px rgb(${r}, ${Math.floor(g * 0.8)}, 0)`;
+
+    // Update accessibility label
+    visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}`);
+}
+
+async function fetchSunspotData(ratio) {
+    const tempDisplay = document.getElementById('sunspot-temp');
+    if (!tempDisplay) return;
+
+    try {
+        const res = await fetch(`/api/solar/sunspot?ratio=${ratio}`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        tempDisplay.innerHTML = Math.round(data.temperature_k) + " K";
+        tempDisplay.setAttribute('aria-busy', 'false');
+
+        // Enhance aria-label with temperature once loaded
+        const visual = document.getElementById('sunspot-visual');
+        if (visual) {
+            visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}, estimated temperature ${Math.round(data.temperature_k)} K`);
+        }
+    } catch (e) {
+        console.error(e);
+        tempDisplay.innerHTML = '<span style="color: #ff6b6b">Error</span>';
+        tempDisplay.setAttribute('aria-busy', 'false');
+    }
+}
+
+// Optimization: Debounce the API call to avoid flooding the server on slider input
+// debounce is defined in js/magnetosphere.js, which must be loaded before this script
+let debouncedFetchSunspot;
+
+function syncSunspot(source) {
+    const slider = document.getElementById('sunspot-ratio');
+    const numInput = document.getElementById('sunspot-ratio-num');
+
+    if (!slider || !numInput) return;
+
+    let val = parseFloat(source.value);
+
+    if (isNaN(val)) return;
+    if (val < 0.01) val = 0.01;
+    if (val > 1.0) val = 1.0;
+
+    if (source === slider) {
+        numInput.value = val;
+    } else {
+        slider.value = val;
+    }
+
+    // Immediate visual feedback
+    updateSunspotVisuals(val);
+
+    // Show loading state
+    const tempDisplay = document.getElementById('sunspot-temp');
+    if (tempDisplay && tempDisplay.getAttribute('aria-busy') !== 'true') {
+         tempDisplay.innerHTML = '<span class="loading-spinner"></span> Calculating...';
+         tempDisplay.setAttribute('aria-busy', 'true');
+    }
+
+    // Debounced API call
+    if (debouncedFetchSunspot) {
+        debouncedFetchSunspot(val);
+    } else {
+        // Fallback if debounce not ready (though it should be)
+        fetchSunspotData(val);
+    }
+}
+
+// Aurora Logic
+async function calcAurora(btn) {
+    const resultsContainer = document.getElementById('aurora-results');
+    const EInput = document.getElementById('aurora-E');
+    const sigmaInput = document.getElementById('aurora-sigma');
+    const areaInput = document.getElementById('aurora-area');
+
+    const EValid = validateInput(EInput);
+    const sigmaValid = validateInput(sigmaInput);
+    const areaValid = validateInput(areaInput);
+
+    if (!EValid || !sigmaValid || !areaValid) {
+         return showError(resultsContainer, "Positive values required.");
+    }
+
+    const E_val = parseFloat(EInput.value);
+    const sigma = parseFloat(sigmaInput.value);
+    const area_val = parseFloat(areaInput.value);
+
+    setLoading(btn, resultsContainer, true);
+
+    try {
+        const res = await fetch('/api/aurora/power', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                E_field: E_val * 1e-3,
+                sigma_P: sigma,
+                area: area_val * 1e10
+            })
+        });
+
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+
+        let powerStr = data.dissipated_power.toExponential(2) + " W";
+        if (data.dissipated_power > 1e9) powerStr = (data.dissipated_power / 1e9).toFixed(2) + " GW";
+
+        document.getElementById('res-power').innerText = powerStr;
+        document.getElementById('res-current').innerText = data.sheet_current.toFixed(2) + " A/m";
+    } catch (e) {
+        showError(resultsContainer, "Calculation failed.");
+        document.getElementById('res-power').innerText = "-";
+        document.getElementById('res-current').innerText = "-";
+    } finally {
+        setLoading(btn, resultsContainer, false);
+    }
+}
+
+// Initialization
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize debounce if available
+    if (typeof debounce === 'function') {
+        debouncedFetchSunspot = debounce(fetchSunspotData, 300);
+    } else {
+        console.warn('debounce function not found. Falling back to direct calls.');
+        debouncedFetchSunspot = fetchSunspotData;
+    }
+
+    // Attach listeners for auto-clearing errors
+    ['plasma-n', 'plasma-T', 'aurora-E', 'aurora-sigma', 'aurora-area'].forEach(id => {
+         const el = document.getElementById(id);
+         if(el) el.addEventListener('input', clearErrorState);
+    });
+
+    // Plasma Button
+    const btnPlasma = document.getElementById('btn-calc-plasma');
+    if (btnPlasma) {
+        btnPlasma.addEventListener('click', (e) => {
+             // If clicked on icon inside button, target might be span. Find closest button.
+             const btn = e.target.closest('button');
+             if (btn) calcPlasma(btn);
+        });
+    }
+
+    // Aurora Button
+    const btnAurora = document.getElementById('btn-calc-aurora');
+    if (btnAurora) {
+        btnAurora.addEventListener('click', (e) => {
+             const btn = e.target.closest('button');
+             if (btn) calcAurora(btn);
+        });
+    }
+
+    // Sunspot Inputs
+    const sunspotSlider = document.getElementById('sunspot-ratio');
+    const sunspotNum = document.getElementById('sunspot-ratio-num');
+
+    if (sunspotSlider) {
+        sunspotSlider.addEventListener('input', (e) => syncSunspot(e.target));
+    }
+    if (sunspotNum) {
+        sunspotNum.addEventListener('input', (e) => syncSunspot(e.target));
+    }
+
+    // Initial calculations
+    calcPlasma(null);
+
+    if (sunspotSlider) {
+        syncSunspot(sunspotSlider);
+    }
+});

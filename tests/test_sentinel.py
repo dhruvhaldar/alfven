@@ -55,3 +55,32 @@ def test_no_polyfill_io():
             assert (
                 "cdnjs.cloudflare.com/polyfill" in content or "polyfill" not in content
             ), "Should use safe polyfill or none"
+
+
+def test_csp_strict_script_src():
+    """
+    Verify that script-src does not allow 'unsafe-inline'.
+    """
+    response = client.get("/api/health")
+    csp = response.headers.get("Content-Security-Policy", "")
+
+    # Parse directives
+    directives = {}
+    for part in csp.split(";"):
+        part = part.strip()
+        if not part:
+            continue
+        # Split on first whitespace
+        parts = part.split(None, 1)
+        key = parts[0]
+        values = parts[1] if len(parts) > 1 else ""
+        directives[key] = values
+
+    script_src = directives.get("script-src", "")
+
+    # 🛡️ Sentinel: Ensure 'unsafe-inline' is NOT in script-src
+    assert "'unsafe-inline'" not in script_src, "CSP script-src must not allow 'unsafe-inline'"
+
+    # Optional: ensure it is in style-src if intended
+    style_src = directives.get("style-src", "")
+    assert "'unsafe-inline'" in style_src, "CSP style-src should allow 'unsafe-inline' for now"
