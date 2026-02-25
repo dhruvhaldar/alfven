@@ -52,14 +52,19 @@ MAX_IPS = 2000    # Maximum number of tracked IPs to prevent memory exhaustion
 
 # 🛡️ Sentinel: Content Security Policy
 # Whitelist CDNs used in public/index.html (Three.js, D3, Chart.js, MathJax)
+# Removed 'unsafe-eval' as it's not needed for modern library versions used here.
+# Added object-src 'none', base-uri 'self', and form-action 'self' for hardening.
 CSP_POLICY = (
     "default-src 'self'; "
-    "script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://d3js.org https://cdn.jsdelivr.net; "
+    "script-src 'self' https://cdnjs.cloudflare.com https://d3js.org https://cdn.jsdelivr.net; "
     "style-src 'self' 'unsafe-inline'; "
     "img-src 'self' data:; "
     "font-src 'self' https://cdn.jsdelivr.net; "
     "connect-src 'self'; "
-    "frame-ancestors 'self';"
+    "frame-ancestors 'self'; "
+    "object-src 'none'; "
+    "base-uri 'self'; "
+    "form-action 'self';"
 )
 
 
