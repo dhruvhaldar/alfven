@@ -21,3 +21,7 @@
 ## 2026-05-29 - Inline Validation Feedback
 **Learning:** Generic error messages ("Positive values required") without visual cues cause frustration as users must guess which input is invalid.
 **Action:** Implement `validateInput` helper to apply `.invalid` class and `aria-invalid="true"` to specific fields, and auto-clear these states on user input.
+
+## 2026-06-01 - Keyboard Shortcuts for Calculator Inputs
+**Learning:** In "calculator-style" interfaces where users input multiple numerical values, they instinctively press "Enter" to trigger the calculation. Forcing them to tab to or click a "Calculate" button breaks their flow.
+**Action:** Always attach a `keydown` listener to input fields that triggers the primary action button when "Enter" is pressed, especially if the inputs are not wrapped in a formal `<form>`.
