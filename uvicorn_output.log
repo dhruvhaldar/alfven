@@ -1,0 +1,47 @@
+INFO:     Started server process [2814]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:52434 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52434 - "GET /css/space_theme.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52436 - "GET /css/glass.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52434 - "GET /js/mathjax-config.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52436 - "GET /js/background.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52442 - "GET /js/magnetosphere.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52454 - "GET /js/iono_profile.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52436 - "GET /js/ui.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52436 - "GET /api/magnetosphere/standoff?density=5000000&velocity=400000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52454 - "GET /api/plasma/parameters?n=1000000&T_ev=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52436 - "POST /api/ionosphere/profile HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52436 - "GET /api/solar/sunspot?ratio=0.3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52436 - "GET /api/magnetosphere/standoff?density=10000000&velocity=400000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54242 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54242 - "GET /css/space_theme.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54258 - "GET /css/glass.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54266 - "GET /js/mathjax-config.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54280 - "GET /js/magnetosphere.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54242 - "GET /js/iono_profile.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54272 - "GET /js/background.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54280 - "GET /js/ui.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54280 - "GET /api/magnetosphere/standoff?density=5000000&velocity=400000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54242 - "GET /api/plasma/parameters?n=1000000&T_ev=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54266 - "POST /api/ionosphere/profile HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54266 - "GET /api/solar/sunspot?ratio=0.3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54266 - "GET /api/magnetosphere/standoff?density=10000000&velocity=400000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60822 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60822 - "GET /css/space_theme.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60838 - "GET /css/glass.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60848 - "GET /js/mathjax-config.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60860 - "GET /js/background.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60822 - "GET /js/iono_profile.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60868 - "GET /js/magnetosphere.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60868 - "GET /js/ui.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60868 - "GET /api/magnetosphere/standoff?density=5000000&velocity=400000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60822 - "GET /api/plasma/parameters?n=1000000&T_ev=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60860 - "POST /api/ionosphere/profile HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60860 - "GET /api/solar/sunspot?ratio=0.3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60860 - "GET /api/magnetosphere/standoff?density=10000000&velocity=400000 HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2814]

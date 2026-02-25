@@ -52,69 +52,25 @@ function drawMagnetosphere(standoff) {
     const container = d3.select("#magnetosphere-viz");
     if (container.empty()) return;
 
-    container.selectAll("*").remove(); // Clear previous
-
+    // Optimization: Reuse existing SVG to prevent DOM thrashing
     const width = container.node().getBoundingClientRect().width || 400;
     const height = container.node().getBoundingClientRect().height || 300;
-
-    const svg = container.append("svg")
-        .attr("width", "100%")
-        .attr("height", "100%")
-        .attr("viewBox", `0 0 ${width} ${height}`)
-        .attr("role", "img")
-        .attr("aria-label", `Magnetosphere visualization. Standoff distance is ${standoff.toFixed(1)} Earth Radii.`);
-
     const centerX = width * 0.7;
     const centerY = height / 2;
-
     // Scale: Fit roughly 20 Re in half width
     const scale = (width * 0.4) / 20;
 
-    // Draw Earth
-    svg.append("circle")
-        .attr("cx", centerX)
-        .attr("cy", centerY)
-        .attr("r", 1 * scale) // Earth radius = 1 Re
-        .attr("fill", "#0044ff")
-        .attr("stroke", "#ffffff")
-        .attr("stroke-width", 1);
+    // 1. Setup SVG and static elements if they don't exist
+    let svg = container.select("svg");
+    if (svg.empty()) {
+        svg = container.append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("role", "img");
 
-    // Draw Magnetopause (Approximate Parabola)
-    // x = -standoff + k * y^2
-    // k = 1 / (2.25 * standoff) for flank at 1.5 * standoff
-
-    const curveData = [];
-    const k = 1 / (2.25 * standoff);
-
-    // Generate points
-    for (let y = -25; y <= 25; y+=0.5) {
-        const x_re = -standoff + k * y * y;
-
-        // Only draw if x < 10 (don't go too far behind Earth)
-        if (x_re < 15) {
-            curveData.push({x: x_re, y: y});
-        }
-    }
-
-    const line = d3.line()
-        .x(d => centerX + d.x * scale)
-        .y(d => centerY + d.y * scale)
-        .curve(d3.curveBasis);
-
-    svg.append("path")
-        .datum(curveData)
-        .attr("fill", "none")
-        .attr("stroke", "#ffaa00")
-        .attr("stroke-width", 2)
-        .attr("filter", "drop-shadow(0 0 5px #ffaa00)")
-        .attr("d", line);
-
-    // Draw Sun direction arrow
-    const arrowStart = 20;
-    const arrowEnd = centerX - standoff * scale - 20;
-
-    if (arrowEnd > arrowStart) {
-        svg.append("defs").append("marker")
+        // Static definitions
+        const defs = svg.append("defs");
+        defs.append("marker")
             .attr("id", "arrow")
             .attr("viewBox", "0 0 10 10")
             .attr("refX", 5)
@@ -126,21 +82,91 @@ function drawMagnetosphere(standoff) {
             .attr("d", "M 0 0 L 10 5 L 0 10 z")
             .attr("fill", "#ffaa00");
 
+        // Earth (static shape, dynamic position)
+        svg.append("circle")
+            .attr("class", "earth")
+            .attr("fill", "#0044ff")
+            .attr("stroke", "#ffffff")
+            .attr("stroke-width", 1);
+
+        // Magnetopause path (dynamic shape)
+        svg.append("path")
+            .attr("class", "magnetopause")
+            .attr("fill", "none")
+            .attr("stroke", "#ffaa00")
+            .attr("stroke-width", 2)
+            .attr("filter", "drop-shadow(0 0 5px #ffaa00)");
+
+        // Arrow line
         svg.append("line")
+             .attr("class", "solar-wind-arrow")
+             .attr("stroke", "#ffaa00")
+             .attr("stroke-width", 2)
+             .attr("marker-end", "url(#arrow)");
+
+        // Arrow text
+        svg.append("text")
+             .attr("class", "solar-wind-text")
+             .attr("fill", "#ffaa00")
+             .attr("font-size", "12px")
+             .text("Solar Wind");
+    }
+
+    // 2. Update Attributes for all elements
+    svg.attr("viewBox", `0 0 ${width} ${height}`)
+       .attr("aria-label", `Magnetosphere visualization. Standoff distance is ${standoff.toFixed(1)} Earth Radii.`);
+
+    // Update Earth
+    svg.select(".earth")
+        .attr("cx", centerX)
+        .attr("cy", centerY)
+        .attr("r", 1 * scale);
+
+    // Calculate Magnetopause Curve
+    // x = -standoff + k * y^2
+    const curveData = [];
+    const k = 1 / (2.25 * standoff);
+
+    // Generate points
+    for (let y = -25; y <= 25; y+=0.5) {
+        const x_re = -standoff + k * y * y;
+        // Only draw if x < 15 (don't go too far behind Earth)
+        if (x_re < 15) {
+            curveData.push({x: x_re, y: y});
+        }
+    }
+
+    const line = d3.line()
+        .x(d => centerX + d.x * scale)
+        .y(d => centerY + d.y * scale)
+        .curve(d3.curveBasis);
+
+    svg.select(".magnetopause")
+        .datum(curveData)
+        .attr("d", line);
+
+    // Update Arrow
+    const arrowStart = 20;
+    const arrowEnd = centerX - standoff * scale - 20;
+
+    const arrowLine = svg.select(".solar-wind-arrow");
+    const arrowText = svg.select(".solar-wind-text");
+
+    if (arrowEnd > arrowStart) {
+        arrowLine
+            .attr("display", null)
             .attr("x1", arrowStart)
             .attr("y1", centerY)
             .attr("x2", arrowEnd)
-            .attr("y2", centerY)
-            .attr("stroke", "#ffaa00")
-            .attr("stroke-width", 2)
-            .attr("marker-end", "url(#arrow)");
+            .attr("y2", centerY);
 
-        svg.append("text")
+        arrowText
+            .attr("display", null)
             .attr("x", arrowStart)
-            .attr("y", centerY - 10)
-            .attr("fill", "#ffaa00")
-            .attr("font-size", "12px")
-            .text("Solar Wind");
+            .attr("y", centerY - 10);
+    } else {
+        arrowLine.attr("display", "none");
+        arrowText.attr("display", "none");
     }
 }
 
