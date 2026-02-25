@@ -209,6 +209,19 @@ async function calcAurora(btn) {
     }
 }
 
+// Helper function to enable Enter key for triggering buttons
+function enableEnterKey(inputId, btnId) {
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    if (!input || !btn) return;
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission behavior
+            btn.click();
+        }
+    });
+}
+
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize debounce if available
@@ -257,6 +270,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial calculations
     calcPlasma(null);
+
+    // Enable Enter key for better keyboard accessibility
+    enableEnterKey('plasma-n', 'btn-calc-plasma');
+    enableEnterKey('plasma-T', 'btn-calc-plasma');
+    enableEnterKey('aurora-E', 'btn-calc-aurora');
+    enableEnterKey('aurora-sigma', 'btn-calc-aurora');
+    enableEnterKey('aurora-area', 'btn-calc-aurora');
 
     if (sunspotSlider) {
         syncSunspot(sunspotSlider);
