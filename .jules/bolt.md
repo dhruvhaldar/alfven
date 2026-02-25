@@ -9,3 +9,7 @@
 ## 2026-05-22 - Token Bucket Rate Limiting
 **Learning:** Storing timestamps for every request (Sliding Window Log) consumes O(N) memory per user and complicates global cleanup, potentially leading to OOM or redundant storage.
 **Action:** Use Token Bucket algorithm. It requires only O(1) space (tokens + last_update) per user and strict O(1) time complexity, eliminating the need for a global request log while maintaining rate limits.
+
+## 2026-05-23 - D3.js DOM Thrashing
+**Learning:** Clearing an entire SVG with `d3.selectAll("*").remove()` on every update frame causes significant DOM thrashing and layout recalculations, especially for high-frequency inputs like range sliders.
+**Action:** Use D3's Enter/Update/Exit pattern (or selection update) to reuse existing SVG elements. Initialize static structure once, and only update attributes of dynamic elements on subsequent calls. This preserves the DOM tree and improves rendering performance.
