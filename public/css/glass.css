@@ -73,7 +73,8 @@
 .glass-button:focus-visible,
 .glass-input:focus-visible,
 .glass-range:focus-visible,
-input[type="checkbox"]:focus-visible {
+input[type="checkbox"]:focus-visible,
+.copyable-result:focus-visible {
     outline: 2px solid #4df;
     outline-offset: 2px;
     box-shadow: 0 0 15px rgba(68, 221, 255, 0.6);
@@ -162,4 +163,24 @@ input[type="checkbox"]:focus-visible {
 
 .glass-input.invalid:focus {
     outline-color: #ff6b6b;
+}
+
+/* Copyable Results */
+.copyable-result {
+    cursor: pointer;
+    position: relative;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s, border-color 0.2s;
+    border: 1px solid transparent;
+}
+
+.copyable-result:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.copyable-result.copied {
+    background-color: rgba(77, 255, 170, 0.2);
+    border-color: rgba(77, 255, 170, 0.4);
 }

@@ -47,7 +47,7 @@
             </div>
             <div class="control-group">
                 <label>Standoff Distance ($R_{mp}$):</label>
-                <div class="value-display" id="standoff-display" style="font-size: 1.5rem;" aria-live="polite">
+                <div class="value-display copyable-result" id="standoff-display" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click to copy result">
                     <span class="loading-spinner"></span> Calculating...
                 </div>
             </div>
@@ -101,11 +101,11 @@
                 <!-- Results will go here -->
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
                     <span>Debye Length ($\lambda_D$):</span>
-                    <span class="value-display" id="res-debye">-</span>
+                    <span class="value-display copyable-result" id="res-debye" role="button" tabindex="0" title="Click to copy result">-</span>
                 </div>
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
                     <span>Plasma Freq ($\omega_{pe}$):</span>
-                    <span class="value-display" id="res-freq">-</span>
+                    <span class="value-display copyable-result" id="res-freq" role="button" tabindex="0" title="Click to copy result">-</span>
                 </div>
             </div>
         </div>
@@ -127,7 +127,7 @@
             </div>
             <div class="control-group">
                 <label>Estimated Temperature ($T_{spot}$):</label>
-                <div class="value-display" id="sunspot-temp" style="font-size: 1.5rem;" aria-live="polite">- K</div>
+                <div class="value-display copyable-result" id="sunspot-temp" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click to copy result">- K</div>
             </div>
             <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
                 Estimates sunspot temperature based on brightness contrast with the photosphere ($T_{phot} \approx
@@ -157,11 +157,11 @@
                 style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
                     <span>Dissipated Power ($P$):</span>
-                    <span class="value-display" id="res-power">-</span>
+                    <span class="value-display copyable-result" id="res-power" role="button" tabindex="0" title="Click to copy result">-</span>
                 </div>
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
                     <span>Sheet Current ($J$):</span>
-                    <span class="value-display" id="res-current">-</span>
+                    <span class="value-display copyable-result" id="res-current" role="button" tabindex="0" title="Click to copy result">-</span>
                 </div>
             </div>
         </div>

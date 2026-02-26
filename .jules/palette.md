@@ -25,3 +25,7 @@
 ## 2026-06-01 - Keyboard Shortcuts for Calculator Inputs
 **Learning:** In "calculator-style" interfaces where users input multiple numerical values, they instinctively press "Enter" to trigger the calculation. Forcing them to tab to or click a "Calculate" button breaks their flow.
 **Action:** Always attach a `keydown` listener to input fields that triggers the primary action button when "Enter" is pressed, especially if the inputs are not wrapped in a formal `<form>`.
+
+## 2026-06-03 - Result Interaction Delight
+**Learning:** In educational/scientific tools, users frequently need to extract precise calculation results for use elsewhere (e.g., reports). Static text requires manual selection which is error-prone.
+**Action:** Implement "Click to Copy" functionality on result displays using the Clipboard API, providing immediate visual (class change) and accessible (title update) feedback.
