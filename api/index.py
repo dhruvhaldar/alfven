@@ -68,18 +68,25 @@ CSP_POLICY = (
 )
 
 
+def get_client_ip(request: Request) -> str:
+    # 🛡️ Sentinel: Secure IP Extraction
+    # If running on Vercel (indicated by VERCEL environment variable),
+    # we can trust the X-Forwarded-For header as Vercel ensures it contains the client IP.
+    if os.environ.get("VERCEL"):
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+
+    # Fallback to direct connection IP
+    # This is safe if not behind a proxy, or if the ASGI server is configured to handle proxy headers.
+    return request.client.host if request.client else "unknown"
+
+
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
-    # ⚠️ Warning: In a production environment behind a reverse proxy, request.client.host
-    # might be the proxy's IP. A secure implementation should handle X-Forwarded-For
-    # with a trusted proxy list.
-
     # 🛡️ Sentinel: Enhanced IP extraction
-    # Trusting X-Forwarded-For directly allows IP spoofing if the app is reachable directly or via
-    # an untrusted proxy. We rely on the ASGI server (Uvicorn/Gunicorn) to populate
-    # request.client.host correctly (e.g. using --proxy-headers with trusted IPs).
-    # Application code should not guess network topology.
-    client_ip = request.client.host if request.client else "unknown"
+    # Use helper to securely extract IP based on environment context.
+    client_ip = get_client_ip(request)
 
     # Optimization: Use monotonic time for robust rate limiting regardless of system clock changes
     now = time.monotonic()
@@ -146,23 +153,23 @@ async def add_security_headers(request: Request, call_next):
 
 
 class PlasmaInput(BaseModel):
-    n: float = Field(..., gt=0)
-    T_ev: float = Field(..., gt=0)
+    n: float = Field(..., ge=0.1)
+    T_ev: float = Field(..., ge=0.01)
 
 
 class LarmorInput(BaseModel):
-    T_ev: float = Field(..., gt=0)
-    B: float = Field(..., description="Cannot be 0")
+    T_ev: float = Field(..., ge=0.01)
+    B: float = Field(..., ge=1e-12, description="Cannot be 0")
 
 
 class SolarInput(BaseModel):
-    v_sw: float = Field(..., gt=0)
+    v_sw: float = Field(..., ge=0.1)
     r: float = Field(..., ge=0)
 
 
 class MagnetosphereInput(BaseModel):
-    density: float = Field(..., gt=0)
-    velocity: float = Field(..., gt=0)
+    density: float = Field(..., ge=0.1)
+    velocity: float = Field(..., ge=0.1)
     Bz: float = 0
 
 
@@ -187,9 +194,9 @@ class IonosphereInput(BaseModel):
 
 
 class AuroraInput(BaseModel):
-    E_field: float
-    sigma_P: float = Field(..., gt=0)
-    area: float = Field(..., gt=0)
+    E_field: float = Field(..., le=1e9)
+    sigma_P: float = Field(..., ge=1e-5)
+    area: float = Field(..., ge=1e-5)
 
 
 # Endpoints
@@ -201,7 +208,7 @@ def health_check():
 
 
 @app.get("/api/plasma/debye")
-def get_debye_length(n: float = Query(..., gt=0), T_ev: float = Query(..., gt=0)):
+def get_debye_length(n: float = Query(..., ge=0.1), T_ev: float = Query(..., ge=0.01)):
     """
     Calculate Debye Length.
     """
@@ -210,7 +217,7 @@ def get_debye_length(n: float = Query(..., gt=0), T_ev: float = Query(..., gt=0)
 
 
 @app.get("/api/plasma/parameters")
-def get_plasma_parameters(n: float = Query(..., gt=0), T_ev: float = Query(..., gt=0)):
+def get_plasma_parameters(n: float = Query(..., ge=0.1), T_ev: float = Query(..., ge=0.01)):
     """
     Calculate both Debye Length and Plasma Frequency.
     """
@@ -222,7 +229,7 @@ def get_plasma_parameters(n: float = Query(..., gt=0), T_ev: float = Query(..., 
 
 
 @app.get("/api/plasma/larmor")
-def get_larmor_radius(T_ev: float = Query(..., gt=0), B: float = Query(...)):
+def get_larmor_radius(T_ev: float = Query(..., ge=0.01), B: float = Query(..., ge=1e-12)):
     """
     Calculate Larmor Radius.
     """
@@ -235,7 +242,7 @@ def get_larmor_radius(T_ev: float = Query(..., gt=0), B: float = Query(...)):
 
 
 @app.get("/api/plasma/frequency")
-def get_plasma_frequency(n: float = Query(..., gt=0)):
+def get_plasma_frequency(n: float = Query(..., ge=0.1)):
     """
     Calculate Plasma Frequency.
     """
@@ -244,7 +251,7 @@ def get_plasma_frequency(n: float = Query(..., gt=0)):
 
 
 @app.get("/api/solar/parker")
-def get_parker_spiral(r: float = Query(..., ge=0), v_sw: float = Query(400000, gt=0)):
+def get_parker_spiral(r: float = Query(..., ge=0), v_sw: float = Query(400000, ge=0.1)):
     """
     Calculate Parker Spiral Angle.
     """
@@ -263,7 +270,7 @@ def get_sunspot_temperature(ratio: float = Query(..., ge=0)):
 
 @app.get("/api/magnetosphere/standoff")
 def get_magnetopause_standoff(
-    density: float = Query(..., gt=0), velocity: float = Query(..., gt=0), Bz: float = 0
+    density: float = Query(..., ge=0.1), velocity: float = Query(..., ge=0.1), Bz: float = 0
 ):
     """
     Calculate Magnetopause Standoff Distance.
