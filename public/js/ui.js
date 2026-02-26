@@ -222,8 +222,47 @@ function enableEnterKey(inputId, btnId) {
     });
 }
 
+// Copy to Clipboard Helper
+function copyToClipboard(el) {
+    if (el.getAttribute('aria-busy') === 'true') return;
+
+    // Get text, cleaning up any potential spinner text if hidden but still in DOM
+    const text = el.innerText.trim();
+    if (!text || text === '-' || text.includes('Calculating')) return;
+
+    navigator.clipboard.writeText(text).then(() => {
+        // Visual Feedback
+        el.classList.add('copied');
+        el.setAttribute('title', 'Copied!');
+
+        setTimeout(() => {
+            el.classList.remove('copied');
+            el.setAttribute('title', el.dataset.originalTitle || "Click to copy result");
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+    });
+}
+
+function initCopyableResults() {
+    const results = document.querySelectorAll('.copyable-result');
+    results.forEach(el => {
+        // Store original title for restoration
+        el.dataset.originalTitle = el.getAttribute('title') || "Click to copy result";
+
+        el.addEventListener('click', () => copyToClipboard(el));
+        el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                copyToClipboard(el);
+            }
+        });
+    });
+}
+
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
+    initCopyableResults();
     // Initialize debounce if available
     if (typeof debounce === 'function') {
         debouncedFetchSunspot = debounce(fetchSunspotData, 300);
