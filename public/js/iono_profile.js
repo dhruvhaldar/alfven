@@ -75,19 +75,22 @@ function drawChart(data) {
 
     const ctx = canvas.getContext('2d');
 
+    // Prepare data points {x: density, y: altitude}
+    const points = data.altitude.map((h, i) => ({x: data.density[i], y: h}));
+
     if (chart) {
-        chart.destroy();
+        // Optimization: Reuse existing chart instance to prevent canvas re-initialization overhead
+        chart.data.datasets[0].data = points;
+        chart.update();
+        return;
     }
 
-    // Prepare data points {x: altitude, y: density}
     // Note: Usually profile is plotted with Altitude on Y and Density on X.
     // But standard charts put independent variable on X.
     // The proposal artifact says "Electron Density vs Altitude". Usually Altitude is Y.
     // Let's swap axis?
     // If Altitude is Y, then X is Density (Log).
     // Let's do that.
-
-    const points = data.altitude.map((h, i) => ({x: data.density[i], y: h}));
 
     chart = new Chart(ctx, {
         type: 'line',

@@ -13,3 +13,7 @@
 ## 2026-05-23 - D3.js DOM Thrashing
 **Learning:** Clearing an entire SVG with `d3.selectAll("*").remove()` on every update frame causes significant DOM thrashing and layout recalculations, especially for high-frequency inputs like range sliders.
 **Action:** Use D3's Enter/Update/Exit pattern (or selection update) to reuse existing SVG elements. Initialize static structure once, and only update attributes of dynamic elements on subsequent calls. This preserves the DOM tree and improves rendering performance.
+
+## 2026-05-24 - Chart.js Instance Reuse
+**Learning:** Destroying and recreating Chart.js instances on every data update is a significant performance bottleneck, causing canvas context reallocation and memory churn.
+**Action:** Always check for an existing chart instance before creating a new one. If it exists, update its data via `chart.data.datasets[0].data = newData` and call `chart.update()`. This avoids the initialization overhead and provides smoother transitions.
