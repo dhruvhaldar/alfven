@@ -7,3 +7,8 @@
 **Vulnerability:** The application manually parsed `X-Forwarded-For` and trusted it, allowing attackers to bypass rate limits by rotating the header value. This occurred because the app blindly trusted the header without verifying if the request actually came from a trusted proxy.
 **Learning:** Application code should not attempt to parse proxy headers manually unless it has a robust configuration for trusted proxies. Blindly trusting headers introduces spoofing risks.
 **Prevention:** Rely on the ASGI server (Uvicorn/Gunicorn) to handle proxy headers and populate `request.client.host` securely. Ensure production deployments configure the server with `--proxy-headers` and restricted `--forwarded-allow-ips`.
+
+## 2026-06-01 - JSON Serialization DoS via Infinite Floats
+**Vulnerability:** Pydantic's default float validation allows infinite values (e.g., from physics formulas with near-zero denominators), but standard JSON serialization fails on `Infinity`, causing unhandled 500 errors and potential denial of service.
+**Learning:** Input validation must account for domain-specific edge cases (like division by zero) and data serialization limits, not just type correctness.
+**Prevention:** Enforce strict numerical bounds (e.g., `le=...`, `ge=...`) on all float inputs that feed into calculations, preventing overflow/underflow before processing.
