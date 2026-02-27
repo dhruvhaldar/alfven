@@ -184,3 +184,25 @@ input[type="checkbox"]:focus-visible,
     background-color: rgba(77, 255, 170, 0.2);
     border-color: rgba(77, 255, 170, 0.4);
 }
+
+/* Glass Link */
+.glass-link {
+    color: #4df;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    padding: 0 4px;
+}
+
+.glass-link:hover {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(68, 221, 255, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.glass-link:focus-visible {
+    outline: 2px solid #4df;
+    outline-offset: 2px;
+    box-shadow: 0 0 15px rgba(68, 221, 255, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+}
