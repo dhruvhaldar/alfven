@@ -153,36 +153,36 @@ async def add_security_headers(request: Request, call_next):
 
 
 class PlasmaInput(BaseModel):
-    n: float = Field(..., ge=0.1)
-    T_ev: float = Field(..., ge=0.01)
+    n: float = Field(..., ge=0.1, le=1e30)
+    T_ev: float = Field(..., ge=0.01, le=1e9)
 
 
 class LarmorInput(BaseModel):
-    T_ev: float = Field(..., ge=0.01)
-    B: float = Field(..., ge=1e-12, description="Cannot be 0")
+    T_ev: float = Field(..., ge=0.01, le=1e9)
+    B: float = Field(..., ge=1e-12, le=1e5, description="Cannot be 0")
 
 
 class SolarInput(BaseModel):
-    v_sw: float = Field(..., ge=0.1)
-    r: float = Field(..., ge=0)
+    v_sw: float = Field(..., ge=0.1, le=3e8)
+    r: float = Field(..., ge=0, le=1e20)
 
 
 class MagnetosphereInput(BaseModel):
-    density: float = Field(..., ge=0.1)
-    velocity: float = Field(..., ge=0.1)
-    Bz: float = 0
+    density: float = Field(..., ge=0.1, le=1e30)
+    velocity: float = Field(..., ge=0.1, le=3e8)
+    Bz: float = Field(0, le=1e5, ge=-1e5)
 
 
 class LayerParams(BaseModel):
-    h0: float = Field(..., ge=0)
-    H: float = Field(..., gt=0)
-    n_max: float = Field(..., gt=0)
+    h0: float = Field(..., ge=0, le=10000)
+    H: float = Field(..., gt=0, le=5000)
+    n_max: float = Field(..., gt=0, le=1e30)
 
 
 class IonosphereInput(BaseModel):
     layers: List[LayerParams]
-    min_h: float = Field(..., ge=0)
-    max_h: float = Field(..., gt=0)
+    min_h: float = Field(..., ge=0, le=10000)
+    max_h: float = Field(..., gt=0, le=10000)
     steps: int = Field(100, gt=0, le=2000)
 
     @field_validator("layers")
@@ -195,8 +195,8 @@ class IonosphereInput(BaseModel):
 
 class AuroraInput(BaseModel):
     E_field: float = Field(..., le=1e9)
-    sigma_P: float = Field(..., ge=1e-5)
-    area: float = Field(..., ge=1e-5)
+    sigma_P: float = Field(..., ge=1e-5, le=1e6)
+    area: float = Field(..., ge=1e-5, le=1e20)
 
 
 # Endpoints
@@ -208,7 +208,9 @@ def health_check():
 
 
 @app.get("/api/plasma/debye")
-def get_debye_length(n: float = Query(..., ge=0.1), T_ev: float = Query(..., ge=0.01)):
+def get_debye_length(
+    n: float = Query(..., ge=0.1, le=1e30), T_ev: float = Query(..., ge=0.01, le=1e9)
+):
     """
     Calculate Debye Length.
     """
@@ -217,7 +219,9 @@ def get_debye_length(n: float = Query(..., ge=0.1), T_ev: float = Query(..., ge=
 
 
 @app.get("/api/plasma/parameters")
-def get_plasma_parameters(n: float = Query(..., ge=0.1), T_ev: float = Query(..., ge=0.01)):
+def get_plasma_parameters(
+    n: float = Query(..., ge=0.1, le=1e30), T_ev: float = Query(..., ge=0.01, le=1e9)
+):
     """
     Calculate both Debye Length and Plasma Frequency.
     """
@@ -229,7 +233,10 @@ def get_plasma_parameters(n: float = Query(..., ge=0.1), T_ev: float = Query(...
 
 
 @app.get("/api/plasma/larmor")
-def get_larmor_radius(T_ev: float = Query(..., ge=0.01), B: float = Query(..., ge=1e-12)):
+def get_larmor_radius(
+    T_ev: float = Query(..., ge=0.01, le=1e9),
+    B: float = Query(..., ge=1e-12, le=1e5),
+):
     """
     Calculate Larmor Radius.
     """
@@ -242,7 +249,7 @@ def get_larmor_radius(T_ev: float = Query(..., ge=0.01), B: float = Query(..., g
 
 
 @app.get("/api/plasma/frequency")
-def get_plasma_frequency(n: float = Query(..., ge=0.1)):
+def get_plasma_frequency(n: float = Query(..., ge=0.1, le=1e30)):
     """
     Calculate Plasma Frequency.
     """
@@ -251,7 +258,9 @@ def get_plasma_frequency(n: float = Query(..., ge=0.1)):
 
 
 @app.get("/api/solar/parker")
-def get_parker_spiral(r: float = Query(..., ge=0), v_sw: float = Query(400000, ge=0.1)):
+def get_parker_spiral(
+    r: float = Query(..., ge=0, le=1e20), v_sw: float = Query(400000, ge=0.1, le=3e8)
+):
     """
     Calculate Parker Spiral Angle.
     """
@@ -260,7 +269,7 @@ def get_parker_spiral(r: float = Query(..., ge=0), v_sw: float = Query(400000, g
 
 
 @app.get("/api/solar/sunspot")
-def get_sunspot_temperature(ratio: float = Query(..., ge=0)):
+def get_sunspot_temperature(ratio: float = Query(..., ge=0, le=1e4)):
     """
     Estimate Sunspot Temperature.
     """
@@ -270,7 +279,9 @@ def get_sunspot_temperature(ratio: float = Query(..., ge=0)):
 
 @app.get("/api/magnetosphere/standoff")
 def get_magnetopause_standoff(
-    density: float = Query(..., ge=0.1), velocity: float = Query(..., ge=0.1), Bz: float = 0
+    density: float = Query(..., ge=0.1, le=1e30),
+    velocity: float = Query(..., ge=0.1, le=3e8),
+    Bz: float = Query(0, le=1e5, ge=-1e5),
 ):
     """
     Calculate Magnetopause Standoff Distance.
