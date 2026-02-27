@@ -1,5 +1,6 @@
 // public/js/background.js
 let scene, camera, renderer, stars, particles;
+let animationId; // Track animation frame ID
 
 function init() {
     const container = document.getElementById('canvas-container');
@@ -61,7 +62,24 @@ function init() {
     scene.add(stars);
 
     window.addEventListener('resize', onWindowResize, false);
+
+    // Optimization: Pause animation when tab is not visible
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     animate();
+}
+
+function handleVisibilityChange() {
+    if (document.hidden) {
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+    } else {
+        if (!animationId) {
+            animate();
+        }
+    }
 }
 
 function onWindowResize() {
@@ -71,7 +89,7 @@ function onWindowResize() {
 }
 
 function animate() {
-    requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
 
     if (stars) {
         stars.rotation.y += 0.0002;
