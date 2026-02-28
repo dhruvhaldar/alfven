@@ -29,3 +29,7 @@
 ## 2026-06-03 - Result Interaction Delight
 **Learning:** In educational/scientific tools, users frequently need to extract precise calculation results for use elsewhere (e.g., reports). Static text requires manual selection which is error-prone.
 **Action:** Implement "Click to Copy" functionality on result displays using the Clipboard API, providing immediate visual (class change) and accessible (title update) feedback.
+
+## 2026-02-28 - Dynamic Error Announcement
+**Learning:** Dynamically generated error messages injected into the DOM (e.g., failed form submissions or calculations) are not automatically announced by screen readers, leaving visually impaired users unaware of failures.
+**Action:** Always add `role="alert"` to dynamically created error message containers to ensure assertive announcement by assistive technologies.
