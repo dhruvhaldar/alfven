@@ -1,4 +1,4 @@
-import numpy as np
+import math
 from .utils import AU
 
 class ParkerSpiral:
@@ -25,8 +25,8 @@ class ParkerSpiral:
         """
         # tan(psi) = (omega * r) / v_sw
         # We return the absolute angle relative to radial direction.
-        psi_rad = np.arctan((self.omega * r) / self.v_sw)
-        return np.degrees(psi_rad)
+        psi_rad = math.atan((self.omega * r) / self.v_sw)
+        return math.degrees(psi_rad)
 
 def sunspot_temperature(intensity_ratio, T_photosphere=5778):
     """
