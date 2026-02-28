@@ -1,4 +1,4 @@
-import numpy as np
+import math
 from .utils import e, m_e, eps_0, k_B
 
 class PlasmaState:
@@ -27,7 +27,7 @@ class PlasmaState:
             float: Debye length in meters.
         """
         # lambda_D = sqrt(eps0 * k_B * T / (n * e^2))
-        return np.sqrt((eps_0 * k_B * self.T_k) / (self.n * e**2))
+        return math.sqrt((eps_0 * k_B * self.T_k) / (self.n * e**2))
 
     @property
     def plasma_frequency(self):
@@ -38,7 +38,7 @@ class PlasmaState:
             float: Plasma frequency in rad/s.
         """
         # omega_pe = sqrt(n * e^2 / (m_e * eps_0))
-        return np.sqrt((self.n * e**2) / (m_e * eps_0))
+        return math.sqrt((self.n * e**2) / (m_e * eps_0))
 
     def larmor_radius(self, B):
         """
@@ -53,5 +53,5 @@ class PlasmaState:
         """
         if B == 0:
             return float('inf')
-        v_th = np.sqrt((k_B * self.T_k) / m_e)
+        v_th = math.sqrt((k_B * self.T_k) / m_e)
         return (m_e * v_th) / (e * B)

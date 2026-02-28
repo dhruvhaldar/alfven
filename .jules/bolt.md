@@ -17,3 +17,7 @@
 ## 2026-05-24 - Chart.js Instance Reuse
 **Learning:** Destroying and recreating Chart.js instances on every data update is a significant performance bottleneck, causing canvas context reallocation and memory churn.
 **Action:** Always check for an existing chart instance before creating a new one. If it exists, update its data via `chart.data.datasets[0].data = newData` and call `chart.update()`. This avoids the initialization overhead and provides smoother transitions.
+
+## 2026-05-25 - Python built-in math vs NumPy overhead
+**Learning:** Using NumPy functions (`np.sqrt`, `np.arctan`, `np.exp`) on single scalar values is significantly slower (often 2x-3x slower) than using Python's built-in `math` module equivalent (`math.sqrt`, `math.atan`, `math.exp`). NumPy's overhead for argument checking, type coercion, and ufunc dispatch negates its C-level speed advantages when not operating on arrays.
+**Action:** When computing properties for single objects (like scalar calculations in `PlasmaState` or `ParkerSpiral`), always use Python's built-in `math` module to eliminate NumPy dispatch overhead. Reserve NumPy exclusively for array operations (like altitude profiles).
