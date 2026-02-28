@@ -136,6 +136,11 @@ async def rate_limit_middleware(request: Request, call_next):
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
+
+    # 🛡️ Sentinel: Remove Server Header to obscure technology stack
+    if "server" in response.headers:
+        del response.headers["server"]
+
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
@@ -145,6 +150,12 @@ async def add_security_headers(request: Request, call_next):
     # 🛡️ Sentinel: HSTS & Permissions Policy
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+
+    # 🛡️ Sentinel: Add Cross-Origin-Opener-Policy for process isolation
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+
+    # 🛡️ Sentinel: Add Cross-Origin-Resource-Policy to protect against cross-origin data leaks
+    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
 
     return response
 
