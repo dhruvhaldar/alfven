@@ -84,3 +84,18 @@ def test_csp_strict_script_src():
     # Optional: ensure it is in style-src if intended
     style_src = directives.get("style-src", "")
     assert "'unsafe-inline'" in style_src, "CSP style-src should allow 'unsafe-inline' for now"
+
+def test_additional_security_headers():
+    """
+    Verify the presence of isolation and resource policy headers.
+    """
+    response = client.get("/api/health")
+    assert response.headers.get("Cross-Origin-Opener-Policy") == "same-origin"
+    assert response.headers.get("Cross-Origin-Resource-Policy") == "same-origin"
+
+def test_server_header_removed():
+    """
+    Verify that the 'Server' header is completely removed.
+    """
+    response = client.get("/api/health")
+    assert "server" not in response.headers
