@@ -40,6 +40,7 @@ function showError(container, msg) {
      errorDiv.style.color = '#ff6b6b';
      errorDiv.style.marginTop = '10px';
      errorDiv.style.fontSize = '0.9rem';
+     errorDiv.setAttribute('role', 'alert');
      errorDiv.innerHTML = `⚠️ ${msg}`;
      container.appendChild(errorDiv);
 }
@@ -214,6 +215,12 @@ function enableEnterKey(inputId, btnId) {
     const input = document.getElementById(inputId);
     const btn = document.getElementById(btnId);
     if (!input || !btn) return;
+
+    // Add tooltip to make shortcut discoverable
+    if (!input.hasAttribute('title')) {
+        input.setAttribute('title', 'Press Enter to calculate');
+    }
+
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault(); // Prevent form submission behavior
