@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Query, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
@@ -19,6 +20,9 @@ from alfven import (
 app = FastAPI(
     title="Alfven API", description="Space Weather & Plasma Physics Simulator API"
 )
+
+# Optimization: Compress large responses (e.g., Ionosphere profile data)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Configure logging
 logger = logging.getLogger("alfven")

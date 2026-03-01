@@ -21,3 +21,7 @@
 ## 2026-05-25 - Python built-in math vs NumPy overhead
 **Learning:** Using NumPy functions (`np.sqrt`, `np.arctan`, `np.exp`) on single scalar values is significantly slower (often 2x-3x slower) than using Python's built-in `math` module equivalent (`math.sqrt`, `math.atan`, `math.exp`). NumPy's overhead for argument checking, type coercion, and ufunc dispatch negates its C-level speed advantages when not operating on arrays.
 **Action:** When computing properties for single objects (like scalar calculations in `PlasmaState` or `ParkerSpiral`), always use Python's built-in `math` module to eliminate NumPy dispatch overhead. Reserve NumPy exclusively for array operations (like altitude profiles).
+
+## 2026-05-26 - API Response Compression
+**Learning:** Returning large, uncompressed arrays (like altitude profiles) as JSON strings consumes significant network bandwidth.
+**Action:** Use GZip compression (`GZipMiddleware` in FastAPI) to drastically reduce the network transfer size of large JSON payloads, improving load times.
