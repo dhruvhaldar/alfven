@@ -148,7 +148,7 @@ function syncSunspot(source) {
     // Show loading state
     const tempDisplay = document.getElementById('sunspot-temp');
     if (tempDisplay && tempDisplay.getAttribute('aria-busy') !== 'true') {
-         tempDisplay.innerHTML = '<span class="loading-spinner"></span> Calculating...';
+         tempDisplay.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
          tempDisplay.setAttribute('aria-busy', 'true');
     }
 

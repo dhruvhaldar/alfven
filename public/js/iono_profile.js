@@ -9,7 +9,7 @@ async function updateIonosphere() {
 
     // Loading State
     if (valDisplay) {
-        valDisplay.innerHTML = '<span class="loading-spinner"></span> Updating...';
+        valDisplay.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Updating...';
         valDisplay.setAttribute('aria-busy', 'true');
     }
 
