@@ -41,7 +41,8 @@ function showError(container, msg) {
      errorDiv.style.marginTop = '10px';
      errorDiv.style.fontSize = '0.9rem';
      errorDiv.setAttribute('role', 'alert');
-     errorDiv.innerHTML = `⚠️ ${msg}`;
+     // 🛡️ Sentinel: Prevent XSS by using textContent instead of innerHTML
+     errorDiv.textContent = `⚠️ ${msg}`;
      container.appendChild(errorDiv);
 }
 
