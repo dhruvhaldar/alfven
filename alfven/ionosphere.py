@@ -1,3 +1,4 @@
+import math
 import numpy as np
 
 class ChapmanProfile:
@@ -102,6 +103,11 @@ class ChapmanLayer:
             float or np.ndarray: Electron density.
         """
         z = (h - self.h0) / self.H
+        if np.isscalar(h):
+            # Optimization: Use Python's built-in math.exp for scalar inputs.
+            # This avoids NumPy's type coercion and dispatch overhead, which is
+            # significantly slower (often 2x-3x slower) than math.exp for single values.
+            return self.n_max * math.exp(0.5 * (1 - z - math.exp(-z)))
         return self.n_max * np.exp(0.5 * (1 - z - np.exp(-z)))
 
     def __add__(self, other):
