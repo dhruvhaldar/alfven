@@ -33,3 +33,7 @@
 ## 2026-02-28 - Dynamic Error Announcement
 **Learning:** Dynamically generated error messages injected into the DOM (e.g., failed form submissions or calculations) are not automatically announced by screen readers, leaving visually impaired users unaware of failures.
 **Action:** Always add `role="alert"` to dynamically created error message containers to ensure assertive announcement by assistive technologies.
+
+## 2026-03-02 - Button Disabled State
+**Learning:** While buttons were programmatically disabled during async operations, the lack of an explicit `:disabled` CSS state meant they still looked clickable, confusing users.
+**Action:** Add explicit `.glass-button:disabled` styles (e.g., reduced opacity, `cursor: not-allowed`) to visually distinguish the disabled state from the active and hover states.
