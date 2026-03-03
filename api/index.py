@@ -79,7 +79,9 @@ def get_client_ip(request: Request) -> str:
     if os.environ.get("VERCEL"):
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:
-            return forwarded.split(",")[0].strip()
+            # 🛡️ Sentinel: Proxies append to X-Forwarded-For. The right-most IP is the real client.
+            # Taking the first IP allows an attacker to spoof their IP and bypass rate limits.
+            return forwarded.split(",")[-1].strip()
 
     # Fallback to direct connection IP
     # This is safe if not behind a proxy, or if the ASGI server is configured to handle proxy headers.

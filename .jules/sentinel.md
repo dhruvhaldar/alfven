@@ -1,4 +1,4 @@
-## 2025-02-28 - Prevent DOM-based XSS with textContent
-**Vulnerability:** A potential DOM-based Cross-Site Scripting (XSS) vulnerability was found in `public/js/ui.js` where user-driven error messages were rendered into the DOM using `errorDiv.innerHTML = \`⚠️ ${msg}\`;`.
-**Learning:** Even though the frontend controlled the `msg` content in this specific scenario, directly interpolating dynamic strings into `innerHTML` is an unsafe pattern that can easily be exploited if the input source becomes untrusted or dynamic in the future.
-**Prevention:** Always use `textContent` (or `innerText`) instead of `innerHTML` when rendering user input or dynamic messages that do not specifically require HTML execution, as it safely encodes the text.
+## 2026-03-01 - [Rate Limit Bypass via X-Forwarded-For Spoofing]
+**Vulnerability:** The Vercel reverse proxy IP extractor parsed the left-most (`[0]`) IP address from the `X-Forwarded-For` chain. This allows an attacker to inject spoofed IPs in the request header, which Vercel appends to, bypassing the IP-based rate limiter since the backend incorrectly trusted the client-supplied IP instead of the proxy-supplied connection IP.
+**Learning:** Standard reverse proxies typically append the real connection IP to any existing `X-Forwarded-For` header. Thus, when sitting behind a single trusted proxy (like Vercel), the true client IP is the right-most address (`[-1]`).
+**Prevention:** Always extract the right-most IP address (`split(",")[-1]`) from the `X-Forwarded-For` header when processing requests behind a single layer reverse proxy, or rely on trusted platform-specific headers like `x-real-ip` or `x-vercel-forwarded-for`.
