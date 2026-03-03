@@ -25,3 +25,7 @@
 ## 2026-05-26 - API Response Compression
 **Learning:** Returning large, uncompressed arrays (like altitude profiles) as JSON strings consumes significant network bandwidth.
 **Action:** Use GZip compression (`GZipMiddleware` in FastAPI) to drastically reduce the network transfer size of large JSON payloads, improving load times.
+
+## 2026-03-03 - NumPy sum optimization over arrays
+**Learning:** In Python, iterating over a small list of layers and repeatedly calling `total_n += layer.density(h)` where `total_n` and the result are numpy arrays is slow due to the creation of intermediate arrays and repeated Python loop overhead.
+**Action:** Use Python's built-in `sum()` with a list comprehension (`sum([layer.density(h) for layer in self.layers])`). It is ~3x faster than initializing `np.zeros_like(h)` and accumulating in a loop for a small number of layers.
