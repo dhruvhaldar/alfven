@@ -37,3 +37,7 @@
 ## 2026-03-02 - Button Disabled State
 **Learning:** While buttons were programmatically disabled during async operations, the lack of an explicit `:disabled` CSS state meant they still looked clickable, confusing users.
 **Action:** Add explicit `.glass-button:disabled` styles (e.g., reduced opacity, `cursor: not-allowed`) to visually distinguish the disabled state from the active and hover states.
+
+## 2026-03-03 - Accessible Button-Result Relationships
+**Learning:** Screen reader users can struggle to understand which part of the page will update when clicking a generic "Calculate" button if the results container is separate from the button.
+**Action:** Always use `aria-controls="[id-of-results-container]"` on action buttons that trigger calculations or fetch data to explicitly link the trigger to the dynamic output region.
