@@ -29,3 +29,7 @@
 ## 2026-03-03 - NumPy sum optimization over arrays
 **Learning:** In Python, iterating over a small list of layers and repeatedly calling `total_n += layer.density(h)` where `total_n` and the result are numpy arrays is slow due to the creation of intermediate arrays and repeated Python loop overhead.
 **Action:** Use Python's built-in `sum()` with a list comprehension (`sum([layer.density(h) for layer in self.layers])`). It is ~3x faster than initializing `np.zeros_like(h)` and accumulating in a loop for a small number of layers.
+
+## 2026-03-04 - Render-Blocking JavaScript Optimization
+**Learning:** Synchronous `<script>` tags in the HTML `<head>` (like large CDNs for Three.js, D3.js, Chart.js) severely block the browser's main thread and delay First Contentful Paint (FCP).
+**Action:** Add the `defer` attribute to all external scripts in the `<head>`. Crucially, to maintain execution order and avoid `undefined` variable errors, any local `<script>` tags later in the document that depend on these libraries must also have the `defer` attribute.
