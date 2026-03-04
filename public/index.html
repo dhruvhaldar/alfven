@@ -7,16 +7,19 @@
     <title>Alfven - Space Weather Simulator</title>
     <link rel="stylesheet" href="css/space_theme.css">
     <link rel="stylesheet" href="css/glass.css">
+    <!-- Optimization: defer external libraries to prevent render blocking and improve First Contentful Paint -->
     <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- D3.js -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script defer src="https://d3js.org/d3.v7.min.js"></script>
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- MathJax for equations -->
-    <script src="js/mathjax-config.js"></script>
-    <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Optimization: defer mathjax config and polyfill to prevent render blocking -->
+    <script defer src="js/mathjax-config.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+    <!-- Optimization: match MathJax execution order with its config by using defer instead of async -->
+    <script id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body>
@@ -172,9 +175,10 @@
         </footer>
     </div>
 
-    <script src="js/background.js"></script>
-    <script src="js/magnetosphere.js"></script>
-    <script src="js/iono_profile.js"></script>
+    <!-- Optimization: defer local scripts to maintain execution order with external deferred libraries -->
+    <script src="js/background.js" defer></script>
+    <script src="js/magnetosphere.js" defer></script>
+    <script src="js/iono_profile.js" defer></script>
     <script src="js/ui.js" defer></script>
 </body>
 
