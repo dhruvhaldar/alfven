@@ -77,6 +77,11 @@ def get_client_ip(request: Request) -> str:
     # If running on Vercel (indicated by VERCEL environment variable),
     # we can trust the X-Forwarded-For header as Vercel ensures it contains the client IP.
     if os.environ.get("VERCEL"):
+        # 🛡️ Sentinel: Prefer Vercel's platform-specific non-spoofable header if available
+        vercel_ip = request.headers.get("x-vercel-forwarded-for")
+        if vercel_ip:
+            return vercel_ip.strip()
+
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:
             # 🛡️ Sentinel: Proxies append to X-Forwarded-For. The right-most IP is the real client.

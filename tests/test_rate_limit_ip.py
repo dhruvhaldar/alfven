@@ -29,10 +29,17 @@ def test_get_client_ip_logic():
 
     # Case 2: VERCEL env var set
     with patch.dict(os.environ, {"VERCEL": "1"}):
-        # Header present
-        req.headers = {"X-Forwarded-For": "5.6.7.8, 9.9.9.9"}
-        assert get_client_ip(req) == "5.6.7.8"
+        # Prefer x-vercel-forwarded-for over X-Forwarded-For
+        req.headers = {
+            "x-vercel-forwarded-for": "10.0.0.1",
+            "X-Forwarded-For": "5.6.7.8, 9.9.9.9"
+        }
+        assert get_client_ip(req) == "10.0.0.1"
 
-        # Header missing (fallback)
+        # Fallback to right-most X-Forwarded-For if x-vercel-forwarded-for is absent
+        req.headers = {"X-Forwarded-For": "5.6.7.8, 9.9.9.9"}
+        assert get_client_ip(req) == "9.9.9.9"
+
+        # Header missing completely (fallback to connection IP)
         req.headers = {}
         assert get_client_ip(req) == "1.2.3.4"
