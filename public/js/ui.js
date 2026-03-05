@@ -279,10 +279,13 @@ document.addEventListener('DOMContentLoaded', () => {
         debouncedFetchSunspot = fetchSunspotData;
     }
 
-    // Attach listeners for auto-clearing errors
+    // Attach listeners for auto-clearing errors and validation on blur
     ['plasma-n', 'plasma-T', 'aurora-E', 'aurora-sigma', 'aurora-area'].forEach(id => {
          const el = document.getElementById(id);
-         if(el) el.addEventListener('input', clearErrorState);
+         if(el) {
+             el.addEventListener('input', clearErrorState);
+             el.addEventListener('blur', () => validateInput(el));
+         }
     });
 
     // Plasma Button
