@@ -55,7 +55,11 @@ async function calcPlasma(btn) {
     const nValid = validateInput(nInput);
     const TValid = validateInput(TInput);
 
-    if (!nValid || !TValid) return showError(resultsContainer, "Positive values required.");
+    if (!nValid || !TValid) {
+        if (!nValid && nInput) nInput.focus();
+        else if (!TValid && TInput) TInput.focus();
+        return showError(resultsContainer, "Positive values required.");
+    }
 
     const n = parseFloat(nInput.value);
     const T = parseFloat(TInput.value);
@@ -174,6 +178,9 @@ async function calcAurora(btn) {
     const areaValid = validateInput(areaInput);
 
     if (!EValid || !sigmaValid || !areaValid) {
+         if (!EValid && EInput) EInput.focus();
+         else if (!sigmaValid && sigmaInput) sigmaInput.focus();
+         else if (!areaValid && areaInput) areaInput.focus();
          return showError(resultsContainer, "Positive values required.");
     }
 

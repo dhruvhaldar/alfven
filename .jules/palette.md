@@ -41,3 +41,7 @@
 ## 2026-03-03 - Accessible Button-Result Relationships
 **Learning:** Screen reader users can struggle to understand which part of the page will update when clicking a generic "Calculate" button if the results container is separate from the button.
 **Action:** Always use `aria-controls="[id-of-results-container]"` on action buttons that trigger calculations or fetch data to explicitly link the trigger to the dynamic output region.
+
+## 2026-07-25 - Form Validation Focus Guidance
+**Learning:** When form validation fails after clicking a button, simply displaying an error message leaves the user's focus on the button. Screen reader users must manually navigate back up to find the invalid field, which is tedious and confusing.
+**Action:** Always programmatically call `.focus()` on the first invalid input when client-side validation fails. This immediately directs both sighted and assistive technology users to the exact location requiring correction. Additionally, visually mark explicitly required fields with a distinctive indicator (like a red asterisk) in the label.
