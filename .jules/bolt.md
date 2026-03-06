@@ -33,3 +33,7 @@
 ## 2026-03-04 - Render-Blocking JavaScript Optimization
 **Learning:** Synchronous `<script>` tags in the HTML `<head>` (like large CDNs for Three.js, D3.js, Chart.js) severely block the browser's main thread and delay First Contentful Paint (FCP).
 **Action:** Add the `defer` attribute to all external scripts in the `<head>`. Crucially, to maintain execution order and avoid `undefined` variable errors, any local `<script>` tags later in the document that depend on these libraries must also have the `defer` attribute.
+
+## 2026-06-03 - Deterministic API Client-Side Caching
+**Learning:** Toggling UI states that depend on a small, discrete set of inputs (e.g., a simple Day/Night toggle) can trigger redundant network requests and server-side recalculations if not cached, increasing latency and server load.
+**Action:** Implement a client-side cache (`const cache = {}`) to store the responses for deterministic API calls with minimal input spaces. Always check the cache first before updating loading states or triggering `fetch` to ensure instant UI responsiveness.

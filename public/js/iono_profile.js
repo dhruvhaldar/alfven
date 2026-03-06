@@ -1,19 +1,32 @@
 // public/js/iono_profile.js
 let chart;
 
+// Optimization: Cache profile data locally since there are only two states (Day/Night)
+// This eliminates redundant network requests and server-side profile recalculations.
+const profileCache = {};
+
 async function updateIonosphere() {
     const toggle = document.getElementById('day-night-toggle');
     if (!toggle) return;
 
     const valDisplay = document.getElementById('day-night-val');
+    const isDay = toggle.checked;
+
+    // Check cache FIRST to avoid loading state and network request
+    if (profileCache[isDay]) {
+        drawChart(profileCache[isDay]);
+        if (valDisplay) {
+             valDisplay.innerText = isDay ? "Day Mode" : "Night Mode";
+             valDisplay.setAttribute('aria-busy', 'false');
+        }
+        return;
+    }
 
     // Loading State
     if (valDisplay) {
         valDisplay.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Updating...';
         valDisplay.setAttribute('aria-busy', 'true');
     }
-
-    const isDay = toggle.checked;
 
     // Layers
     // F-layer: h0=300km, H=50km, n_max=1e12
@@ -51,6 +64,9 @@ async function updateIonosphere() {
 
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
+
+        // Save to cache
+        profileCache[isDay] = data;
 
         drawChart(data);
 
