@@ -34,6 +34,8 @@ async function updateMagnetosphere() {
         const display = document.getElementById('standoff-display');
         if (display) {
              display.innerText = standoff.toFixed(1) + " Re";
+             display.style.color = '';
+             display.style.fontSize = '';
              display.setAttribute('aria-busy', 'false');
         }
 
@@ -42,7 +44,9 @@ async function updateMagnetosphere() {
         console.error('Error fetching magnetosphere data:', error);
         const display = document.getElementById('standoff-display');
         if (display) {
-             display.innerHTML = '<span style="color: #ff6b6b; font-size: 1rem;">⚠️ Error</span>';
+             display.textContent = '⚠️ Error';
+             display.style.color = '#ff6b6b';
+             display.style.fontSize = '1rem';
              display.setAttribute('aria-busy', 'false');
         }
     }

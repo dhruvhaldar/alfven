@@ -110,7 +110,8 @@ async function fetchSunspotData(ratio) {
         const res = await fetch(`/api/solar/sunspot?ratio=${ratio}`);
         if (!res.ok) throw new Error();
         const data = await res.json();
-        tempDisplay.innerHTML = Math.round(data.temperature_k) + " K";
+        tempDisplay.textContent = Math.round(data.temperature_k) + " K";
+        tempDisplay.style.color = '';
         tempDisplay.setAttribute('aria-busy', 'false');
 
         // Enhance aria-label with temperature once loaded
@@ -120,7 +121,8 @@ async function fetchSunspotData(ratio) {
         }
     } catch (e) {
         console.error(e);
-        tempDisplay.innerHTML = '<span style="color: #ff6b6b">Error</span>';
+        tempDisplay.textContent = 'Error';
+        tempDisplay.style.color = '#ff6b6b';
         tempDisplay.setAttribute('aria-busy', 'false');
     }
 }
