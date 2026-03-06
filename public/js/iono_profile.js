@@ -57,13 +57,15 @@ async function updateIonosphere() {
         // Success State
         if (valDisplay) {
              valDisplay.innerText = isDay ? "Day Mode" : "Night Mode";
+             valDisplay.style.color = '';
              valDisplay.setAttribute('aria-busy', 'false');
         }
     } catch (error) {
         console.error('Error fetching ionosphere data:', error);
         // Error State
         if (valDisplay) {
-             valDisplay.innerHTML = '<span style="color: #ff6b6b">⚠️ Error</span>';
+             valDisplay.textContent = '⚠️ Error';
+             valDisplay.style.color = '#ff6b6b';
              valDisplay.setAttribute('aria-busy', 'false');
         }
     }

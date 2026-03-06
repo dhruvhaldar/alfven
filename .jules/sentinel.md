@@ -2,3 +2,8 @@
 **Vulnerability:** The Vercel reverse proxy IP extractor parsed the left-most (`[0]`) IP address from the `X-Forwarded-For` chain. This allows an attacker to inject spoofed IPs in the request header, which Vercel appends to, bypassing the IP-based rate limiter since the backend incorrectly trusted the client-supplied IP instead of the proxy-supplied connection IP.
 **Learning:** Standard reverse proxies typically append the real connection IP to any existing `X-Forwarded-For` header. Thus, when sitting behind a single trusted proxy (like Vercel), the true client IP is the right-most address (`[-1]`).
 **Prevention:** Always extract the right-most IP address (`split(",")[-1]`) from the `X-Forwarded-For` header when processing requests behind a single layer reverse proxy, or rely on trusted platform-specific headers like `x-real-ip` or `x-vercel-forwarded-for`.
+
+## 2026-03-01 - [DOM-based XSS via innerHTML assignments]
+**Vulnerability:** Several frontend JavaScript files were using `element.innerHTML = '...'` to insert dynamic error messages or data into the DOM. This introduces a risk for DOM-based Cross-Site Scripting (XSS) if the input data or message ever originates from unvalidated user input or untrusted APIs.
+**Learning:** Even if the input seems safe or is purely numerical/hardcoded at the moment, relying on `innerHTML` for displaying simple text or values builds a vulnerable pattern that can be accidentally exploited in the future when the data source changes.
+**Prevention:** Always enforce the use of `element.textContent = '...'` for dynamic text assignment. For styling previously applied inline through injected HTML tags, configure the element's style directly via `element.style` or toggle CSS classes instead.
