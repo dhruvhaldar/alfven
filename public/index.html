@@ -25,15 +25,15 @@
 <body>
     <div id="canvas-container"></div>
 
-    <div class="dashboard">
-        <div class="hero">
+    <main class="dashboard">
+        <header class="hero">
             <h1>ALFVEN</h1>
             <div class="subtitle">Space Weather & Plasma Physics Simulator</div>
-        </div>
+        </header>
 
         <!-- Magnetosphere Panel -->
-        <div class="glass-panel">
-            <div class="panel-title">Magnetosphere Standoff</div>
+        <section class="glass-panel" aria-labelledby="magnetosphere-title">
+            <h2 class="panel-title" id="magnetosphere-title">Magnetosphere Standoff</h2>
             <div class="control-group">
                 <label for="sw-density">Solar Wind Density (cm⁻³)</label>
                 <div class="control-row">
@@ -49,7 +49,7 @@
                 </div>
             </div>
             <div class="control-group">
-                <label>Standoff Distance ($R_{mp}$):</label>
+                <span class="result-label">Standoff Distance ($R_{mp}$):</span>
                 <div class="value-display copyable-result" id="standoff-display" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click to copy result">
                     <span class="loading-spinner" aria-hidden="true"></span> Calculating...
                 </div>
@@ -59,11 +59,11 @@
                 Visualizes the Chapman-Ferraro distance where solar wind dynamic pressure balances Earth's magnetic
                 pressure.
             </p>
-        </div>
+        </section>
 
         <!-- Ionosphere Panel -->
-        <div class="glass-panel">
-            <div class="panel-title">Ionosphere Profile</div>
+        <section class="glass-panel" aria-labelledby="ionosphere-title">
+            <h2 class="panel-title" id="ionosphere-title">Ionosphere Profile</h2>
             <div class="control-group">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <label for="day-night-toggle" style="margin: 0;">Day/Night Cycle</label>
@@ -83,11 +83,11 @@
                 Visualizes electron density ($N_e$) vs Altitude for D, E, and F layers based on Chapman production
                 functions.
             </p>
-        </div>
+        </section>
 
         <!-- Plasma Parameters Panel -->
-        <div class="glass-panel">
-            <div class="panel-title">Plasma Parameters</div>
+        <section class="glass-panel" aria-labelledby="plasma-title">
+            <h2 class="panel-title" id="plasma-title">Plasma Parameters</h2>
             <div class="control-group">
                 <label for="plasma-n">Density ($n_e$) [m⁻³] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
                 <input type="number" id="plasma-n" class="glass-input" value="1e6" step="any" min="0" required aria-required="true">
@@ -103,19 +103,19 @@
                 style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <!-- Results will go here -->
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span>Debye Length ($\lambda_D$):</span>
+                    <span class="result-label">Debye Length ($\lambda_D$):</span>
                     <span class="value-display copyable-result" id="res-debye" role="button" tabindex="0" title="Click to copy result">-</span>
                 </div>
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span>Plasma Freq ($\omega_{pe}$):</span>
+                    <span class="result-label">Plasma Freq ($\omega_{pe}$):</span>
                     <span class="value-display copyable-result" id="res-freq" role="button" tabindex="0" title="Click to copy result">-</span>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Solar Physics Panel -->
-        <div class="glass-panel">
-            <div class="panel-title">Solar Physics (Sunspots)</div>
+        <section class="glass-panel" aria-labelledby="solar-physics-title">
+            <h2 class="panel-title" id="solar-physics-title">Solar Physics (Sunspots)</h2>
             <div class="control-group">
                 <label for="sunspot-ratio">Intensity Ratio ($I_{spot}/I_{phot}$)</label>
                 <div class="control-row">
@@ -129,18 +129,18 @@
                 </div>
             </div>
             <div class="control-group">
-                <label>Estimated Temperature ($T_{spot}$):</label>
+                <span class="result-label">Estimated Temperature ($T_{spot}$):</span>
                 <div class="value-display copyable-result" id="sunspot-temp" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click to copy result">- K</div>
             </div>
             <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
                 Estimates sunspot temperature based on brightness contrast with the photosphere ($T_{phot} \approx
                 5778K$).
             </p>
-        </div>
+        </section>
 
         <!-- Aurora Panel -->
-        <div class="glass-panel">
-            <div class="panel-title">Aurora Power</div>
+        <section class="glass-panel" aria-labelledby="aurora-title">
+            <h2 class="panel-title" id="aurora-title">Aurora Power</h2>
             <div class="control-group">
                 <label for="aurora-E">Electric Field ($E$) [mV/m] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
                 <input type="number" id="aurora-E" class="glass-input" value="50" min="0" required aria-required="true">
@@ -159,21 +159,21 @@
             <div id="aurora-results" aria-live="polite" aria-busy="false"
                 style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span>Dissipated Power ($P$):</span>
+                    <span class="result-label">Dissipated Power ($P$):</span>
                     <span class="value-display copyable-result" id="res-power" role="button" tabindex="0" title="Click to copy result">-</span>
                 </div>
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span>Sheet Current ($J$):</span>
+                    <span class="result-label">Sheet Current ($J$):</span>
                     <span class="value-display copyable-result" id="res-current" role="button" tabindex="0" title="Click to copy result">-</span>
                 </div>
             </div>
-        </div>
+        </section>
 
         <footer>
             &copy; 2026 Dhruv Haldar. MIT License. | <a href="https://github.com/dhruvhaldar/alfven" target="_blank"
                 rel="noopener noreferrer" class="glass-link" aria-label="GitHub repository (opens in a new tab)">GitHub</a>
         </footer>
-    </div>
+    </main>
 
     <!-- Optimization: defer local scripts to maintain execution order with external deferred libraries -->
     <script src="js/background.js" defer></script>
