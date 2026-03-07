@@ -51,6 +51,7 @@ h1 {
 .panel-title {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     padding-bottom: 15px;
+    margin-top: 0;
     margin-bottom: 20px;
     font-size: 1.4rem;
     text-transform: uppercase;
@@ -70,7 +71,7 @@ h1 {
     gap: 10px;
 }
 
-label {
+label, .result-label {
     display: block;
     margin-bottom: 8px;
     font-size: 0.9rem;
