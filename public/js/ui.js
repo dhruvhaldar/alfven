@@ -86,6 +86,10 @@ async function calcPlasma(btn) {
 }
 
 // Sunspot Logic
+// Optimization: Cache sunspot data locally
+// This eliminates redundant network requests and server-side recalculations.
+const sunspotCache = {};
+
 function updateSunspotVisuals(ratio) {
     // Visual update
     const visual = document.getElementById('sunspot-visual');
@@ -106,18 +110,37 @@ async function fetchSunspotData(ratio) {
     const tempDisplay = document.getElementById('sunspot-temp');
     if (!tempDisplay) return;
 
+    // Check cache FIRST to avoid loading state and network request
+    if (sunspotCache[ratio]) {
+        const temp = sunspotCache[ratio];
+        tempDisplay.textContent = temp + " K";
+        tempDisplay.style.color = '';
+        tempDisplay.setAttribute('aria-busy', 'false');
+
+        const visual = document.getElementById('sunspot-visual');
+        if (visual) {
+            visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}, estimated temperature ${temp} K`);
+        }
+        return;
+    }
+
     try {
         const res = await fetch(`/api/solar/sunspot?ratio=${ratio}`);
         if (!res.ok) throw new Error();
         const data = await res.json();
-        tempDisplay.textContent = Math.round(data.temperature_k) + " K";
+        const temp = Math.round(data.temperature_k);
+
+        // Save to cache
+        sunspotCache[ratio] = temp;
+
+        tempDisplay.textContent = temp + " K";
         tempDisplay.style.color = '';
         tempDisplay.setAttribute('aria-busy', 'false');
 
         // Enhance aria-label with temperature once loaded
         const visual = document.getElementById('sunspot-visual');
         if (visual) {
-            visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}, estimated temperature ${Math.round(data.temperature_k)} K`);
+            visual.setAttribute('aria-label', `Sunspot visualization with intensity ratio ${ratio}, estimated temperature ${temp} K`);
         }
     } catch (e) {
         console.error(e);
@@ -152,19 +175,24 @@ function syncSunspot(source) {
     // Immediate visual feedback
     updateSunspotVisuals(val);
 
-    // Show loading state
-    const tempDisplay = document.getElementById('sunspot-temp');
-    if (tempDisplay && tempDisplay.getAttribute('aria-busy') !== 'true') {
-         tempDisplay.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
-         tempDisplay.setAttribute('aria-busy', 'true');
-    }
-
-    // Debounced API call
-    if (debouncedFetchSunspot) {
-        debouncedFetchSunspot(val);
+    // Check cache before showing loading state
+    if (sunspotCache[val]) {
+        fetchSunspotData(val); // This will just use the cache instantly
     } else {
-        // Fallback if debounce not ready (though it should be)
-        fetchSunspotData(val);
+        // Show loading state
+        const tempDisplay = document.getElementById('sunspot-temp');
+        if (tempDisplay && tempDisplay.getAttribute('aria-busy') !== 'true') {
+             tempDisplay.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
+             tempDisplay.setAttribute('aria-busy', 'true');
+        }
+
+        // Debounced API call
+        if (debouncedFetchSunspot) {
+            debouncedFetchSunspot(val);
+        } else {
+            // Fallback if debounce not ready (though it should be)
+            fetchSunspotData(val);
+        }
     }
 }
 

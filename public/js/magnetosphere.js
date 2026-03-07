@@ -16,6 +16,10 @@ function debounce(func, wait) {
     };
 }
 
+// Optimization: Cache standoff data locally since there's a small discrete set of inputs
+// This eliminates redundant network requests and server-side recalculations.
+const magnetosphereCache = {};
+
 async function updateMagnetosphere() {
     const densityElement = document.getElementById('sw-density');
     const velocityElement = document.getElementById('sw-velocity');
@@ -24,6 +28,22 @@ async function updateMagnetosphere() {
 
     const density = densityElement.value * 1e6; // cm-3 to m-3
     const velocity = velocityElement.value * 1e3; // km/s to m/s
+    const cacheKey = `${density}_${velocity}`;
+
+    const display = document.getElementById('standoff-display');
+
+    // Check cache FIRST to avoid loading state and network request
+    if (magnetosphereCache[cacheKey]) {
+        const standoff = magnetosphereCache[cacheKey];
+        if (display) {
+             display.innerText = standoff.toFixed(1) + " Re";
+             display.style.color = '';
+             display.style.fontSize = '';
+             display.setAttribute('aria-busy', 'false');
+        }
+        drawMagnetosphere(standoff);
+        return;
+    }
 
     try {
         const response = await fetch(`/api/magnetosphere/standoff?density=${density}&velocity=${velocity}`);
@@ -31,7 +51,9 @@ async function updateMagnetosphere() {
         const data = await response.json();
         const standoff = data.radius_re;
 
-        const display = document.getElementById('standoff-display');
+        // Save to cache
+        magnetosphereCache[cacheKey] = standoff;
+
         if (display) {
              display.innerText = standoff.toFixed(1) + " Re";
              display.style.color = '';

@@ -37,3 +37,7 @@
 ## 2026-06-03 - Deterministic API Client-Side Caching
 **Learning:** Toggling UI states that depend on a small, discrete set of inputs (e.g., a simple Day/Night toggle) can trigger redundant network requests and server-side recalculations if not cached, increasing latency and server load.
 **Action:** Implement a client-side cache (`const cache = {}`) to store the responses for deterministic API calls with minimal input spaces. Always check the cache first before updating loading states or triggering `fetch` to ensure instant UI responsiveness.
+
+## 2026-08-01 - Redundant API Calls on Slider Revisit
+**Learning:** When using slider inputs (like range sliders for density, velocity, or sunspot ratio) to control API-driven data updates, users frequently scrub back and forth over the same values. This causes rapid, redundant API requests for previously calculated data, wasting bandwidth and backend processing even when debouncing is implemented.
+**Action:** Use an in-memory client-side dictionary cache (`const cache = {}`) keyed by the active parameters. Always check the cache before updating loading states or calling `fetch`. If cached, update the UI synchronously and immediately, providing a far more responsive UX without network delay.
