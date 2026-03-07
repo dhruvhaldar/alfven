@@ -186,7 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function setLoadingState() {
         const display = document.getElementById('standoff-display');
         if (display) {
-             display.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
+             display.textContent = ' Calculating...';
+             const spinner = document.createElement('span');
+             spinner.className = 'loading-spinner';
+             spinner.setAttribute('aria-hidden', 'true');
+             display.prepend(spinner);
              display.setAttribute('aria-busy', 'true');
         }
     }

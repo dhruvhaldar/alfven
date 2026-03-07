@@ -24,7 +24,11 @@ async function updateIonosphere() {
 
     // Loading State
     if (valDisplay) {
-        valDisplay.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Updating...';
+        valDisplay.textContent = ' Updating...';
+        const spinner = document.createElement('span');
+        spinner.className = 'loading-spinner';
+        spinner.setAttribute('aria-hidden', 'true');
+        valDisplay.prepend(spinner);
         valDisplay.setAttribute('aria-busy', 'true');
     }
 

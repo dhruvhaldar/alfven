@@ -20,7 +20,11 @@ function setLoading(btn, container, isLoading) {
     if (!btn) return;
     if (isLoading) {
          btn.dataset.text = btn.innerText;
-         btn.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
+         btn.textContent = ' Calculating...';
+         const spinner = document.createElement('span');
+         spinner.className = 'loading-spinner';
+         spinner.setAttribute('aria-hidden', 'true');
+         btn.prepend(spinner);
          btn.disabled = true;
          btn.style.cursor = "wait";
          container.setAttribute('aria-busy', 'true');
@@ -155,7 +159,11 @@ function syncSunspot(source) {
     // Show loading state
     const tempDisplay = document.getElementById('sunspot-temp');
     if (tempDisplay && tempDisplay.getAttribute('aria-busy') !== 'true') {
-         tempDisplay.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
+         tempDisplay.textContent = ' Calculating...';
+         const spinner = document.createElement('span');
+         spinner.className = 'loading-spinner';
+         spinner.setAttribute('aria-hidden', 'true');
+         tempDisplay.prepend(spinner);
          tempDisplay.setAttribute('aria-busy', 'true');
     }
 
