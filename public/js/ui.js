@@ -35,6 +35,10 @@ function setLoading(btn, container, isLoading) {
 }
 
 function showError(container, msg) {
+     const existingError = container.querySelector('.error-message');
+     if (existingError) {
+          existingError.remove();
+     }
      const errorDiv = document.createElement('div');
      errorDiv.className = 'error-message';
      errorDiv.style.color = '#ff6b6b';
