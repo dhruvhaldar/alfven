@@ -19,6 +19,7 @@ function clearErrorState(e) {
 function setLoading(btn, container, isLoading) {
     if (!btn) return;
     if (isLoading) {
+         if (container.getAttribute('aria-busy') === 'true') return; // Prevent DOM thrashing
          btn.dataset.text = btn.innerText;
          btn.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
          btn.disabled = true;
@@ -27,6 +28,7 @@ function setLoading(btn, container, isLoading) {
          const error = container.querySelector('.error-message');
          if(error) error.remove();
     } else {
+         if (container.getAttribute('aria-busy') === 'false') return; // Prevent DOM thrashing
          btn.innerText = btn.dataset.text || "Calculate";
          btn.disabled = false;
          btn.style.cursor = "pointer";

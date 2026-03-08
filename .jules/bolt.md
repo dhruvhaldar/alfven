@@ -41,3 +41,7 @@
 ## 2026-08-01 - Redundant API Calls on Slider Revisit
 **Learning:** When using slider inputs (like range sliders for density, velocity, or sunspot ratio) to control API-driven data updates, users frequently scrub back and forth over the same values. This causes rapid, redundant API requests for previously calculated data, wasting bandwidth and backend processing even when debouncing is implemented.
 **Action:** Use an in-memory client-side dictionary cache (`const cache = {}`) keyed by the active parameters. Always check the cache before updating loading states or calling `fetch`. If cached, update the UI synchronously and immediately, providing a far more responsive UX without network delay.
+
+## 2026-03-08 - DOM Thrashing in UI Loading States
+**Learning:** Unconditionally updating DOM attributes (`innerHTML`, `disabled`, `aria-busy`) when entering or exiting a loading state can cause excessive DOM thrashing and visual lag, particularly when events (like sliding) frequently trigger cache hits or debounced updates.
+**Action:** Before updating DOM elements to show or hide a loading state, first check if the element is already in the target state (e.g., `if (container.getAttribute('aria-busy') === 'true') return;`). This prevents redundant layout recalculations and repaints. Also, on high-frequency inputs with cached values, bypass the debounced loading cycle entirely by checking the cache synchronously and calling the update function directly.

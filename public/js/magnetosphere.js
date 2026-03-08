@@ -207,17 +207,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setLoadingState() {
         const display = document.getElementById('standoff-display');
-        if (display) {
+        if (display && display.getAttribute('aria-busy') !== 'true') {
              display.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Calculating...';
              display.setAttribute('aria-busy', 'true');
+        }
+    }
+
+    function isCached() {
+        if (!densityInput || !velocityInput) return false;
+        const d = densityInput.value * 1e6;
+        const v = velocityInput.value * 1e3;
+        const cacheKey = `${d}_${v}`;
+        return !!magnetosphereCache[cacheKey];
+    }
+
+    function triggerUpdate() {
+        if (isCached()) {
+            updateMagnetosphere(); // Instantly apply cached result, no loading state
+        } else {
+            setLoadingState();
+            debouncedUpdate();
         }
     }
 
     function updateFromRange(rangeInput, numberInput) {
         numberInput.value = rangeInput.value;
         numberInput.classList.remove('invalid');
-        setLoadingState();
-        debouncedUpdate();
+        triggerUpdate();
     }
 
     function updateFromNumber(numberInput, rangeInput) {
@@ -233,8 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         numberInput.classList.remove('invalid');
         rangeInput.value = val;
-        setLoadingState();
-        debouncedUpdate();
+        triggerUpdate();
     }
 
     function clampNumberInput(numberInput, rangeInput) {
@@ -252,8 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Only update if effective change or to ensure sync
         if (rangeInput.value != val) {
             rangeInput.value = val;
-            setLoadingState();
-            debouncedUpdate();
+            triggerUpdate();
         }
     }
 
