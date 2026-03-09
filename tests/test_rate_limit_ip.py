@@ -20,7 +20,7 @@ def test_get_client_ip_logic():
     req.headers = {}
 
     # Case 1: Default behavior (no env var)
-    with patch.dict(os.environ, {}, clear=True):
+    with patch('api.index.IS_VERCEL', False):
         assert get_client_ip(req) == "1.2.3.4"
 
         # Even with header, it should be ignored
@@ -28,7 +28,7 @@ def test_get_client_ip_logic():
         assert get_client_ip(req) == "1.2.3.4"
 
     # Case 2: VERCEL env var set
-    with patch.dict(os.environ, {"VERCEL": "1"}):
+    with patch('api.index.IS_VERCEL', True):
         # Prefer x-vercel-forwarded-for over X-Forwarded-For
         req.headers = {
             "x-vercel-forwarded-for": "10.0.0.1",

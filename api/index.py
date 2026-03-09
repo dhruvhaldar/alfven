@@ -54,6 +54,9 @@ WINDOW_SIZE = 60  # seconds
 REFILL_RATE = RATE_LIMIT / WINDOW_SIZE # tokens per second
 MAX_IPS = 2000    # Maximum number of tracked IPs to prevent memory exhaustion
 
+# Optimization: Cache Vercel environment variable to avoid slow os.environ lookups on every request
+IS_VERCEL = bool(os.environ.get("VERCEL"))
+
 # 🛡️ Sentinel: Content Security Policy
 # Whitelist CDNs used in public/index.html (Three.js, D3, Chart.js, MathJax)
 # Removed 'unsafe-eval' as it's not needed for modern library versions used here.
@@ -76,7 +79,7 @@ def get_client_ip(request: Request) -> str:
     # 🛡️ Sentinel: Secure IP Extraction
     # If running on Vercel (indicated by VERCEL environment variable),
     # we can trust the X-Forwarded-For header as Vercel ensures it contains the client IP.
-    if os.environ.get("VERCEL"):
+    if IS_VERCEL:
         # 🛡️ Sentinel: Prefer Vercel's platform-specific non-spoofable header if available
         vercel_ip = request.headers.get("x-vercel-forwarded-for")
         if vercel_ip:
