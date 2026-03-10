@@ -44,3 +44,7 @@
 ## 2026-08-02 - Fast os.environ Lookup Avoidance
 **Learning:** `os.environ.get()` in Python involves function call overhead and dictionary traversal of the environment variables mapped at startup. While not I/O bound, when placed in middleware or per-request logic (like `get_client_ip`), evaluating this on every incoming request adds unnecessary overhead.
 **Action:** Evaluate static environment flags (e.g., `IS_VERCEL = bool(os.environ.get("VERCEL"))`) once at the module level (during cold start) rather than on every request. Caching this boolean improves the function execution speed by nearly ~8x.
+
+## 2026-08-03 - Prevent DOM Thrashing on Cached High-Frequency UI Events
+**Learning:** During high-frequency UI events like dragging a range slider, triggering loading spinners and relying on debouncing causes significant DOM thrashing and noticeable visual delays (due to `createElement`, layout reflows), even if the result is already in the client-side cache and the network call would be skipped later.
+**Action:** Before applying any transient loading states (`createElement`, `textContent`) or scheduling a debounced function, synchronously check the client-side cache for the current parameters. Additionally, verify if the container's `aria-busy` state is already set to prevent redundant DOM updates. If cached, call the update function directly for immediate, jank-free rendering.
