@@ -23,6 +23,8 @@ def test_security_headers():
     assert "default-src 'self'" in csp
     assert "script-src 'self'" in csp
     assert "https://cdnjs.cloudflare.com" in csp
+    assert "https://cdn.jsdelivr.net" in csp
+    assert "https://d3js.org" in csp
 
     assert response.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains"
     assert response.headers.get("Permissions-Policy") == "geolocation=(), microphone=(), camera=()"

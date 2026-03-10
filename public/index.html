@@ -9,17 +9,18 @@
     <link rel="stylesheet" href="css/glass.css">
     <!-- Optimization: defer external libraries to prevent render blocking and improve First Contentful Paint -->
     <!-- Three.js -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- 🛡️ Sentinel: Added Subresource Integrity (SRI) to prevent execution of compromised external scripts -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
     <!-- D3.js -->
-    <script defer src="https://d3js.org/d3.v7.min.js"></script>
+    <script defer src="https://d3js.org/d3.v7.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
     <!-- Chart.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js" integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG" crossorigin="anonymous"></script>
     <!-- MathJax for equations -->
     <!-- Optimization: defer mathjax config and polyfill to prevent render blocking -->
     <script defer src="js/mathjax-config.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+    <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" integrity="sha384-Wr3l27q1bK61u689TZfFU9ZY5gqLFskmpQtEoXiM2BEoIWrnULp2zdvB0G4qVpWt" crossorigin="anonymous"></script>
     <!-- Optimization: match MathJax execution order with its config by using defer instead of async -->
-    <script id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js" integrity="sha384-M5jmNxKC9EVnuqeMwRHvFuYUE8Hhp0TgBruj/GZRkYtiMrCRgH7yvv5KY+Owi7TW" crossorigin="anonymous"></script>
 </head>
 
 <body>
