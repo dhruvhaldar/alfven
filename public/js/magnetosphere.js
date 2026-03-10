@@ -207,7 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setLoadingState() {
         const display = document.getElementById('standoff-display');
-        if (display) {
+        // Optimization: Prevent DOM thrashing by checking aria-busy state
+        if (display && display.getAttribute('aria-busy') !== 'true') {
              // 🛡️ Sentinel: Prevent XSS by using textContent and createElement instead of innerHTML
              display.textContent = ' Calculating...';
              const spinner = document.createElement('span');
@@ -218,11 +219,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Optimization: Check cache synchronously during rapid events (like slider drag)
+    // to prevent DOM thrashing and visual delays before debouncing
+    function triggerUpdate(density, velocity) {
+        const cacheKey = `${density * 1e6}_${velocity * 1e3}`;
+        if (magnetosphereCache[cacheKey]) {
+            // Update immediately if cached
+            updateMagnetosphere();
+        } else {
+            setLoadingState();
+            debouncedUpdate();
+        }
+    }
+
     function updateFromRange(rangeInput, numberInput) {
         numberInput.value = rangeInput.value;
         numberInput.classList.remove('invalid');
-        setLoadingState();
-        debouncedUpdate();
+        const density = parseFloat(document.getElementById('sw-density-num').value);
+        const velocity = parseFloat(document.getElementById('sw-velocity-num').value);
+        triggerUpdate(density, velocity);
     }
 
     function updateFromNumber(numberInput, rangeInput) {
@@ -238,8 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         numberInput.classList.remove('invalid');
         rangeInput.value = val;
-        setLoadingState();
-        debouncedUpdate();
+        const density = parseFloat(document.getElementById('sw-density-num').value);
+        const velocity = parseFloat(document.getElementById('sw-velocity-num').value);
+        triggerUpdate(density, velocity);
     }
 
     function clampNumberInput(numberInput, rangeInput) {
@@ -257,8 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Only update if effective change or to ensure sync
         if (rangeInput.value != val) {
             rangeInput.value = val;
-            setLoadingState();
-            debouncedUpdate();
+            const density = parseFloat(document.getElementById('sw-density-num').value);
+            const velocity = parseFloat(document.getElementById('sw-velocity-num').value);
+            triggerUpdate(density, velocity);
         }
     }
 
