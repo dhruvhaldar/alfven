@@ -66,7 +66,7 @@ CSP_POLICY = (
     "script-src 'self' https://cdnjs.cloudflare.com https://d3js.org https://cdn.jsdelivr.net; "
     "style-src 'self' 'unsafe-inline'; "
     "img-src 'self' data:; "
-    "font-src 'self' https://cdn.jsdelivr.net; "
+    "font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
     "connect-src 'self'; "
     "frame-ancestors 'self'; "
     "object-src 'none'; "
