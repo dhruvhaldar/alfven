@@ -52,3 +52,11 @@
 ## 2026-08-05 - Transient Visual Feedback Accessibility
 **Learning:** Purely visual transient interactions, like displaying a "Copied" icon or changing a color temporarily, are entirely invisible to screen reader users unless accompanied by programmatic announcements.
 **Action:** Pair all transient visual feedback interactions with an assertive or polite announcement via an `aria-live` region to ensure parity of experience. Use a global `#sr-announcer` element for this purpose to avoid complex markup additions across components.
+
+## 2026-08-06 - Contextual Context for Interactive Elements
+**Learning:** Screen readers announce interactive values (like "10.5 m" or "- K") without the necessary context, leaving visually impaired users guessing what the value represents if they focus directly on a copyable result button.
+**Action:** Always assign an `id` to the read-only descriptive text (e.g., `<span class="result-label" id="label-debye">`) and link it to the interactive element using `aria-labelledby="[label-id] [button-id]"`.
+
+## 2026-08-06 - Toggle Switch Accessibility
+**Learning:** A standard `<input type="checkbox">` styled as a toggle switch is announced simply as a checkbox. This does not convey the binary switch paradigm to screen reader users, who may not understand its immediate effect.
+**Action:** Add `role="switch"` to toggle switches and link them to their dynamic status text (e.g., "Day Mode") using `aria-describedby` so the user is aware of the current state immediately.

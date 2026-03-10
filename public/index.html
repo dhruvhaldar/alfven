@@ -49,8 +49,8 @@
                 </div>
             </div>
             <div class="control-group">
-                <span class="result-label">Standoff Distance ($R_{mp}$):</span>
-                <div class="value-display copyable-result" id="standoff-display" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click to copy result">
+                <span class="result-label" id="standoff-label">Standoff Distance ($R_{mp}$):</span>
+                <div class="value-display copyable-result" id="standoff-display" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click to copy result" aria-labelledby="standoff-label standoff-display">
                     <span class="loading-spinner" aria-hidden="true"></span> Calculating...
                 </div>
             </div>
@@ -69,7 +69,7 @@
                     <label for="day-night-toggle" style="margin: 0;">Day/Night Cycle</label>
                     <div style="display: flex; align-items: center;">
                         <label class="glass-toggle">
-                            <input type="checkbox" id="day-night-toggle" checked>
+                            <input type="checkbox" id="day-night-toggle" checked role="switch" aria-describedby="day-night-val">
                             <span class="glass-toggle-slider"></span>
                         </label>
                         <span id="day-night-val" class="value-display" aria-live="polite">Day Mode</span>
@@ -103,12 +103,12 @@
                 style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <!-- Results will go here -->
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span class="result-label">Debye Length ($\lambda_D$):</span>
-                    <span class="value-display copyable-result" id="res-debye" role="button" tabindex="0" title="Click to copy result">-</span>
+                    <span class="result-label" id="label-debye">Debye Length ($\lambda_D$):</span>
+                    <span class="value-display copyable-result" id="res-debye" role="button" tabindex="0" title="Click to copy result" aria-labelledby="label-debye res-debye">-</span>
                 </div>
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span class="result-label">Plasma Freq ($\omega_{pe}$):</span>
-                    <span class="value-display copyable-result" id="res-freq" role="button" tabindex="0" title="Click to copy result">-</span>
+                    <span class="result-label" id="label-freq">Plasma Freq ($\omega_{pe}$):</span>
+                    <span class="value-display copyable-result" id="res-freq" role="button" tabindex="0" title="Click to copy result" aria-labelledby="label-freq res-freq">-</span>
                 </div>
             </div>
         </section>
@@ -129,8 +129,8 @@
                 </div>
             </div>
             <div class="control-group">
-                <span class="result-label">Estimated Temperature ($T_{spot}$):</span>
-                <div class="value-display copyable-result" id="sunspot-temp" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click to copy result">- K</div>
+                <span class="result-label" id="label-sunspot-temp">Estimated Temperature ($T_{spot}$):</span>
+                <div class="value-display copyable-result" id="sunspot-temp" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click to copy result" aria-labelledby="label-sunspot-temp sunspot-temp">- K</div>
             </div>
             <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
                 Estimates sunspot temperature based on brightness contrast with the photosphere ($T_{phot} \approx
@@ -159,12 +159,12 @@
             <div id="aurora-results" aria-live="polite" aria-busy="false"
                 style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span class="result-label">Dissipated Power ($P$):</span>
-                    <span class="value-display copyable-result" id="res-power" role="button" tabindex="0" title="Click to copy result">-</span>
+                    <span class="result-label" id="label-power">Dissipated Power ($P$):</span>
+                    <span class="value-display copyable-result" id="res-power" role="button" tabindex="0" title="Click to copy result" aria-labelledby="label-power res-power">-</span>
                 </div>
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span class="result-label">Sheet Current ($J$):</span>
-                    <span class="value-display copyable-result" id="res-current" role="button" tabindex="0" title="Click to copy result">-</span>
+                    <span class="result-label" id="label-current">Sheet Current ($J$):</span>
+                    <span class="value-display copyable-result" id="res-current" role="button" tabindex="0" title="Click to copy result" aria-labelledby="label-current res-current">-</span>
                 </div>
             </div>
         </section>
