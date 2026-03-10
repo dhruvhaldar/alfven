@@ -297,6 +297,14 @@ function copyToClipboard(el) {
         el.classList.add('copied');
         el.setAttribute('title', 'Copied!');
 
+        // Screen reader feedback
+        const announcer = document.getElementById('sr-announcer');
+        if (announcer) {
+            announcer.textContent = `Copied ${text} to clipboard`;
+            // Clear after announcement to allow repeated announcements
+            setTimeout(() => { announcer.textContent = ''; }, 3000);
+        }
+
         setTimeout(() => {
             el.classList.remove('copied');
             el.setAttribute('title', el.dataset.originalTitle || "Click to copy result");
@@ -374,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial calculations
     calcPlasma(null);
+    calcAurora(null);
 
     // Enable Enter key for better keyboard accessibility
     enableEnterKey('plasma-n', 'btn-calc-plasma');

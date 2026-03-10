@@ -48,3 +48,7 @@
 ## 2026-08-01 - Document Structure and Semantic HTML
 **Learning:** Using `<div>` elements exclusively for document structure and component titles creates a flat document outline. Screen reader users rely on semantic landmarks (`<main>`, `<header>`, `<section>`) and correct heading levels (`<h2>`, `<h3>`) to navigate efficiently. Furthermore, misusing `<label>` tags for read-only values instead of form inputs triggers accessibility validation errors.
 **Action:** Always use semantic HTML5 sectioning elements (`<main>`, `<section>`) and properly nested headings (`<h2>` etc.). Link sections to their headings using `aria-labelledby`. Use `<span class="result-label">` or similar instead of `<label>` when displaying read-only data outputs not associated with a form input.
+
+## 2026-08-05 - Transient Visual Feedback Accessibility
+**Learning:** Purely visual transient interactions, like displaying a "Copied" icon or changing a color temporarily, are entirely invisible to screen reader users unless accompanied by programmatic announcements.
+**Action:** Pair all transient visual feedback interactions with an assertive or polite announcement via an `aria-live` region to ensure parity of experience. Use a global `#sr-announcer` element for this purpose to avoid complex markup additions across components.
