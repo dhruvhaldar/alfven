@@ -1,19 +1,54 @@
 // Form Validation Helper
 function validateInput(input) {
     const val = parseFloat(input.value);
+    const errorId = `${input.id}-error`;
+    let errorEl = document.getElementById(errorId);
+
     if (isNaN(val) || val <= 0) {
         input.classList.add('invalid');
         input.setAttribute('aria-invalid', 'true');
+
+        if (!errorEl) {
+            errorEl = document.createElement('div');
+            errorEl.id = errorId;
+            errorEl.className = 'inline-error';
+            errorEl.setAttribute('role', 'alert');
+            errorEl.textContent = '⚠️ Please enter a positive number.';
+            input.parentNode.appendChild(errorEl);
+        }
+        input.setAttribute('aria-errormessage', errorId);
         return false;
     }
+
     input.classList.remove('invalid');
     input.setAttribute('aria-invalid', 'false');
+    input.removeAttribute('aria-errormessage');
+    if (errorEl) {
+        errorEl.remove();
+    }
     return true;
 }
 
 function clearErrorState(e) {
-     e.target.classList.remove('invalid');
-     e.target.setAttribute('aria-invalid', 'false');
+     const input = e.target;
+     input.classList.remove('invalid');
+     input.setAttribute('aria-invalid', 'false');
+     input.removeAttribute('aria-errormessage');
+
+     const errorId = `${input.id}-error`;
+     const errorEl = document.getElementById(errorId);
+     if (errorEl) {
+         errorEl.remove();
+     }
+
+     // Also clear any global error message in the container
+     const container = input.closest('.glass-panel');
+     if (container) {
+         const globalError = container.querySelector('.error-message');
+         if (globalError) {
+             globalError.remove();
+         }
+     }
 }
 
 function setLoading(btn, container, isLoading) {
@@ -69,7 +104,12 @@ async function calcPlasma(btn) {
     if (!nValid || !TValid) {
         if (!nValid && nInput) nInput.focus();
         else if (!TValid && TInput) TInput.focus();
-        return showError(resultsContainer, "Positive values required.");
+
+        // Remove existing global error if any
+        const existingError = resultsContainer.querySelector('.error-message');
+        if (existingError) existingError.remove();
+
+        return; // Validation handled by inline errors
     }
 
     const n = parseFloat(nInput.value);
@@ -228,7 +268,12 @@ async function calcAurora(btn) {
          if (!EValid && EInput) EInput.focus();
          else if (!sigmaValid && sigmaInput) sigmaInput.focus();
          else if (!areaValid && areaInput) areaInput.focus();
-         return showError(resultsContainer, "Positive values required.");
+
+         // Remove existing global error if any
+         const existingError = resultsContainer.querySelector('.error-message');
+         if (existingError) existingError.remove();
+
+         return; // Validation handled by inline errors
     }
 
     const E_val = parseFloat(EInput.value);
