@@ -48,3 +48,7 @@
 ## 2026-08-03 - Prevent DOM Thrashing on Cached High-Frequency UI Events
 **Learning:** During high-frequency UI events like dragging a range slider, triggering loading spinners and relying on debouncing causes significant DOM thrashing and noticeable visual delays (due to `createElement`, layout reflows), even if the result is already in the client-side cache and the network call would be skipped later.
 **Action:** Before applying any transient loading states (`createElement`, `textContent`) or scheduling a debounced function, synchronously check the client-side cache for the current parameters. Additionally, verify if the container's `aria-busy` state is already set to prevent redundant DOM updates. If cached, call the update function directly for immediate, jank-free rendering.
+
+## 2026-10-24 - Precomputing Mathematical Constants
+**Learning:** Re-evaluating expressions involving fundamental physical constants (e.g., `e`, `eps_0`, `m_e`) dynamically on every property access introduces redundant calculation overhead, especially noticeable in math-heavy backend properties. Furthermore, Python's exponentiation operator (`**2`) has minor overhead compared to direct multiplication.
+**Action:** Precompute these mathematical combinations at the module level when possible. Additionally, replace small integer power operators like `x**2` with direct multiplication (`x * x`) to optimize calculation-intensive properties.
