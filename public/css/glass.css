@@ -176,6 +176,12 @@ input[type="checkbox"]:focus-visible,
     outline-color: #ff6b6b;
 }
 
+.inline-error {
+    color: #ff6b6b;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
 /* Copyable Results */
 .copyable-result {
     cursor: pointer;

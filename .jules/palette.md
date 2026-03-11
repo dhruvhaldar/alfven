@@ -60,3 +60,7 @@
 ## 2026-08-06 - Toggle Switch Accessibility
 **Learning:** A standard `<input type="checkbox">` styled as a toggle switch is announced simply as a checkbox. This does not convey the binary switch paradigm to screen reader users, who may not understand its immediate effect.
 **Action:** Add `role="switch"` to toggle switches and link them to their dynamic status text (e.g., "Day Mode") using `aria-describedby` so the user is aware of the current state immediately.
+
+## 2026-08-07 - Contextual Error Association
+**Learning:** Relying solely on a global error banner (e.g., "Positive values required") when a form contains multiple inputs forces screen reader users to guess which specific field failed validation. Furthermore, retaining a stale global error message while the user is actively correcting the input creates a confusing, conflicting state.
+**Action:** Dynamically inject `.inline-error` messages directly adjacent to the offending input and associate them programmatically using `aria-errormessage`. Additionally, ensure that typing in *any* input field clears both the inline error for that field *and* any global error banner associated with the parent container.
