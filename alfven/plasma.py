@@ -1,6 +1,12 @@
 import math
 from .utils import e, m_e, eps_0, k_B
 
+# Optimization: Precompute physical constant combinations
+_DEBYE_CONST = eps_0 * k_B / (e**2)
+_PLASMA_FREQ_CONST = (e**2) / (m_e * eps_0)
+_VTH_CONST = k_B / m_e
+_LARMOR_CONST = m_e / e
+
 class PlasmaState:
     """
     Represents the state of a plasma defined by density and temperature.
@@ -27,7 +33,8 @@ class PlasmaState:
             float: Debye length in meters.
         """
         # lambda_D = sqrt(eps0 * k_B * T / (n * e^2))
-        return math.sqrt((eps_0 * k_B * self.T_k) / (self.n * e**2))
+        # Optimization: Use precomputed constant term for speed
+        return math.sqrt(_DEBYE_CONST * self.T_k / self.n)
 
     @property
     def plasma_frequency(self):
@@ -38,7 +45,8 @@ class PlasmaState:
             float: Plasma frequency in rad/s.
         """
         # omega_pe = sqrt(n * e^2 / (m_e * eps_0))
-        return math.sqrt((self.n * e**2) / (m_e * eps_0))
+        # Optimization: Use precomputed constant term for speed
+        return math.sqrt(self.n * _PLASMA_FREQ_CONST)
 
     def larmor_radius(self, B):
         """
@@ -53,5 +61,6 @@ class PlasmaState:
         """
         if B == 0:
             return float('inf')
-        v_th = math.sqrt((k_B * self.T_k) / m_e)
-        return (m_e * v_th) / (e * B)
+        # Optimization: Use precomputed constant terms
+        v_th = math.sqrt(_VTH_CONST * self.T_k)
+        return (_LARMOR_CONST * v_th) / B

@@ -18,7 +18,8 @@ class AuroraPower:
         Calculate total power dissipated (Joule heating) in Watts.
         P = Sigma_P * E^2 * Area
         """
-        return self.sigma_P * self.E**2 * self.area
+        # Optimization: use direct multiplication instead of **2 for speed
+        return self.sigma_P * (self.E * self.E) * self.area
 
     @property
     def sheet_current(self):
