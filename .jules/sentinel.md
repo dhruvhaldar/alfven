@@ -11,3 +11,8 @@
 **Vulnerability:** External scripts (e.g., Three.js, D3.js, Chart.js, MathJax, polyfill) were loaded from CDNs without `integrity` and `crossorigin="anonymous"` attributes.
 **Learning:** Loading scripts directly from CDNs without validating their integrity allows for a supply chain attack. If a CDN is compromised, malicious code could be injected and executed on the client-side, bypassing existing Content Security Policy (CSP) protections since the CDN domains were whitelisted.
 **Prevention:** Always generate and include SHA-384 cryptographic hashes via the `integrity` attribute and set `crossorigin="anonymous"` when loading third-party scripts or stylesheets from external CDNs.
+
+## 2026-03-01 - [Information Exposure via API Response Caching]
+**Vulnerability:** API endpoints returning potentially sensitive or dynamic calculations did not explicitly set `Cache-Control` headers. This could allow intermediate proxies, CDNs, or browser caches to store and expose these responses.
+**Learning:** By default, if cache headers are omitted, intermediate nodes might heuristically cache GET request responses, potentially leading to stale data or information leakage.
+**Prevention:** Always enforce strict `Cache-Control: no-store, no-cache, must-revalidate, max-age=0` headers for all dynamic API endpoints to ensure data is never inadvertently cached.

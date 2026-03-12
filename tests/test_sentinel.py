@@ -29,6 +29,10 @@ def test_security_headers():
     assert response.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains"
     assert response.headers.get("Permissions-Policy") == "geolocation=(), microphone=(), camera=()"
 
+    # 🛡️ Sentinel: Verify API anti-caching headers
+    assert response.headers.get("Cache-Control") == "no-store, no-cache, must-revalidate, max-age=0"
+    assert response.headers.get("Pragma") == "no-cache"
+
 
 def test_security_headers_on_error():
     """
