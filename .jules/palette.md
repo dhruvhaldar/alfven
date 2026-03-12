@@ -64,3 +64,7 @@
 ## 2026-08-07 - Contextual Error Association
 **Learning:** Relying solely on a global error banner (e.g., "Positive values required") when a form contains multiple inputs forces screen reader users to guess which specific field failed validation. Furthermore, retaining a stale global error message while the user is actively correcting the input creates a confusing, conflicting state.
 **Action:** Dynamically inject `.inline-error` messages directly adjacent to the offending input and associate them programmatically using `aria-errormessage`. Additionally, ensure that typing in *any* input field clears both the inline error for that field *and* any global error banner associated with the parent container.
+
+## 2026-08-08 - Native Decimal Validation
+**Learning:** Default `<input type="number">` elements implicitly use `step="1"`, which blocks decimal input via native browser validation. For scientific parameters, this causes confusing browser-level validation errors when users input valid decimal values.
+**Action:** Always add `step="any"` to numeric inputs that represent scientific or continuous variables to ensure native browser validation correctly accepts decimal values.

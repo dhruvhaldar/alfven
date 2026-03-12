@@ -144,15 +144,15 @@
             <h2 class="panel-title" id="aurora-title">Aurora Power</h2>
             <div class="control-group">
                 <label for="aurora-E">Electric Field ($E$) [mV/m] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="aurora-E" class="glass-input" value="50" min="0" required aria-required="true">
+                <input type="number" id="aurora-E" class="glass-input" value="50" min="0" step="any" required aria-required="true">
             </div>
             <div class="control-group">
                 <label for="aurora-sigma">Conductivity ($\Sigma_P$) [S] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="aurora-sigma" class="glass-input" value="10" min="0" required aria-required="true">
+                <input type="number" id="aurora-sigma" class="glass-input" value="10" min="0" step="any" required aria-required="true">
             </div>
             <div class="control-group">
                 <label for="aurora-area">Area ($A$) [$10^{10} m^2$] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="aurora-area" class="glass-input" value="1" min="0" required aria-required="true">
+                <input type="number" id="aurora-area" class="glass-input" value="1" min="0" step="any" required aria-required="true">
             </div>
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" id="btn-calc-aurora" aria-controls="aurora-results" style="width: 100%;">Calculate Power</button>
@@ -171,7 +171,7 @@
         </section>
 
         <footer>
-            &copy; 2026 <a href="https://dhruvhaldar.vercel.app/" target="_blank" class="glass-link" rel="noopener noreferrer">Dhruv Haldar</a>. MIT License. | <a href="https://github.com/dhruvhaldar/alfven" target="_blank"
+            &copy; 2026 <a href="https://dhruvhaldar.vercel.app/" target="_blank" class="glass-link" rel="noopener noreferrer" aria-label="Dhruv Haldar (opens in a new tab)">Dhruv Haldar</a>. MIT License. | <a href="https://github.com/dhruvhaldar/alfven" target="_blank"
                 rel="noopener noreferrer" class="glass-link" aria-label="GitHub repository (opens in a new tab)">GitHub</a>
         </footer>
     </main>
