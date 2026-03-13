@@ -66,6 +66,11 @@ function setLoading(btn, container, isLoading) {
          btn.disabled = true;
          btn.style.cursor = "wait";
          container.setAttribute('aria-busy', 'true');
+
+         // Remove stale states when calculation starts
+         btn.classList.remove('needs-update');
+         container.classList.remove('stale-results');
+
          const error = container.querySelector('.error-message');
          if(error) error.remove();
     } else {
@@ -386,11 +391,34 @@ document.addEventListener('DOMContentLoaded', () => {
         debouncedFetchSunspot = fetchSunspotData;
     }
 
+    // Stale state handler
+    function markStale(e) {
+        const inputId = e.target.id;
+        let resultsId = null;
+        let btnId = null;
+
+        if (inputId.startsWith('plasma-')) {
+            resultsId = 'plasma-results';
+            btnId = 'btn-calc-plasma';
+        } else if (inputId.startsWith('aurora-')) {
+            resultsId = 'aurora-results';
+            btnId = 'btn-calc-aurora';
+        }
+
+        if (resultsId && btnId) {
+            const resultsEl = document.getElementById(resultsId);
+            const btnEl = document.getElementById(btnId);
+            if (resultsEl) resultsEl.classList.add('stale-results');
+            if (btnEl) btnEl.classList.add('needs-update');
+        }
+    }
+
     // Attach listeners for auto-clearing errors and validation on blur
     ['plasma-n', 'plasma-T', 'aurora-E', 'aurora-sigma', 'aurora-area'].forEach(id => {
          const el = document.getElementById(id);
          if(el) {
              el.addEventListener('input', clearErrorState);
+             el.addEventListener('input', markStale);
              el.addEventListener('blur', () => validateInput(el));
          }
     });
