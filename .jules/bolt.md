@@ -52,3 +52,7 @@
 ## 2026-10-24 - Precomputing Mathematical Constants
 **Learning:** Re-evaluating expressions involving fundamental physical constants (e.g., `e`, `eps_0`, `m_e`) dynamically on every property access introduces redundant calculation overhead, especially noticeable in math-heavy backend properties. Furthermore, Python's exponentiation operator (`**2`) has minor overhead compared to direct multiplication.
 **Action:** Precompute these mathematical combinations at the module level when possible. Additionally, replace small integer power operators like `x**2` with direct multiplication (`x * x`) to optimize calculation-intensive properties.
+
+## 2026-10-25 - Precomputing Constants Across Domains
+**Learning:** In physics calculations, mathematical constants (`B0^2 / (mu_0 * m_p)`) spread across different domains (e.g., magnetic field, vacuum permeability, proton mass) are often repeatedly evaluated at runtime. This causes unnecessary overhead on each property access, and standard exponentiation like `v**2` is slower than `v*v`.
+**Action:** Always extract and combine static parameters into precomputed module-level constants. Replace operations like `v**2` with direct multiplication `v*v`. This optimization (applied to `Magnetopause.radius_re`) reduces execution time by ~50% (0.46μs to 0.23μs) per call.

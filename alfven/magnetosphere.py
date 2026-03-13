@@ -1,5 +1,10 @@
 from .utils import m_p, mu_0, Re
 
+# Optimization: Precompute physical constant combinations
+# B0 is Earth's magnetic field at equator in Tesla (31,200 nT)
+_B0 = 3.12e-5
+_B0_SQ_DIV_MU0_MP = (_B0 * _B0) / (mu_0 * m_p)
+
 class Magnetopause:
     def __init__(self, density, velocity, Bz=0):
         """
@@ -13,7 +18,7 @@ class Magnetopause:
         self.density = density
         self.velocity = velocity
         self.Bz = Bz
-        self.B0 = 3.12e-5 # Earth's magnetic field at equator in Tesla (31,200 nT)
+        self.B0 = _B0
 
     @property
     def radius_re(self):
@@ -23,19 +28,17 @@ class Magnetopause:
         (R/Re)^6 = B0^2 / (mu_0 * rho * v^2)
         Assuming specular reflection (factor of 2 in dynamic pressure).
         """
-        rho = self.density * m_p
-        P_dyn = rho * self.velocity**2
+        v = self.velocity
+        P_dyn_scaled = self.density * (v * v)
 
-        # Pressure balance:
-        # Dynamic Pressure P_sw = 2 * rho * v^2 (specular reflection) ?
-        # Or just rho * v^2 ?
-        # Standard Chapman-Ferraro distance formula often cited is:
-        # R_mp / Re = (B0^2 / (mu_0 * rho * v^2))^(1/6)
-        # This corresponds to P_sw = rho * v^2 balancing B^2/2mu0 where B = 2*B_dipole.
-        # Let's stick to this common form.
-
-        if P_dyn <= 0:
+        if P_dyn_scaled <= 0:
             return float('inf')
 
-        R_ratio_6 = self.B0**2 / (mu_0 * P_dyn)
+        # Use precomputed constant if B0 hasn't been dynamically overridden
+        if self.B0 == _B0:
+            R_ratio_6 = _B0_SQ_DIV_MU0_MP / P_dyn_scaled
+        else:
+            # Fallback if self.B0 was modified
+            R_ratio_6 = (self.B0 * self.B0) / (mu_0 * m_p * P_dyn_scaled)
+
         return R_ratio_6**(1/6)
