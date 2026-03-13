@@ -68,3 +68,7 @@
 ## 2026-08-08 - Native Decimal Validation
 **Learning:** Default `<input type="number">` elements implicitly use `step="1"`, which blocks decimal input via native browser validation. For scientific parameters, this causes confusing browser-level validation errors when users input valid decimal values.
 **Action:** Always add `step="any"` to numeric inputs that represent scientific or continuous variables to ensure native browser validation correctly accepts decimal values.
+
+## 2026-03-13 - Preventing Stale Data Copies in Manual Forms
+**Learning:** Users can easily copy outdated results from manual calculation forms (like Plasma Parameters and Aurora Power) if they change inputs but forget to click "Calculate". The interactive copyable results (`.copyable-result`) remain active even when inputs are dirty, leading to potential data errors in their work.
+**Action:** Implemented a "stale state" pattern using `.stale-results` (opacity reduction on results) and `.needs-update` (pulsating animation on the calculate button). These are triggered on any input change and cleared upon recalculation, providing clear visual cues that the displayed results no longer match the current inputs. Ensure manual forms always visually distinguish out-of-sync states.
