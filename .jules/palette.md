@@ -72,3 +72,7 @@
 ## 2026-03-13 - Preventing Stale Data Copies in Manual Forms
 **Learning:** Users can easily copy outdated results from manual calculation forms (like Plasma Parameters and Aurora Power) if they change inputs but forget to click "Calculate". The interactive copyable results (`.copyable-result`) remain active even when inputs are dirty, leading to potential data errors in their work.
 **Action:** Implemented a "stale state" pattern using `.stale-results` (opacity reduction on results) and `.needs-update` (pulsating animation on the calculate button). These are triggered on any input change and cleared upon recalculation, providing clear visual cues that the displayed results no longer match the current inputs. Ensure manual forms always visually distinguish out-of-sync states.
+
+## 2026-03-14 - Smooth Continuous Range Sliders
+**Learning:** Default `<input type="range">` elements implicitly use `step="1"`, causing a choppy "snapping" effect when dragged. This feels particularly unpolished and rigid for controls representing continuous scientific parameters (like solar wind density).
+**Action:** Always add `step="any"` to both the `<input type="range">` and its synchronized `<input type="number">` pair when representing continuous variables. This provides a fluid, premium dragging experience and ensures native browser validation accepts decimal inputs without errors.
