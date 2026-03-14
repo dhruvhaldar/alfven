@@ -46,6 +46,13 @@ def test_security_headers_on_error():
         assert response.status_code == 500
         assert response.headers.get("X-Content-Type-Options") == "nosniff"
 
+        # 🛡️ Sentinel: Ensure CSP and HSTS are also present on 500 errors
+        csp = response.headers.get("Content-Security-Policy")
+        assert csp is not None
+        assert "default-src 'self'" in csp
+        assert response.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains"
+        assert response.headers.get("Permissions-Policy") == "geolocation=(), microphone=(), camera=()"
+
 
 def test_no_polyfill_io():
     """
