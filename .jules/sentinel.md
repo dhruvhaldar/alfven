@@ -16,3 +16,8 @@
 **Vulnerability:** API endpoints returning potentially sensitive or dynamic calculations did not explicitly set `Cache-Control` headers. This could allow intermediate proxies, CDNs, or browser caches to store and expose these responses.
 **Learning:** By default, if cache headers are omitted, intermediate nodes might heuristically cache GET request responses, potentially leading to stale data or information leakage.
 **Prevention:** Always enforce strict `Cache-Control: no-store, no-cache, must-revalidate, max-age=0` headers for all dynamic API endpoints to ensure data is never inadvertently cached.
+
+## 2026-10-30 - Missing Security Headers on 500 Error Responses
+**Vulnerability:** Unhandled exceptions resulting in 500 Internal Server Error responses bypassed the custom `add_security_headers` HTTP middleware in FastAPI/Starlette, causing these error pages to lack critical security headers like Content-Security-Policy (CSP) and Strict-Transport-Security (HSTS).
+**Learning:** In the Starlette/FastAPI request lifecycle, custom exception handlers defined via `@app.exception_handler(Exception)` intercept unhandled exceptions and return a response directly. While the `http` middleware still wraps this flow, if an exception is raised *within* `call_next(request)` (as happens before it is caught by the exception handler), the middleware execution is aborted. Thus, code placed after `call_next(request)` in the middleware does not execute for these errors.
+**Prevention:** Extract security header addition logic into a standalone helper function. Apply this function both within the custom middleware (for successful/handled requests) and explicitly within the custom global exception handler to ensure comprehensive coverage across all response types.

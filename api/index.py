@@ -37,9 +37,8 @@ async def global_exception_handler(request: Request, exc: Exception):
     response = JSONResponse(
         status_code=500, content={"detail": "Internal Server Error"}
     )
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "SAMEORIGIN"
-    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    is_api = request.url.path.startswith("/api/")
+    apply_security_headers_to_dict(response.headers, is_api)
     return response
 
 
@@ -73,6 +72,33 @@ CSP_POLICY = (
     "base-uri 'self'; "
     "form-action 'self';"
 )
+
+
+def apply_security_headers_to_dict(headers: dict, is_api: bool):
+    # 🛡️ Sentinel: Remove Server Header to obscure technology stack
+    if "server" in headers:
+        del headers["server"]
+
+    headers["X-Content-Type-Options"] = "nosniff"
+    headers["X-Frame-Options"] = "SAMEORIGIN"
+    headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+    headers["Content-Security-Policy"] = CSP_POLICY
+
+    # 🛡️ Sentinel: HSTS & Permissions Policy
+    headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+
+    # 🛡️ Sentinel: Add Cross-Origin-Opener-Policy for process isolation
+    headers["Cross-Origin-Opener-Policy"] = "same-origin"
+
+    # 🛡️ Sentinel: Add Cross-Origin-Resource-Policy to protect against cross-origin data leaks
+    headers["Cross-Origin-Resource-Policy"] = "same-origin"
+
+    # 🛡️ Sentinel: Prevent sensitive API data from being cached by intermediate proxies and browsers
+    if is_api:
+        headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        headers["Pragma"] = "no-cache"
 
 
 def get_client_ip(request: Request) -> str:
@@ -151,30 +177,8 @@ async def rate_limit_middleware(request: Request, call_next):
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
 
-    # 🛡️ Sentinel: Remove Server Header to obscure technology stack
-    if "server" in response.headers:
-        del response.headers["server"]
-
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "SAMEORIGIN"
-    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-
-    response.headers["Content-Security-Policy"] = CSP_POLICY
-
-    # 🛡️ Sentinel: HSTS & Permissions Policy
-    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
-
-    # 🛡️ Sentinel: Add Cross-Origin-Opener-Policy for process isolation
-    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
-
-    # 🛡️ Sentinel: Add Cross-Origin-Resource-Policy to protect against cross-origin data leaks
-    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
-
-    # 🛡️ Sentinel: Prevent sensitive API data from being cached by intermediate proxies and browsers
-    if request.url.path.startswith("/api/"):
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        response.headers["Pragma"] = "no-cache"
+    is_api = request.url.path.startswith("/api/")
+    apply_security_headers_to_dict(response.headers, is_api)
 
     return response
 
