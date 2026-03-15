@@ -91,11 +91,11 @@
             <h2 class="panel-title" id="plasma-title">Plasma Parameters</h2>
             <div class="control-group">
                 <label for="plasma-n">Density ($n_e$) [m⁻³] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="plasma-n" class="glass-input" value="1e6" step="any" min="0" required aria-required="true">
+                <input type="number" id="plasma-n" class="glass-input" value="1e6" step="any" min="0" max="1e30" required aria-required="true">
             </div>
             <div class="control-group">
                 <label for="plasma-T">Temperature ($T_e$) [eV] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="plasma-T" class="glass-input" value="10" step="any" min="0" required aria-required="true">
+                <input type="number" id="plasma-T" class="glass-input" value="10" step="any" min="0" max="1e9" required aria-required="true">
             </div>
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" id="btn-calc-plasma" aria-controls="plasma-results" style="width: 100%;">Calculate</button>
@@ -144,15 +144,15 @@
             <h2 class="panel-title" id="aurora-title">Aurora Power</h2>
             <div class="control-group">
                 <label for="aurora-E">Electric Field ($E$) [mV/m] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="aurora-E" class="glass-input" value="50" min="0" step="any" required aria-required="true">
+                <input type="number" id="aurora-E" class="glass-input" value="50" min="0" max="1e9" step="any" required aria-required="true">
             </div>
             <div class="control-group">
                 <label for="aurora-sigma">Conductivity ($\Sigma_P$) [S] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="aurora-sigma" class="glass-input" value="10" min="0" step="any" required aria-required="true">
+                <input type="number" id="aurora-sigma" class="glass-input" value="10" min="0" max="1e6" step="any" required aria-required="true">
             </div>
             <div class="control-group">
                 <label for="aurora-area">Area ($A$) [$10^{10} m^2$] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="aurora-area" class="glass-input" value="1" min="0" step="any" required aria-required="true">
+                <input type="number" id="aurora-area" class="glass-input" value="1" min="0" max="1e20" step="any" required aria-required="true">
             </div>
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" id="btn-calc-aurora" aria-controls="aurora-results" style="width: 100%;">Calculate Power</button>

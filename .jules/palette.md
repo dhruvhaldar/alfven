@@ -76,3 +76,7 @@
 ## 2026-03-14 - Smooth Continuous Range Sliders
 **Learning:** Default `<input type="range">` elements implicitly use `step="1"`, causing a choppy "snapping" effect when dragged. This feels particularly unpolished and rigid for controls representing continuous scientific parameters (like solar wind density).
 **Action:** Always add `step="any"` to both the `<input type="range">` and its synchronized `<input type="number">` pair when representing continuous variables. This provides a fluid, premium dragging experience and ensures native browser validation accepts decimal inputs without errors.
+
+## 2026-08-09 - Client-Side Constraint Sync
+**Learning:** Form inputs lacked `max` constraints corresponding to the backend API's Pydantic bounds (e.g., `le=1e30`). Users entering extremely large numbers received generic, global "Calculation failed" API errors instead of immediate, specific inline feedback.
+**Action:** Always sync backend bounds (like `min` and `max`) to frontend HTML validation attributes, and enhance the `validateInput` helper to provide specific inline error messages for `rangeOverflow` conditions to prevent frustrating network round-trips for invalid data.

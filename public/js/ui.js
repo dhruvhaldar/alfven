@@ -1,10 +1,12 @@
 // Form Validation Helper
 function validateInput(input) {
     const val = parseFloat(input.value);
+    const maxAttr = input.getAttribute('max');
+    const max = maxAttr ? parseFloat(maxAttr) : Infinity;
     const errorId = `${input.id}-error`;
     let errorEl = document.getElementById(errorId);
 
-    if (isNaN(val) || val <= 0) {
+    if (isNaN(val) || val <= 0 || val > max) {
         input.classList.add('invalid');
         input.setAttribute('aria-invalid', 'true');
 
@@ -13,9 +15,16 @@ function validateInput(input) {
             errorEl.id = errorId;
             errorEl.className = 'inline-error';
             errorEl.setAttribute('role', 'alert');
-            errorEl.textContent = '⚠️ Please enter a positive number.';
             input.parentNode.appendChild(errorEl);
         }
+
+        if (isNaN(val) || val <= 0) {
+            errorEl.textContent = '⚠️ Please enter a positive number.';
+        } else if (val > max) {
+            const maxStr = max > 10000 ? max.toExponential() : max;
+            errorEl.textContent = `⚠️ Value must be \u2264 ${maxStr}.`;
+        }
+
         input.setAttribute('aria-errormessage', errorId);
         return false;
     }
