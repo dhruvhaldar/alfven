@@ -80,3 +80,7 @@
 ## 2026-08-09 - Client-Side Constraint Sync
 **Learning:** Form inputs lacked `max` constraints corresponding to the backend API's Pydantic bounds (e.g., `le=1e30`). Users entering extremely large numbers received generic, global "Calculation failed" API errors instead of immediate, specific inline feedback.
 **Action:** Always sync backend bounds (like `min` and `max`) to frontend HTML validation attributes, and enhance the `validateInput` helper to provide specific inline error messages for `rangeOverflow` conditions to prevent frustrating network round-trips for invalid data.
+
+## 2026-08-10 - Screen Reader Invalid State Sync
+**Learning:** Adding an `.invalid` CSS class provides a visual indication of validation failure for sighted users, but completely bypasses screen reader users who depend on the `aria-invalid` attribute. If they are not synchronized, a form control may appear invalid visually while reporting as valid contextually.
+**Action:** Whenever dynamically adding or removing a CSS class for an invalid state (e.g., `.invalid`), ensure that the corresponding `aria-invalid="true"` or `aria-invalid="false"` attribute is set synchronously on the input element.
