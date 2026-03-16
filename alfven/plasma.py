@@ -1,11 +1,10 @@
 import math
 from .utils import e, m_e, eps_0, k_B
 
-# Optimization: Precompute physical constant combinations
-_DEBYE_CONST = eps_0 * k_B / (e**2)
+# Optimization: Precompute physical constant combinations and algebraically simplify formula terms
+_DEBYE_CONST_SQRT = math.sqrt(eps_0 / e)
 _PLASMA_FREQ_CONST = (e**2) / (m_e * eps_0)
-_VTH_CONST = k_B / m_e
-_LARMOR_CONST = m_e / e
+_LARMOR_CONST_SQRT = math.sqrt(m_e / e)
 
 class PlasmaState:
     """
@@ -33,8 +32,8 @@ class PlasmaState:
             float: Debye length in meters.
         """
         # lambda_D = sqrt(eps0 * k_B * T / (n * e^2))
-        # Optimization: Use precomputed constant term for speed
-        return math.sqrt(_DEBYE_CONST * self.T_k / self.n)
+        # Optimization: Use algebraically simplified, precomputed constant term for speed
+        return _DEBYE_CONST_SQRT * math.sqrt(self.T_ev / self.n)
 
     @property
     def plasma_frequency(self):
@@ -61,6 +60,5 @@ class PlasmaState:
         """
         if B == 0:
             return float('inf')
-        # Optimization: Use precomputed constant terms
-        v_th = math.sqrt(_VTH_CONST * self.T_k)
-        return (_LARMOR_CONST * v_th) / B
+        # Optimization: Use algebraically simplified, precomputed constant terms
+        return (_LARMOR_CONST_SQRT * math.sqrt(self.T_ev)) / B
