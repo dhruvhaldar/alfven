@@ -235,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFromRange(rangeInput, numberInput) {
         numberInput.value = rangeInput.value;
         numberInput.classList.remove('invalid');
+        numberInput.setAttribute('aria-invalid', 'false');
         const density = parseFloat(document.getElementById('sw-density-num').value);
         const velocity = parseFloat(document.getElementById('sw-velocity-num').value);
         triggerUpdate(density, velocity);
@@ -248,10 +249,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Allow partial typing, but don't update if invalid
         if (isNaN(val) || val < min || val > max) {
             numberInput.classList.add('invalid');
+            numberInput.setAttribute('aria-invalid', 'true');
             return;
         }
 
         numberInput.classList.remove('invalid');
+        numberInput.setAttribute('aria-invalid', 'false');
         rangeInput.value = val;
         const density = parseFloat(document.getElementById('sw-density-num').value);
         const velocity = parseFloat(document.getElementById('sw-velocity-num').value);
@@ -269,6 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         numberInput.value = val;
         numberInput.classList.remove('invalid');
+        numberInput.setAttribute('aria-invalid', 'false');
 
         // Only update if effective change or to ensure sync
         if (rangeInput.value != val) {
