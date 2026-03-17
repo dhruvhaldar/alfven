@@ -278,3 +278,17 @@ input[type="checkbox"]:focus-visible,
         box-shadow: 0 0 0 0 rgba(100, 200, 255, 0);
     }
 }
+
+/* Skip Link */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 20px;
+    z-index: 1000;
+    transition: top 0.3s ease;
+    text-decoration: none;
+}
+
+.skip-link:focus {
+    top: 20px;
+}
