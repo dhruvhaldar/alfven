@@ -56,3 +56,7 @@
 ## 2026-10-25 - Precomputing Constants Across Domains
 **Learning:** In physics calculations, mathematical constants (`B0^2 / (mu_0 * m_p)`) spread across different domains (e.g., magnetic field, vacuum permeability, proton mass) are often repeatedly evaluated at runtime. This causes unnecessary overhead on each property access, and standard exponentiation like `v**2` is slower than `v*v`.
 **Action:** Always extract and combine static parameters into precomputed module-level constants. Replace operations like `v**2` with direct multiplication `v*v`. This optimization (applied to `Magnetopause.radius_re`) reduces execution time by ~50% (0.46μs to 0.23μs) per call.
+
+## 2026-10-26 - Precomputing Constants for Object Initialization
+**Learning:** Evaluating combinations of physical constants (like `e / k_B`) inside an object's `__init__` method introduces redundant calculation overhead on every instantiation. This adds up when objects are created frequently (e.g., per API request).
+**Action:** Precompute these constant combinations at the module level. Ensure that attributes which were previously calculated dynamically (like `self.T_k`) are preserved using the precomputed constants to maintain backwards compatibility without the performance penalty.

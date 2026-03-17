@@ -5,6 +5,7 @@ from .utils import e, m_e, eps_0, k_B
 _DEBYE_CONST_SQRT = math.sqrt(eps_0 / e)
 _PLASMA_FREQ_CONST = (e**2) / (m_e * eps_0)
 _LARMOR_CONST_SQRT = math.sqrt(m_e / e)
+_EV_TO_K = e / k_B
 
 class PlasmaState:
     """
@@ -21,7 +22,8 @@ class PlasmaState:
         self.n = n
         self.T_ev = T_ev
         # Convert Temperature to Kelvin: T(K) = T(eV) * e / k_B
-        self.T_k = T_ev * e / k_B
+        # Optimization: use precomputed conversion constant to eliminate division overhead
+        self.T_k = T_ev * _EV_TO_K
 
     @property
     def debye_length(self):
