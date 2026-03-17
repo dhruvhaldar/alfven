@@ -84,3 +84,7 @@
 ## 2026-08-10 - Screen Reader Invalid State Sync
 **Learning:** Adding an `.invalid` CSS class provides a visual indication of validation failure for sighted users, but completely bypasses screen reader users who depend on the `aria-invalid` attribute. If they are not synchronized, a form control may appear invalid visually while reporting as valid contextually.
 **Action:** Whenever dynamically adding or removing a CSS class for an invalid state (e.g., `.invalid`), ensure that the corresponding `aria-invalid="true"` or `aria-invalid="false"` attribute is set synchronously on the input element.
+
+## 2026-08-11 - Skip to Content Links
+**Learning:** Keyboard-only users and screen reader users must navigate through decorative or repetitive header elements (like the animated background canvas and hero section) before reaching interactive panels.
+**Action:** Always include a "Skip to main content" link at the very beginning of the document flow that becomes visible on focus, allowing users to bypass non-interactive elements efficiently.
