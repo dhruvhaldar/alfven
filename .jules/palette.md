@@ -88,3 +88,7 @@
 ## 2026-08-11 - Skip to Content Links
 **Learning:** Keyboard-only users and screen reader users must navigate through decorative or repetitive header elements (like the animated background canvas and hero section) before reaching interactive panels.
 **Action:** Always include a "Skip to main content" link at the very beginning of the document flow that becomes visible on focus, allowing users to bypass non-interactive elements efficiently.
+
+## 2026-08-12 - Copyable Result Discoverability
+**Learning:** Hiding interaction affordances (like clipboard icons) entirely behind hover states is an accessibility and UX anti-pattern. It makes the feature undiscoverable for users on touch devices and forces desktop users to "hunt" for interactivity by randomly hovering.
+**Action:** Ensure interactive elements that don't look like standard buttons (like copyable result text) always display a baseline visual affordance, such as a subtle background, border, and a persistently visible (though perhaps lower opacity) icon, to clearly signal their interactivity.
