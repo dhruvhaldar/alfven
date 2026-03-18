@@ -189,7 +189,8 @@ input[type="checkbox"]:focus-visible,
     padding: 2px 28px 2px 6px;
     border-radius: 4px;
     transition: background-color 0.2s, border-color 0.2s;
-    border: 1px solid transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .copyable-result::after {
@@ -198,18 +199,20 @@ input[type="checkbox"]:focus-visible,
     right: 6px;
     top: 50%;
     transform: translateY(-50%);
-    opacity: 0;
+    opacity: 0.4;
     transition: opacity 0.2s;
     font-size: 0.9em;
 }
 
-.copyable-result:hover {
+.copyable-result:hover,
+.copyable-result:focus-visible {
     background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
-.copyable-result:hover::after {
-    opacity: 0.7;
+.copyable-result:hover::after,
+.copyable-result:focus-visible::after {
+    opacity: 1;
 }
 
 .copyable-result.copied {
