@@ -92,3 +92,7 @@
 ## 2026-08-12 - Copyable Result Discoverability
 **Learning:** Hiding interaction affordances (like clipboard icons) entirely behind hover states is an accessibility and UX anti-pattern. It makes the feature undiscoverable for users on touch devices and forces desktop users to "hunt" for interactivity by randomly hovering.
 **Action:** Ensure interactive elements that don't look like standard buttons (like copyable result text) always display a baseline visual affordance, such as a subtle background, border, and a persistently visible (though perhaps lower opacity) icon, to clearly signal their interactivity.
+
+## 2026-08-13 - Tactile Feedback and Cross-Browser Sliders
+**Learning:** Default interactive elements (like buttons and copyable results) often feel static when clicked. Sliders use a generic `pointer` cursor, miscommunicating the drag interaction. Furthermore, custom styling for `-webkit-slider-thumb` leaves Firefox users with broken UI.
+**Action:** Enhance tactile feedback by applying `transform: scale(0.98)` to buttons/results on `:active`, and scale up slider thumbs on `:hover` and `:active`. Always use `cursor: grab` and `cursor: grabbing` for sliders to communicate the interaction model. Remember to implement `-moz-range-thumb` and `-moz-range-track` pseudo-elements for cross-browser visual consistency.
