@@ -64,3 +64,7 @@
 ## 2026-10-27 - NumPy isscalar Overhead Avoidance
 **Learning:** `np.isscalar()` has significant function call and type-checking overhead compared to Python's built-in `isinstance()`. When placed in heavily called mathematical logic (like ionosphere density calculations over arrays), `np.isscalar()` slows down execution—my benchmarks showed `isinstance` is ~4x faster for array-like inputs and moderately faster for scalar inputs.
 **Action:** Replace `np.isscalar(x)` with `isinstance(x, (int, float, np.number))` for better performance. This reliably captures built-in Python scalars as well as NumPy scalar types with much lower overhead.
+
+## 2026-10-28 - Algebraic Expansion to Reduce Costly Operations Inside Exponential Functions
+**Learning:** In heavily called complex mathematical models (like `ChapmanLayer` density where `n(h) = n_max * exp(0.5 * (1 - z - exp(-z)))`), directly computing terms like `1` minus terms adds redundant scalar operations, and evaluating `exp(0.5)` each time multiplies redundant costs. A mathematically equivalent expansion, `exp(0.5) * exp(-0.5 * (z + exp(-z)))`, simplifies the expression inside the exponent.
+**Action:** Use algebraic expansion to pull constants out of mathematical functions and precompute them during `__init__` (e.g. `_n_max_exp_half = n_max * math.exp(0.5)`). Apply the algebraically simplified formula `_n_max_exp_half * exp(-0.5 * (z + exp(-z)))` inside the heavily called methods to reduce unnecessary floating-point operations.

@@ -12,6 +12,10 @@ class ParkerSpiral:
         """
         self.v_sw = v_sw
         self.omega = omega
+        # Optimization: Precompute ratio for faster tangent argument calculation
+        self._omega_div_v = omega / v_sw
+        # Optimization: Precompute factor to eliminate math.degrees function call overhead
+        self._deg_factor = 180.0 / math.pi
 
     def spiral_angle(self, r):
         """
@@ -25,8 +29,8 @@ class ParkerSpiral:
         """
         # tan(psi) = (omega * r) / v_sw
         # We return the absolute angle relative to radial direction.
-        psi_rad = math.atan((self.omega * r) / self.v_sw)
-        return math.degrees(psi_rad)
+        # Optimization: use precomputed ratio and multiplication factor to avoid division and function calls
+        return math.atan(self._omega_div_v * r) * self._deg_factor
 
 def sunspot_temperature(intensity_ratio, T_photosphere=5778):
     """
