@@ -96,3 +96,7 @@
 ## 2026-08-13 - Tactile Feedback and Cross-Browser Sliders
 **Learning:** Default interactive elements (like buttons and copyable results) often feel static when clicked. Sliders use a generic `pointer` cursor, miscommunicating the drag interaction. Furthermore, custom styling for `-webkit-slider-thumb` leaves Firefox users with broken UI.
 **Action:** Enhance tactile feedback by applying `transform: scale(0.98)` to buttons/results on `:active`, and scale up slider thumbs on `:hover` and `:active`. Always use `cursor: grab` and `cursor: grabbing` for sliders to communicate the interaction model. Remember to implement `-moz-range-thumb` and `-moz-range-track` pseudo-elements for cross-browser visual consistency.
+
+## 2026-08-14 - Placeholder Guidance in Forms
+**Learning:** Users who clear numeric inputs (e.g., in Plasma Parameters or Aurora Power) lose the context of the expected format (like scientific notation `1e6`). A blank input without a placeholder requires them to guess or refer to documentation.
+**Action:** Always provide `placeholder` attributes (e.g., "e.g. 1e6") on numeric inputs that require specific formats or typical magnitudes, and style them consistently (e.g., `.glass-input::placeholder`) to maintain design cohesion while offering continuous guidance.
