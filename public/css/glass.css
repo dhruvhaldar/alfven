@@ -125,6 +125,11 @@
     border-radius: 2px;
 }
 
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+}
+
 /* Accessibility Focus Styles */
 .glass-button:focus-visible,
 .glass-input:focus-visible,
