@@ -37,17 +37,17 @@
         <section class="glass-panel" aria-labelledby="magnetosphere-title">
             <h2 class="panel-title" id="magnetosphere-title">Magnetosphere Standoff</h2>
             <div class="control-group">
-                <label for="sw-density">Solar Wind Density (cm⁻³)</label>
+                <label for="sw-density" id="label-sw-density">Solar Wind Density (cm⁻³)</label>
                 <div class="control-row">
-                    <input type="range" id="sw-density" class="glass-range" min="1" max="100" step="any" value="5" style="flex-grow: 1;" aria-label="Solar Wind Density Range">
-                    <input type="number" id="sw-density-num" class="glass-input" min="1" max="100" step="any" value="5" style="width: 80px;" aria-label="Solar Wind Density Value" placeholder="e.g. 5">
+                    <input type="range" id="sw-density" class="glass-range" min="1" max="100" step="any" value="5" style="flex-grow: 1;" aria-labelledby="label-sw-density">
+                    <input type="number" id="sw-density-num" class="glass-input" min="1" max="100" step="any" value="5" style="width: 80px;" aria-labelledby="label-sw-density" placeholder="e.g. 5">
                 </div>
             </div>
             <div class="control-group">
-                <label for="sw-velocity">Solar Wind Velocity (km/s)</label>
+                <label for="sw-velocity" id="label-sw-velocity">Solar Wind Velocity (km/s)</label>
                 <div class="control-row">
-                    <input type="range" id="sw-velocity" class="glass-range" min="200" max="1500" step="any" value="400" style="flex-grow: 1;" aria-label="Solar Wind Velocity Range">
-                    <input type="number" id="sw-velocity-num" class="glass-input" min="200" max="1500" step="any" value="400" style="width: 80px;" aria-label="Solar Wind Velocity Value" placeholder="e.g. 400">
+                    <input type="range" id="sw-velocity" class="glass-range" min="200" max="1500" step="any" value="400" style="flex-grow: 1;" aria-labelledby="label-sw-velocity">
+                    <input type="number" id="sw-velocity-num" class="glass-input" min="200" max="1500" step="any" value="400" style="width: 80px;" aria-labelledby="label-sw-velocity" placeholder="e.g. 400">
                 </div>
             </div>
             <div class="control-group">
@@ -119,10 +119,10 @@
         <section class="glass-panel" aria-labelledby="solar-physics-title">
             <h2 class="panel-title" id="solar-physics-title">Solar Physics (Sunspots)</h2>
             <div class="control-group">
-                <label for="sunspot-ratio">Intensity Ratio ($I_{spot}/I_{phot}$)</label>
+                <label for="sunspot-ratio" id="label-sunspot-ratio">Intensity Ratio ($I_{spot}/I_{phot}$)</label>
                 <div class="control-row">
-                    <input type="range" id="sunspot-ratio" class="glass-range" min="0.01" max="1.0" step="0.01" value="0.3" style="flex-grow: 1;" aria-label="Sunspot Intensity Ratio Range">
-                    <input type="number" id="sunspot-ratio-num" class="glass-input" min="0.01" max="1.0" step="0.01" value="0.3" style="width: 80px;" aria-label="Sunspot Intensity Ratio Value" placeholder="e.g. 0.3">
+                    <input type="range" id="sunspot-ratio" class="glass-range" min="0.01" max="1.0" step="0.01" value="0.3" style="flex-grow: 1;" aria-labelledby="label-sunspot-ratio">
+                    <input type="number" id="sunspot-ratio-num" class="glass-input" min="0.01" max="1.0" step="0.01" value="0.3" style="width: 80px;" aria-labelledby="label-sunspot-ratio" placeholder="e.g. 0.3">
                 </div>
             </div>
             <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0;">
