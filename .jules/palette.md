@@ -100,3 +100,7 @@
 ## 2026-08-14 - Placeholder Guidance in Forms
 **Learning:** Users who clear numeric inputs (e.g., in Plasma Parameters or Aurora Power) lose the context of the expected format (like scientific notation `1e6`). A blank input without a placeholder requires them to guess or refer to documentation.
 **Action:** Always provide `placeholder` attributes (e.g., "e.g. 1e6") on numeric inputs that require specific formats or typical magnitudes, and style them consistently (e.g., `.glass-input::placeholder`) to maintain design cohesion while offering continuous guidance.
+
+## 2026-08-15 - ARIA Label Overrides and Scientific Units
+**Learning:** Using `aria-label` on form inputs completely overrides their native accessible name derived from the `<label>` element. In scientific applications, if critical context (like units such as `cm⁻³` or `km/s`) exists only in the visible label, screen reader users will lose this context if the `aria-label` does not duplicate it.
+**Action:** When an explicit visible `<label>` provides complete context (including units), avoid using `aria-label` on the associated input. For synchronized inputs (like a range slider and a number input sharing one label), assign an `id` to the `<label>` and use `aria-labelledby="[label-id]"` on both inputs to ensure the exact visible text, including units, is announced consistently.
