@@ -38,6 +38,8 @@ print(f"Storm Standoff:  {storm.radius_re:.1f} Re")
 
 **Artifact Output:**
 
+<img src="public/magnetosphere.png" alt="Magnetosphere Visualization" width="500">
+
 > *Figure 1: The Magnetosphere Standoff. The visualization renders the "Standoff Distance" where the solar wind dynamic pressure balances the Earth's magnetic pressure. Under storm conditions (red line), this boundary moves inward, potentially exposing geostationary satellites (dotted circle) to the magnetosheath plasma.*
 
 ### 2. Ionospheric Profiling (Chapman Layers)
@@ -60,6 +62,8 @@ profile.plot_altitude_profile(0, 600)
 
 **Artifact Output:**
 
+<img src="public/ionosphere.png" alt="Ionospheric Profiling" width="500">
+
 > *Figure 2: Ionospheric Layers. The plot shows Electron Density ($N_e$) vs Altitude ($h$). The distinct E and F layers are visible. The dashboard uses semi-transparent fills to represent plasma density, adhering to the glassmorphism theme.*
 
 ### 3. Solar Wind (Parker Spiral)
@@ -73,6 +77,12 @@ profile.plot_altitude_profile(0, 600)
 ### 4. Sunspot Temperature (Solar Physics)
 
 *Estimates the temperature of a sunspot ($T_{spot}$) based on its intensity contrast ratio ($I_{spot}/I_{phot}$) with the surrounding photosphere ($T_{phot} \approx 5778K$). Includes a dynamic visualization of the sunspot darkening.*
+
+**Artifact Output:**
+
+<img src="public/sunspot_visual.png" alt="Sunspot Temperature Visualization" width="500">
+
+> *Figure 4: Sunspot Temperature. A dynamic visualization of sunspot darkening.*
 
 ### 5. Aurora Power (Auroral Physics)
 

@@ -1,5 +1,6 @@
 import time
 import asyncio
+import pytest
 from unittest.mock import MagicMock, patch
 import api.index
 from api.index import rate_limit_middleware, request_counts, RATE_LIMIT
@@ -109,8 +110,20 @@ async def _run_test_logic():
 
     print("Token Refill passed.")
 
+import threading
+
 def test_rate_limit_token_bucket():
-    asyncio.run(_run_test_logic())
+    def run_in_thread():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(_run_test_logic())
+        finally:
+            loop.close()
+
+    thread = threading.Thread(target=run_in_thread)
+    thread.start()
+    thread.join()
 
 if __name__ == "__main__":
     test_rate_limit_token_bucket()
