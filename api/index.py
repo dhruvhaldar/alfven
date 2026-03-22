@@ -2,6 +2,9 @@ from fastapi import FastAPI, Query, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import BaseModel, Field, field_validator
 from typing import List
 import os
@@ -37,6 +40,35 @@ async def global_exception_handler(request: Request, exc: Exception):
     response = JSONResponse(
         status_code=500, content={"detail": "Internal Server Error"}
     )
+    is_api = request.url.path.startswith("/api/")
+    apply_security_headers_to_dict(response.headers, is_api)
+    return response
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    response = JSONResponse(
+        status_code=422,
+        content={"detail": jsonable_encoder(exc.errors())}
+    )
+    is_api = request.url.path.startswith("/api/")
+    apply_security_headers_to_dict(response.headers, is_api)
+    return response
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    # Pass along existing headers (like WWW-Authenticate)
+    headers = getattr(exc, "headers", None)
+    if headers:
+        response = JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+            headers=headers
+        )
+    else:
+        response = JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail}
+        )
     is_api = request.url.path.startswith("/api/")
     apply_security_headers_to_dict(response.headers, is_api)
     return response
