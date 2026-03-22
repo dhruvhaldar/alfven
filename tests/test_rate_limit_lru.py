@@ -64,8 +64,20 @@ async def _run_test_lru_behavior():
 
     print("Rate Limit LRU Eviction Test Passed.")
 
+import threading
+
 def test_rate_limit_lru():
-    asyncio.run(_run_test_lru_behavior())
+    def run_in_thread():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(_run_test_lru_behavior())
+        finally:
+            loop.close()
+
+    thread = threading.Thread(target=run_in_thread)
+    thread.start()
+    thread.join()
 
 if __name__ == "__main__":
     test_rate_limit_lru()
