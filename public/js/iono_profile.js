@@ -16,7 +16,7 @@ async function updateIonosphere() {
     if (profileCache[isDay]) {
         drawChart(profileCache[isDay]);
         if (valDisplay) {
-             valDisplay.innerText = isDay ? "Day Mode" : "Night Mode";
+             valDisplay.textContent = isDay ? "Day Mode" : "Night Mode";
              valDisplay.setAttribute('aria-busy', 'false');
         }
         return;
@@ -78,7 +78,7 @@ async function updateIonosphere() {
 
         // Success State
         if (valDisplay) {
-             valDisplay.innerText = isDay ? "Day Mode" : "Night Mode";
+             valDisplay.textContent = isDay ? "Day Mode" : "Night Mode";
              valDisplay.style.color = '';
              valDisplay.setAttribute('aria-busy', 'false');
         }
