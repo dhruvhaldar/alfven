@@ -68,3 +68,7 @@
 ## 2026-10-28 - Algebraic Expansion to Reduce Costly Operations Inside Exponential Functions
 **Learning:** In heavily called complex mathematical models (like `ChapmanLayer` density where `n(h) = n_max * exp(0.5 * (1 - z - exp(-z)))`), directly computing terms like `1` minus terms adds redundant scalar operations, and evaluating `exp(0.5)` each time multiplies redundant costs. A mathematically equivalent expansion, `exp(0.5) * exp(-0.5 * (z + exp(-z)))`, simplifies the expression inside the exponent.
 **Action:** Use algebraic expansion to pull constants out of mathematical functions and precompute them during `__init__` (e.g. `_n_max_exp_half = n_max * math.exp(0.5)`). Apply the algebraically simplified formula `_n_max_exp_half * exp(-0.5 * (z + exp(-z)))` inside the heavily called methods to reduce unnecessary floating-point operations.
+
+## 2026-10-29 - Avoid request.url in ASGI Middleware
+**Learning:** In Starlette/FastAPI, accessing `request.url` (e.g., `request.url.path`) instantiates a new `URL` object, which is a relatively expensive operation when executed on every request in middleware.
+**Action:** To check the request path in middleware, read directly from the ASGI scope dictionary using `request.scope["path"]`. This avoids the object instantiation overhead and is significantly faster.
