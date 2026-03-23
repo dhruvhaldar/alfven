@@ -104,3 +104,7 @@
 ## 2026-08-15 - ARIA Label Overrides and Scientific Units
 **Learning:** Using `aria-label` on form inputs completely overrides their native accessible name derived from the `<label>` element. In scientific applications, if critical context (like units such as `cm⁻³` or `km/s`) exists only in the visible label, screen reader users will lose this context if the `aria-label` does not duplicate it.
 **Action:** When an explicit visible `<label>` provides complete context (including units), avoid using `aria-label` on the associated input. For synchronized inputs (like a range slider and a number input sharing one label), assign an `id` to the `<label>` and use `aria-labelledby="[label-id]"` on both inputs to ensure the exact visible text, including units, is announced consistently.
+
+## 2026-08-16 - Toggle Interactive Text Affordance
+**Learning:** Text labels adjacent to toggle switches (like "Day Mode" / "Night Mode") are often expected to be clickable by users. If implemented as standard `<span>` elements, they fail to act as click targets for the toggle and lack interactive visual affordances, causing minor friction.
+**Action:** Always implement text describing a toggle switch's state or function as a `<label for="[toggle-id]">`. Furthermore, add global CSS styles targeting `label[for]` to explicitly provide `cursor: pointer` and subtle hover effects (like text-shadow and color transitions) to visually signal interactivity to sighted users.
