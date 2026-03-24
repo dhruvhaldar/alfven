@@ -108,3 +108,6 @@
 ## 2026-08-16 - Toggle Interactive Text Affordance
 **Learning:** Text labels adjacent to toggle switches (like "Day Mode" / "Night Mode") are often expected to be clickable by users. If implemented as standard `<span>` elements, they fail to act as click targets for the toggle and lack interactive visual affordances, causing minor friction.
 **Action:** Always implement text describing a toggle switch's state or function as a `<label for="[toggle-id]">`. Furthermore, add global CSS styles targeting `label[for]` to explicitly provide `cursor: pointer` and subtle hover effects (like text-shadow and color transitions) to visually signal interactivity to sighted users.
+## 2026-08-17 - Read-only Term Context Tooltips
+**Learning:** Users lack immediate context for complex scientific symbols (e.g., $\lambda_D$, $\omega_{pe}$) displayed on read-only result labels. While the values are copyable, there is no visual cue explaining what the symbol represents until after interaction.
+**Action:** Use native HTML `title` attributes on read-only result labels to provide browser-native descriptive hover tooltips, enhancing user intuition without adding custom CSS/JS dependencies.
