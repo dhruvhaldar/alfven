@@ -21,10 +21,24 @@ class ChapmanProfile:
             # Using isinstance is ~4x faster for array-like inputs and moderately faster for scalars.
             return 0.0 if isinstance(h, (int, float, np.number)) else np.zeros_like(h)
 
-        # Optimization: Use Python's built-in sum() with a list comprehension.
-        # This is significantly faster (~3x) than initializing np.zeros_like(h)
-        # and accumulating in a Python for-loop, especially for a small number of layers.
-        return sum([layer.density(h) for layer in self.layers])
+        if isinstance(h, (int, float, np.number)):
+            # Fallback for scalars: sum is fast and avoids array overhead
+            return sum([layer.density(h) for layer in self.layers])
+
+        # Optimization: In-place addition prevents creating and destroying multiple
+        # intermediate arrays when summing layers, reducing memory churn and execution time.
+        layers_iter = iter(self.layers)
+        try:
+            # Get the first array and copy it so we can safely mutate it in-place
+            res = next(layers_iter).density(h).copy()
+        except StopIteration:
+            return np.zeros_like(h)
+
+        # Accumulate inplace
+        for layer in layers_iter:
+            res += layer.density(h)
+
+        return res
 
     def __add__(self, other):
         if isinstance(other, ChapmanLayer):
