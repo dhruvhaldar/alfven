@@ -1,6 +1,9 @@
 from api.index import get_ionosphere_profile, IonosphereInput, LayerParams
 
-def test_ionosphere_profile_endpoint_logic():
+import pytest
+
+@pytest.mark.asyncio
+async def test_ionosphere_profile_endpoint_logic():
     """
     Test that the ionosphere profile logic works correctly with the new optimization.
     """
@@ -16,7 +19,7 @@ def test_ionosphere_profile_endpoint_logic():
         steps=5
     )
 
-    result = get_ionosphere_profile(input_data)
+    result = await get_ionosphere_profile(input_data)
 
     assert "altitude" in result
     assert "density" in result
@@ -26,7 +29,8 @@ def test_ionosphere_profile_endpoint_logic():
     # Check that density is non-zero (simple sanity check)
     assert any(d > 0 for d in result["density"])
 
-def test_ionosphere_profile_empty_layers():
+@pytest.mark.asyncio
+async def test_ionosphere_profile_empty_layers():
     """
     Test behavior with empty layers.
     """
@@ -37,7 +41,7 @@ def test_ionosphere_profile_empty_layers():
         steps=5
     )
 
-    result = get_ionosphere_profile(input_data)
+    result = await get_ionosphere_profile(input_data)
 
     assert result["altitude"] == []
     assert result["density"] == []
