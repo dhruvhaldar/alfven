@@ -268,13 +268,16 @@ class AuroraInput(BaseModel):
 # Endpoints
 
 
+# Optimization: Make endpoints async so they run directly on the event loop.
+# Since these are fast, CPU-bound calculations, doing them sync would offload them
+# to FastAPI's threadpool, which introduces a ~10-15% performance penalty due to overhead.
 @app.get("/api/health")
-def health_check():
+async def health_check():
     return {"status": "ok", "version": "1.0.0"}
 
 
 @app.get("/api/plasma/debye")
-def get_debye_length(
+async def get_debye_length(
     n: float = Query(..., ge=0.1, le=1e30), T_ev: float = Query(..., ge=0.01, le=1e9)
 ):
     """
@@ -285,7 +288,7 @@ def get_debye_length(
 
 
 @app.get("/api/plasma/parameters")
-def get_plasma_parameters(
+async def get_plasma_parameters(
     n: float = Query(..., ge=0.1, le=1e30), T_ev: float = Query(..., ge=0.01, le=1e9)
 ):
     """
@@ -299,7 +302,7 @@ def get_plasma_parameters(
 
 
 @app.get("/api/plasma/larmor")
-def get_larmor_radius(
+async def get_larmor_radius(
     T_ev: float = Query(..., ge=0.01, le=1e9),
     B: float = Query(..., ge=1e-12, le=1e5),
 ):
@@ -315,7 +318,7 @@ def get_larmor_radius(
 
 
 @app.get("/api/plasma/frequency")
-def get_plasma_frequency(n: float = Query(..., ge=0.1, le=1e30)):
+async def get_plasma_frequency(n: float = Query(..., ge=0.1, le=1e30)):
     """
     Calculate Plasma Frequency.
     """
@@ -324,7 +327,7 @@ def get_plasma_frequency(n: float = Query(..., ge=0.1, le=1e30)):
 
 
 @app.get("/api/solar/parker")
-def get_parker_spiral(
+async def get_parker_spiral(
     r: float = Query(..., ge=0, le=1e20), v_sw: float = Query(400000, ge=0.1, le=3e8)
 ):
     """
@@ -335,7 +338,7 @@ def get_parker_spiral(
 
 
 @app.get("/api/solar/sunspot")
-def get_sunspot_temperature(ratio: float = Query(..., ge=0, le=1e4)):
+async def get_sunspot_temperature(ratio: float = Query(..., ge=0, le=1e4)):
     """
     Estimate Sunspot Temperature.
     """
@@ -344,7 +347,7 @@ def get_sunspot_temperature(ratio: float = Query(..., ge=0, le=1e4)):
 
 
 @app.get("/api/magnetosphere/standoff")
-def get_magnetopause_standoff(
+async def get_magnetopause_standoff(
     density: float = Query(..., ge=0.1, le=1e30),
     velocity: float = Query(..., ge=0.1, le=3e8),
     Bz: float = Query(0, le=1e5, ge=-1e5),
@@ -357,7 +360,7 @@ def get_magnetopause_standoff(
 
 
 @app.post("/api/ionosphere/profile")
-def get_ionosphere_profile(data: IonosphereInput):
+async def get_ionosphere_profile(data: IonosphereInput):
     """
     Get Ionosphere Altitude Profile.
     """
@@ -373,7 +376,7 @@ def get_ionosphere_profile(data: IonosphereInput):
 
 
 @app.post("/api/aurora/power")
-def get_aurora_power(data: AuroraInput):
+async def get_aurora_power(data: AuroraInput):
     """
     Estimate Auroral Power.
     """

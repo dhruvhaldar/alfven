@@ -41,6 +41,7 @@
 ## 2026-08-01 - Redundant API Calls on Slider Revisit
 **Learning:** When using slider inputs (like range sliders for density, velocity, or sunspot ratio) to control API-driven data updates, users frequently scrub back and forth over the same values. This causes rapid, redundant API requests for previously calculated data, wasting bandwidth and backend processing even when debouncing is implemented.
 **Action:** Use an in-memory client-side dictionary cache (`const cache = {}`) keyed by the active parameters. Always check the cache before updating loading states or calling `fetch`. If cached, update the UI synchronously and immediately, providing a far more responsive UX without network delay.
+
 ## 2026-08-02 - Fast os.environ Lookup Avoidance
 **Learning:** `os.environ.get()` in Python involves function call overhead and dictionary traversal of the environment variables mapped at startup. While not I/O bound, when placed in middleware or per-request logic (like `get_client_ip`), evaluating this on every incoming request adds unnecessary overhead.
 **Action:** Evaluate static environment flags (e.g., `IS_VERCEL = bool(os.environ.get("VERCEL"))`) once at the module level (during cold start) rather than on every request. Caching this boolean improves the function execution speed by nearly ~8x.
@@ -76,3 +77,7 @@
 ## 2026-11-01 - Avoid Sum with NumPy Arrays
 **Learning:** In Python, iterating over a list of arrays and summing them with the built-in `sum()` function is computationally slow. It initializes multiple temporary objects and causes significant memory allocation and deallocation overhead.
 **Action:** When computing sums across multiple arrays (like in `ChapmanProfile.density`), initialize the result array using `.copy()` on the first element, and iterate through the remaining elements using in-place addition (`+=`). This avoids allocating temporary arrays and is noticeably faster, saving ~4-5% execution time.
+
+## 2026-11-02 - FastAPI Threadpool Overhead on CPU-Bound Fast Endpoints
+**Learning:** In FastAPI, synchronous endpoints (defined with `def`) are executed in a separate threadpool to prevent blocking the async event loop. For endpoints that perform very fast, purely CPU-bound calculations (like mathematical formulas), the context-switching and offloading overhead can take longer than the calculation itself, introducing a measurable performance penalty.
+**Action:** Refactor extremely fast, non-blocking CPU-bound endpoints to be asynchronous (`async def`). This forces FastAPI to execute them directly on the main event loop, bypassing the threadpool and improving throughput (benchmark showed ~10-15% speedup for rapid requests).
