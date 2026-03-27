@@ -26,7 +26,7 @@ def test_security_headers():
     assert "https://cdn.jsdelivr.net" in csp
     assert "https://d3js.org" in csp
 
-    assert response.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains"
+    assert response.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains; preload"
     assert response.headers.get("Permissions-Policy") == "geolocation=(), microphone=(), camera=()"
 
     # 🛡️ Sentinel: Verify API anti-caching headers
@@ -50,7 +50,7 @@ def test_security_headers_on_error():
         csp = response.headers.get("Content-Security-Policy")
         assert csp is not None
         assert "default-src 'self'" in csp
-        assert response.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains"
+        assert response.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains; preload"
         assert response.headers.get("Permissions-Policy") == "geolocation=(), microphone=(), camera=()"
 
 

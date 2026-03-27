@@ -118,7 +118,7 @@ def apply_security_headers_to_dict(headers: dict, is_api: bool):
     headers["Content-Security-Policy"] = CSP_POLICY
 
     # 🛡️ Sentinel: HSTS & Permissions Policy
-    headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
     headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
 
     # 🛡️ Sentinel: Add Cross-Origin-Opener-Policy for process isolation
