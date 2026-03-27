@@ -466,6 +466,13 @@ document.addEventListener('DOMContentLoaded', () => {
     calcPlasma(null);
     calcAurora(null);
 
+    // Auto-select text in inputs on focus for easier overwriting
+    document.querySelectorAll('.glass-input[type="number"]').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.select();
+        });
+    });
+
     // Enable Enter key for better keyboard accessibility
     enableEnterKey('plasma-n', 'btn-calc-plasma');
     enableEnterKey('plasma-T', 'btn-calc-plasma');
