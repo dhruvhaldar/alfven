@@ -81,3 +81,7 @@
 ## 2026-11-02 - FastAPI Threadpool Overhead on CPU-Bound Fast Endpoints
 **Learning:** In FastAPI, synchronous endpoints (defined with `def`) are executed in a separate threadpool to prevent blocking the async event loop. For endpoints that perform very fast, purely CPU-bound calculations (like mathematical formulas), the context-switching and offloading overhead can take longer than the calculation itself, introducing a measurable performance penalty.
 **Action:** Refactor extremely fast, non-blocking CPU-bound endpoints to be asynchronous (`async def`). This forces FastAPI to execute them directly on the main event loop, bypassing the threadpool and improving throughput (benchmark showed ~10-15% speedup for rapid requests).
+
+## 2026-11-03 - NumPy Broadcasting over Multiple Objects
+**Learning:** When calculating combined results of multiple objects over an array of inputs (like evaluating multiple atmospheric layers across a range of altitudes), sequentially calling each object's method in a Python loop creates intermediate arrays and involves significant Python iteration overhead.
+**Action:** Extract the properties into NumPy arrays, expand their dimensions with `np.newaxis` to allow broadcasting, and perform vectorized in-place mathematical operations. Sum across the object axis (`np.sum(axis=0)`) at the end to eliminate loop overhead and drastically reduce intermediate allocations.
