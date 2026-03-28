@@ -335,6 +335,9 @@ function enableEnterKey(inputId, btnId) {
         input.setAttribute('title', 'Press Enter to calculate');
     }
 
+    // Announce custom shortcut to screen readers
+    input.setAttribute('aria-keyshortcuts', 'Enter');
+
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault(); // Prevent form submission behavior
@@ -378,6 +381,9 @@ function initCopyableResults() {
     results.forEach(el => {
         // Store original title for restoration
         el.dataset.originalTitle = el.getAttribute('title') || "Click to copy result";
+
+        // Announce custom shortcuts to screen readers
+        el.setAttribute('aria-keyshortcuts', 'Enter Space');
 
         el.addEventListener('click', () => copyToClipboard(el));
         el.addEventListener('keydown', (e) => {

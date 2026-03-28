@@ -111,3 +111,7 @@
 ## 2026-08-17 - Read-only Term Context Tooltips
 **Learning:** Users lack immediate context for complex scientific symbols (e.g., $\lambda_D$, $\omega_{pe}$) displayed on read-only result labels. While the values are copyable, there is no visual cue explaining what the symbol represents until after interaction.
 **Action:** Use native HTML `title` attributes on read-only result labels to provide browser-native descriptive hover tooltips, enhancing user intuition without adding custom CSS/JS dependencies.
+
+## 2026-08-18 - Discoverable Keyboard Shortcuts for Screen Readers
+**Learning:** While tooltips (`title`) or convention visually communicate custom keyboard shortcuts to sighted users, screen reader users miss this context unless explicitly exposed, forcing them to guess or rely strictly on sequential navigation.
+**Action:** Always complement visual shortcut hints with the `aria-keyshortcuts` attribute (e.g., `aria-keyshortcuts="Enter"`) on interactive elements that implement non-standard keyboard behaviors.
