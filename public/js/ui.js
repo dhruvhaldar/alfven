@@ -79,6 +79,11 @@ function setLoading(btn, container, isLoading) {
          // Remove stale states when calculation starts
          btn.classList.remove('needs-update');
          container.classList.remove('stale-results');
+         const copyables = container.querySelectorAll('.copyable-result');
+         copyables.forEach(c => {
+             c.removeAttribute('aria-disabled');
+             c.setAttribute('title', c.dataset.originalTitle || "Click to copy result");
+         });
 
          const error = container.querySelector('.error-message');
          if(error) error.remove();
@@ -348,7 +353,7 @@ function enableEnterKey(inputId, btnId) {
 
 // Copy to Clipboard Helper
 function copyToClipboard(el) {
-    if (el.getAttribute('aria-busy') === 'true') return;
+    if (el.getAttribute('aria-busy') === 'true' || el.getAttribute('aria-disabled') === 'true') return;
 
     // Get text, cleaning up any potential spinner text if hidden but still in DOM
     const text = el.innerText.trim();
@@ -423,7 +428,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (resultsId && btnId) {
             const resultsEl = document.getElementById(resultsId);
             const btnEl = document.getElementById(btnId);
-            if (resultsEl) resultsEl.classList.add('stale-results');
+        if (resultsEl) {
+            resultsEl.classList.add('stale-results');
+            const copyables = resultsEl.querySelectorAll('.copyable-result');
+            copyables.forEach(c => {
+                c.setAttribute('aria-disabled', 'true');
+                c.setAttribute('title', 'Outdated result. Click calculate to update.');
+            });
+        }
             if (btnEl) btnEl.classList.add('needs-update');
         }
     }

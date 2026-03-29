@@ -320,6 +320,20 @@ input[type="checkbox"]:focus-visible,
     transition: opacity 0.3s ease;
 }
 
+.stale-results .copyable-result {
+    cursor: not-allowed;
+}
+
+.stale-results .copyable-result::after {
+    content: "⚠️";
+}
+
+.stale-results .copyable-result:hover,
+.stale-results .copyable-result:focus-visible {
+    background-color: rgba(255, 107, 107, 0.1);
+    border-color: rgba(255, 107, 107, 0.3);
+}
+
 .needs-update {
     animation: pulse-border 2s infinite;
 }
