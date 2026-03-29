@@ -7,6 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import BaseModel, Field, field_validator
 from typing import List
+import math
 import os
 import time
 import logging
@@ -201,7 +202,13 @@ async def rate_limit_middleware(request: Request, call_next):
         bucket[0] -= 1
         return await call_next(request)
     else:
-        return JSONResponse(status_code=429, content={"detail": "Too many requests"})
+        # 🛡️ Sentinel: Add Retry-After header to 429 response
+        wait_time = math.ceil((1 - bucket[0]) / REFILL_RATE)
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Too many requests"},
+            headers={"Retry-After": str(wait_time)}
+        )
 
 
 # Security Headers Middleware
