@@ -100,10 +100,11 @@ CSP_POLICY = (
     "img-src 'self' data:; "
     "font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
     "connect-src 'self'; "
-    "frame-ancestors 'self'; "
+    "frame-ancestors 'none'; "
     "object-src 'none'; "
     "base-uri 'self'; "
-    "form-action 'self';"
+    "form-action 'self'; "
+    "upgrade-insecure-requests;"
 )
 
 
@@ -113,7 +114,7 @@ def apply_security_headers_to_dict(headers: dict, is_api: bool):
         del headers["server"]
 
     headers["X-Content-Type-Options"] = "nosniff"
-    headers["X-Frame-Options"] = "SAMEORIGIN"
+    headers["X-Frame-Options"] = "DENY"
     headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
     headers["Content-Security-Policy"] = CSP_POLICY
