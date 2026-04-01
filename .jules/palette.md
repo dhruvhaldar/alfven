@@ -119,3 +119,6 @@
 ## 2026-08-18 - Discoverable Keyboard Shortcuts for Screen Readers
 **Learning:** While tooltips (`title`) or convention visually communicate custom keyboard shortcuts to sighted users, screen reader users miss this context unless explicitly exposed, forcing them to guess or rely strictly on sequential navigation.
 **Action:** Always complement visual shortcut hints with the `aria-keyshortcuts` attribute (e.g., `aria-keyshortcuts="Enter"`) on interactive elements that implement non-standard keyboard behaviors.
+## 2026-08-20 - Reduced Motion Accessibility
+**Learning:** Continuous CSS animations (like spinners and pulsing borders) and rapid transitions lack `prefers-reduced-motion` support by default, creating accessibility barriers for users with vestibular disorders or motion sensitivities.
+**Action:** Always implement a `@media (prefers-reduced-motion: reduce)` block to disable or minimize animations and transitions globally, replacing them with static visual indicators (like opacity changes or solid borders) where necessary.
