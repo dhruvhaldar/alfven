@@ -85,3 +85,7 @@
 ## 2026-11-03 - NumPy Broadcasting over Multiple Objects
 **Learning:** When calculating combined results of multiple objects over an array of inputs (like evaluating multiple atmospheric layers across a range of altitudes), sequentially calling each object's method in a Python loop creates intermediate arrays and involves significant Python iteration overhead.
 **Action:** Extract the properties into NumPy arrays, expand their dimensions with `np.newaxis` to allow broadcasting, and perform vectorized in-place mathematical operations. Sum across the object axis (`np.sum(axis=0)`) at the end to eliminate loop overhead and drastically reduce intermediate allocations.
+
+## 2026-11-04 - Precomputing Linear Transformation Constants
+**Learning:** Calculating `z = (h - h0) / H` inside a heavily called function takes slightly longer due to the subtraction and division. Replacing it with `z = h * (1/H) - (h0/H)` allows precomputing the inverse and the constant offset term `(h0/H)`, leading to faster execution for scalar and array inputs.
+**Action:** Algebraically expand linear transformations to precompute constants, reducing operations inside heavily called functions like `density`.

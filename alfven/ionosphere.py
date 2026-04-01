@@ -11,11 +11,11 @@ class ChapmanProfile:
     def _update_cached_arrays(self):
         if self.layers:
             # Keep as 1D arrays initially, reshape dynamically in density based on input dimensions
-            self._h0_arr = np.array([l.h0 for l in self.layers], dtype=np.float64)
+            self._h0_inv_H_arr = np.array([l._h0_inv_H for l in self.layers], dtype=np.float64)
             self._inv_H_arr = np.array([l._inv_H for l in self.layers], dtype=np.float64)
             self._n_max_exp_arr = np.array([l._n_max_exp_half for l in self.layers], dtype=np.float64)
         else:
-            self._h0_arr = self._inv_H_arr = self._n_max_exp_arr = np.array([], dtype=np.float64)
+            self._h0_inv_H_arr = self._inv_H_arr = self._n_max_exp_arr = np.array([], dtype=np.float64)
 
     def density(self, h):
         """
@@ -47,21 +47,21 @@ class ChapmanProfile:
 
         # Use dynamically built arrays if self.layers length changed unexpectedly,
         # otherwise use the fast cached arrays.
-        if self._h0_arr.size == 0 and self.layers or len(self.layers) != len(self._h0_arr):
+        if self._h0_inv_H_arr.size == 0 and self.layers or len(self.layers) != len(self._h0_inv_H_arr):
             self._update_cached_arrays()
 
         # Reshape cached arrays to add a new axis for every dimension in h
         # so they broadcast against h properly.
         # Example: if h is shape (A, B), shape becomes (N, 1, 1)
         shape_suffix = (1,) * h_arr.ndim
-        h0_arr = self._h0_arr.reshape(-1, *shape_suffix)
+        h0_inv_H_arr = self._h0_inv_H_arr.reshape(-1, *shape_suffix)
         inv_H_arr = self._inv_H_arr.reshape(-1, *shape_suffix)
         n_max_exp_arr = self._n_max_exp_arr.reshape(-1, *shape_suffix)
 
         # In-place vectorized calculation of density over all layers
-        # z = (h - h0) / H
-        z = (h_expanded - h0_arr)
-        z *= inv_H_arr
+        # z = h * _inv_H - _h0_inv_H
+        z = h_expanded * inv_H_arr
+        z -= h0_inv_H_arr
 
         # Calculate term: n_max_exp * exp(-0.5 * (z + exp(-z)))
         term = np.exp(-z)
@@ -140,6 +140,7 @@ class ChapmanLayer:
         # Optimization: Precompute inverted constants and mathematically simplified terms
         # for faster density calculation: n_max * exp(0.5)
         self._inv_H = 1.0 / H
+        self._h0_inv_H = h0 * self._inv_H
         self._n_max_exp_half = n_max * math.exp(0.5)
 
     def density(self, h):
@@ -154,8 +155,9 @@ class ChapmanLayer:
         Returns:
             float or np.ndarray: Electron density.
         """
-        # Optimization: Use precomputed _inv_H to turn division into multiplication (~20% faster)
-        z = (h - self.h0) * self._inv_H
+        # Optimization: Use algebraically expanded linear transformation to precompute constants:
+        # z = h * _inv_H - _h0_inv_H
+        z = h * self._inv_H - self._h0_inv_H
 
         # Optimization: Use isinstance(h, (int, float, np.number)) instead of np.isscalar(h).
         # np.isscalar() has significant overhead compared to a built-in type check.
