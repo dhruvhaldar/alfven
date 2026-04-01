@@ -122,3 +122,7 @@
 ## 2026-08-20 - Reduced Motion Accessibility
 **Learning:** Continuous CSS animations (like spinners and pulsing borders) and rapid transitions lack `prefers-reduced-motion` support by default, creating accessibility barriers for users with vestibular disorders or motion sensitivities.
 **Action:** Always implement a `@media (prefers-reduced-motion: reduce)` block to disable or minimize animations and transitions globally, replacing them with static visual indicators (like opacity changes or solid borders) where necessary.
+
+## 2026-08-21 - Input Autocomplete Prevention
+**Learning:** Browsers often apply default autocomplete suggestions (like phone numbers or past addresses) to numeric inputs. In a scientific calculator context, this obscures the interface with irrelevant dropdowns and frustrates users trying to input precise data.
+**Action:** Always add autocomplete="off" and spellcheck="false" to numeric and range inputs in calculator interfaces to prevent intrusive native browser autocompletion.
