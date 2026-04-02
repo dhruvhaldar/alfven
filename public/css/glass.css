@@ -22,6 +22,17 @@
     transition: all 0.3s ease;
 }
 
+/* Hide native spin buttons for number inputs */
+.glass-input[type="number"]::-webkit-inner-spin-button,
+.glass-input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.glass-input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
 .glass-input:focus {
     border-color: rgba(255, 255, 255, 0.8);
     background: rgba(255, 255, 255, 0.1);

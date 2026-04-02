@@ -126,3 +126,7 @@
 ## 2026-08-21 - Input Autocomplete Prevention
 **Learning:** Browsers often apply default autocomplete suggestions (like phone numbers or past addresses) to numeric inputs. In a scientific calculator context, this obscures the interface with irrelevant dropdowns and frustrates users trying to input precise data.
 **Action:** Always add autocomplete="off" and spellcheck="false" to numeric and range inputs in calculator interfaces to prevent intrusive native browser autocompletion.
+
+## 2026-08-22 - Scientific Number Input Stability
+**Learning:** Number inputs (`type="number"`) used for scientific notation (e.g., `1e6`) are highly susceptible to accidental corruption by default browser behaviors. Specifically, native spin buttons (up/down arrows) or accidental mouse scrolling while the input is focused can unintentionally increment/decrement the value, transforming a clean exponent (`1e6`) into a misleading or invalid string (`1000001` or `1e61`).
+**Action:** Always disable default spin buttons via CSS (`::-webkit-inner-spin-button`, `-moz-appearance: textfield`) for scientific numeric inputs. Additionally, attach a `wheel` event listener that calls `.blur()` on the input when focused to prevent accidental scroll-wheel manipulation and return scroll control to the document.
