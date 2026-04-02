@@ -47,9 +47,14 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # 🛡️ Sentinel: Sanitize validation errors to prevent reflection of potentially malicious input
+    sanitized_errors = [
+        {k: v for k, v in error.items() if k not in ("input", "url")}
+        for error in exc.errors()
+    ]
     response = JSONResponse(
         status_code=422,
-        content={"detail": jsonable_encoder(exc.errors())}
+        content={"detail": jsonable_encoder(sanitized_errors)}
     )
     is_api = request.scope["path"].startswith("/api/")
     apply_security_headers_to_dict(response.headers, is_api)
