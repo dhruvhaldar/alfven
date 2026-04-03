@@ -489,6 +489,11 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('focus', function() {
             this.select();
         });
+
+        // Prevent accidental value corruption from scroll wheel when input is focused
+        input.addEventListener('wheel', function() {
+            this.blur();
+        }, { passive: true });
     });
 
     // Enable Enter key for better keyboard accessibility
