@@ -89,3 +89,6 @@
 ## 2026-11-04 - Precomputing Linear Transformation Constants
 **Learning:** Calculating `z = (h - h0) / H` inside a heavily called function takes slightly longer due to the subtraction and division. Replacing it with `z = h * (1/H) - (h0/H)` allows precomputing the inverse and the constant offset term `(h0/H)`, leading to faster execution for scalar and array inputs.
 **Action:** Algebraically expand linear transformations to precompute constants, reducing operations inside heavily called functions like `density`.
+## 2026-11-05 - Safe Precomputation with Mutable Attributes
+**Learning:** Precomputing derived values (like square roots) in an object's `__init__` method improves read performance but introduces a subtle state-tracking bug if the underlying base attributes are mutable and updated later by the user. The derived properties will return stale, incorrect data, creating a hidden dependency on immutability that isn't enforced by the class.
+**Action:** When caching derived variables on mutable objects, refactor the base attributes to use `@property` setters. The setter should update both the base value and any precomputed cached values simultaneously. This ensures the object's internal state remains perfectly synchronized without sacrificing the micro-optimization for fast property reads.
