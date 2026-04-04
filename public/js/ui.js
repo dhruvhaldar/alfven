@@ -489,6 +489,11 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('focus', function() {
             this.select();
         });
+
+        // Prevent accidental value changes via mouse wheel
+        input.addEventListener('wheel', function(e) {
+            this.blur();
+        });
     });
 
     // Enable Enter key for better keyboard accessibility
