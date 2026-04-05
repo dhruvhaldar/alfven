@@ -130,6 +130,17 @@
     font-style: italic;
 }
 
+/* Disable native spin buttons for scientific inputs */
+.glass-input[type="number"]::-webkit-inner-spin-button,
+.glass-input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.glass-input[type="number"] {
+    -moz-appearance: textfield;
+}
+
 /* Accessibility Focus Styles */
 .glass-button:focus-visible,
 .glass-input:focus-visible,
