@@ -89,3 +89,7 @@
 ## 2026-11-04 - Precomputing Linear Transformation Constants
 **Learning:** Calculating `z = (h - h0) / H` inside a heavily called function takes slightly longer due to the subtraction and division. Replacing it with `z = h * (1/H) - (h0/H)` allows precomputing the inverse and the constant offset term `(h0/H)`, leading to faster execution for scalar and array inputs.
 **Action:** Algebraically expand linear transformations to precompute constants, reducing operations inside heavily called functions like `density`.
+
+## 2026-11-05 - Precomputing Instance-Specific Derived Terms
+**Learning:** While static physical constants can be precomputed at the module level, dynamically calculating instance-specific derived variables (such as square roots of object attributes) on every property access still incurs significant overhead. If these base attributes are mutable, developers often hesitate to precompute them in `__init__` for fear of state drift.
+**Action:** Use Python `@property` setters for mutable instance variables to automatically update precomputed derived terms (like square roots) alongside the base values. This guarantees state consistency while eliminating redundant, expensive mathematical function calls during heavy property accesses.
