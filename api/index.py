@@ -161,7 +161,12 @@ def get_client_ip(request: Request) -> str:
 
     # Fallback to direct connection IP
     # This is safe if not behind a proxy, or if the ASGI server is configured to handle proxy headers.
-    return request.client.host if request.client else "unknown"
+    # Optimization: Read IP directly from ASGI scope to avoid `Address` namedtuple instantiation overhead
+    if hasattr(request, "scope"):
+        client = request.scope.get("client")
+        if client:
+            return client[0]
+    return request.client.host if getattr(request, "client", None) else "unknown"
 
 
 @app.middleware("http")
