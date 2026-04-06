@@ -126,3 +126,7 @@
 ## 2026-08-21 - Input Autocomplete Prevention
 **Learning:** Browsers often apply default autocomplete suggestions (like phone numbers or past addresses) to numeric inputs. In a scientific calculator context, this obscures the interface with irrelevant dropdowns and frustrates users trying to input precise data.
 **Action:** Always add autocomplete="off" and spellcheck="false" to numeric and range inputs in calculator interfaces to prevent intrusive native browser autocompletion.
+
+## 2026-08-22 - Visual Parity for Keyboard Shortcuts
+**Learning:** While `aria-keyshortcuts` programmatically exposes custom keyboard interactions (like pressing 'Enter' to copy a result) to screen readers, sighted keyboard users remain unaware of these shortcuts if tooltips or visual labels only mention pointer interactions (e.g., "Click to copy"). This creates an asymmetrical experience where sighted users are forced to guess keyboard functionality.
+**Action:** Always ensure that visual hints (like `title` attributes or inline text) explicitly match the programmatic `aria-keyshortcuts` by including keyboard options (e.g., "Click or press Enter to copy").
