@@ -30,3 +30,8 @@
 **Vulnerability:** The `rate_limit_middleware` returned a `429 Too Many Requests` response without a `Retry-After` header. While it successfully blocked requests, it left well-behaved clients guessing when to retry, potentially leading to accidental self-inflicted Denial of Service (DoS) as clients continuously poll.
 **Learning:** Returning a `429` status code is only half of rate limiting. Without a defined back-off period, automated clients cannot efficiently manage their request rates.
 **Prevention:** For API rate-limiting logic, always calculate and include a `Retry-After` header in seconds to instruct clients when to retry.
+
+## 2026-03-01 - [Information Leakage & XSS Risk via Pydantic Validation Errors]
+**Vulnerability:** When a `RequestValidationError` occurred, the global exception handler directly serialized the raw `exc.errors()` via `jsonable_encoder` and returned it in the HTTP 422 response.
+**Learning:** In Pydantic v2, `exc.errors()` automatically includes the original rejected input under the `input` key, and a documentation `url` key. If an attacker provides malicious payloads (e.g., extremely large strings or potential XSS vectors), reflecting it back verbatim exposes the application to log injection, response bloat, and potential client-side reflection issues if the frontend mishandles the error detail.
+**Prevention:** Always explicitly sanitize Pydantic `exc.errors()` in custom `RequestValidationError` handlers by stripping the `input` and `url` keys from each error dictionary before serialization.
