@@ -130,3 +130,7 @@
 ## 2026-08-22 - Visual Parity for Keyboard Shortcuts
 **Learning:** While `aria-keyshortcuts` programmatically exposes custom keyboard interactions (like pressing 'Enter' to copy a result) to screen readers, sighted keyboard users remain unaware of these shortcuts if tooltips or visual labels only mention pointer interactions (e.g., "Click to copy"). This creates an asymmetrical experience where sighted users are forced to guess keyboard functionality.
 **Action:** Always ensure that visual hints (like `title` attributes or inline text) explicitly match the programmatic `aria-keyshortcuts` by including keyboard options (e.g., "Click or press Enter to copy").
+
+## 2026-08-23 - Interactive Element Tooltip Area
+**Learning:** Scientific definitions were provided via `title` attributes on `<label>` elements, but the associated `<input>` fields (sliders, number boxes) lacked them. Users typically hover over the interactive control itself while reading or adjusting values, missing the context provided on the label text.
+**Action:** Propagate informative `title` attributes from labels directly to their associated form controls (via `for` and `aria-labelledby` relationships). When appending keyboard shortcut hints (like "Press Enter to calculate"), append them to this preserved scientific context rather than overwriting it, ensuring the tooltip is both discoverable and comprehensive right where the user interacts.
