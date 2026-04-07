@@ -35,3 +35,8 @@
 **Vulnerability:** When a `RequestValidationError` occurred, the global exception handler directly serialized the raw `exc.errors()` via `jsonable_encoder` and returned it in the HTTP 422 response.
 **Learning:** In Pydantic v2, `exc.errors()` automatically includes the original rejected input under the `input` key, and a documentation `url` key. If an attacker provides malicious payloads (e.g., extremely large strings or potential XSS vectors), reflecting it back verbatim exposes the application to log injection, response bloat, and potential client-side reflection issues if the frontend mishandles the error detail.
 **Prevention:** Always explicitly sanitize Pydantic `exc.errors()` in custom `RequestValidationError` handlers by stripping the `input` and `url` keys from each error dictionary before serialization.
+
+## 2026-03-01 - Missing Security Headers on Static Assets in Vercel
+**Vulnerability:** Security headers (like CSP, HSTS, X-Frame-Options) were only applied in the FastAPI middleware, meaning they were only sent on API responses. In production, Vercel serves the static frontend assets directly, bypassing the backend and leaving the frontend vulnerable to XSS and Clickjacking.
+**Learning:** Middleware in serverless backend functions only protects the endpoints it serves. It does not apply to static assets served by the hosting platform's CDN.
+**Prevention:** Always duplicate or configure global security headers in the hosting platform's configuration file (e.g., `vercel.json`) to ensure they apply to all routes, especially static HTML files.
