@@ -335,8 +335,11 @@ function enableEnterKey(inputId, btnId) {
     const btn = document.getElementById(btnId);
     if (!input || !btn) return;
 
-    // Add tooltip to make shortcut discoverable
-    if (!input.hasAttribute('title')) {
+    // Append tooltip to make shortcut discoverable
+    const currentTitle = input.getAttribute('title');
+    if (currentTitle && !currentTitle.includes('Enter')) {
+        input.setAttribute('title', `${currentTitle} (Press Enter to calculate)`);
+    } else if (!currentTitle) {
         input.setAttribute('title', 'Press Enter to calculate');
     }
 
@@ -402,6 +405,23 @@ function initCopyableResults() {
 
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
+    // Propagate label tooltips to interactive inputs for better discoverability
+    document.querySelectorAll('label[title]').forEach(label => {
+        const title = label.getAttribute('title');
+        const targetId = label.getAttribute('for');
+        if (title) {
+            if (targetId) {
+                const target = document.getElementById(targetId);
+                if (target && !target.hasAttribute('title')) target.setAttribute('title', title);
+            }
+            if (label.id) {
+                document.querySelectorAll(`[aria-labelledby~="${label.id}"]`).forEach(el => {
+                    if (!el.hasAttribute('title')) el.setAttribute('title', title);
+                });
+            }
+        }
+    });
+
     initCopyableResults();
     // Initialize debounce if available
     if (typeof debounce === 'function') {
