@@ -406,17 +406,29 @@ function initCopyableResults() {
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
     // Propagate label tooltips to interactive inputs for better discoverability
-    document.querySelectorAll('label[title]').forEach(label => {
+    document.querySelectorAll('label[title], .result-label[title]').forEach(label => {
         const title = label.getAttribute('title');
         const targetId = label.getAttribute('for');
         if (title) {
             if (targetId) {
                 const target = document.getElementById(targetId);
-                if (target && !target.hasAttribute('title')) target.setAttribute('title', title);
+                if (target) {
+                    const existingTitle = target.getAttribute('title');
+                    if (existingTitle && !existingTitle.includes(title)) {
+                        target.setAttribute('title', `${title} (${existingTitle})`);
+                    } else if (!existingTitle) {
+                        target.setAttribute('title', title);
+                    }
+                }
             }
             if (label.id) {
                 document.querySelectorAll(`[aria-labelledby~="${label.id}"]`).forEach(el => {
-                    if (!el.hasAttribute('title')) el.setAttribute('title', title);
+                    const existingTitle = el.getAttribute('title');
+                    if (existingTitle && !existingTitle.includes(title)) {
+                        el.setAttribute('title', `${title} (${existingTitle})`);
+                    } else if (!existingTitle) {
+                        el.setAttribute('title', title);
+                    }
                 });
             }
         }
