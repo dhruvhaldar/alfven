@@ -35,7 +35,11 @@ class ChapmanProfile:
 
         if isinstance(h, (int, float, np.number)):
             # Fallback for scalars: sum is fast and avoids array overhead
-            return sum([layer.density(h) for layer in self.layers])
+            # Optimization: Use a simple loop instead of list comprehension and sum() to avoid allocation overhead
+            res = 0.0
+            for layer in self.layers:
+                res += layer.density(h)
+            return res
 
         # Fast path if there's only 1 layer
         if len(self.layers) == 1:
