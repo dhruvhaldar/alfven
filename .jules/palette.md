@@ -134,3 +134,7 @@
 ## 2026-08-23 - Interactive Element Tooltip Area
 **Learning:** Scientific definitions were provided via `title` attributes on `<label>` elements, but the associated `<input>` fields (sliders, number boxes) lacked them. Users typically hover over the interactive control itself while reading or adjusting values, missing the context provided on the label text.
 **Action:** Propagate informative `title` attributes from labels directly to their associated form controls (via `for` and `aria-labelledby` relationships). When appending keyboard shortcut hints (like "Press Enter to calculate"), append them to this preserved scientific context rather than overwriting it, ensuring the tooltip is both discoverable and comprehensive right where the user interacts.
+
+## 2026-08-24 - Text Contrast on Translucent Backgrounds
+**Learning:** Subtle text elements like input placeholders and footer text often use reduced opacity (e.g., `rgba(255, 255, 255, 0.4)`) to indicate secondary importance. However, against dark backgrounds, this results in a contrast ratio around 3.6:1, which falls short of the WCAG AA 4.5:1 requirement for normal-sized text, causing readability issues for visually impaired users.
+**Action:** Ensure that all text, including placeholders and secondary footer text, maintains at least 60% opacity (`rgba(255, 255, 255, 0.6)`) or higher on dark backgrounds to satisfy WCAG AA contrast guidelines.
