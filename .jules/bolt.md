@@ -97,3 +97,7 @@
 ## 2026-11-06 - Avoid request.client Instantiation Overhead
 **Learning:** In Starlette/FastAPI, accessing `request.client` (e.g., `request.client.host`) in middleware or frequently called helper functions like `get_client_ip` introduces performance overhead by instantiating an `Address` namedtuple for every request.
 **Action:** To extract the client IP faster, read directly from the ASGI scope using `request.scope.get("client")[0]` instead. Ensure a fallback using `hasattr(request, "scope")` is provided for mocked requests in test environments. This bypasses the object instantiation overhead and improves execution time by ~86%.
+
+## 2026-11-07 - Avoid list comprehension overhead in sum()
+**Learning:** In performance-critical paths involving scalar accumulation (e.g., calculating scalar density across multiple atmospheric layers), passing a list comprehension to the built-in `sum()` function (`sum([obj.val(x) for obj in items])`) creates and destroys a temporary list in memory, causing measurable allocation and iteration overhead compared to a plain loop.
+**Action:** Replace `sum([obj.val(x) for obj in items])` with a standard `for` loop and an accumulator variable for small sequences where creating a temporary list is unnecessary.
