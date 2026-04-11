@@ -39,15 +39,15 @@
             <div class="control-group">
                 <label for="sw-density" id="label-sw-density" title="Number density of protons in the solar wind.">Solar Wind Density (cm⁻³)</label>
                 <div class="control-row">
-                    <input type="range" id="sw-density" class="glass-range" min="1" max="100" step="any" value="5" style="flex-grow: 1;" aria-labelledby="label-sw-density" autocomplete="off" spellcheck="false">
-                    <input type="number" id="sw-density-num" class="glass-input" min="1" max="100" step="any" value="5" style="width: 80px;" aria-labelledby="label-sw-density" placeholder="e.g. 5" autocomplete="off" spellcheck="false">
+                    <input type="range" id="sw-density" class="glass-range" min="1" max="100" step="any" value="5" style="flex-grow: 1;" aria-labelledby="label-sw-density" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz">
+                    <input type="number" id="sw-density-num" class="glass-input" min="1" max="100" step="any" value="5" style="width: 80px;" aria-labelledby="label-sw-density" placeholder="e.g. 5" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz">
                 </div>
             </div>
             <div class="control-group">
                 <label for="sw-velocity" id="label-sw-velocity" title="Speed of the solar wind plasma relative to Earth.">Solar Wind Velocity (km/s)</label>
                 <div class="control-row">
-                    <input type="range" id="sw-velocity" class="glass-range" min="200" max="1500" step="any" value="400" style="flex-grow: 1;" aria-labelledby="label-sw-velocity" autocomplete="off" spellcheck="false">
-                    <input type="number" id="sw-velocity-num" class="glass-input" min="200" max="1500" step="any" value="400" style="width: 80px;" aria-labelledby="label-sw-velocity" placeholder="e.g. 400" autocomplete="off" spellcheck="false">
+                    <input type="range" id="sw-velocity" class="glass-range" min="200" max="1500" step="any" value="400" style="flex-grow: 1;" aria-labelledby="label-sw-velocity" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz">
+                    <input type="number" id="sw-velocity-num" class="glass-input" min="200" max="1500" step="any" value="400" style="width: 80px;" aria-labelledby="label-sw-velocity" placeholder="e.g. 400" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz">
                 </div>
             </div>
             <div class="control-group">
@@ -71,7 +71,7 @@
                     <label for="day-night-toggle" style="margin: 0;" title="Toggles solar ionization on or off for the D, E, and F layers.">Day/Night Cycle</label>
                     <div style="display: flex; align-items: center;">
                         <label class="glass-toggle">
-                            <input type="checkbox" id="day-night-toggle" checked role="switch" aria-describedby="day-night-val">
+                            <input type="checkbox" id="day-night-toggle" checked role="switch" aria-describedby="day-night-val" aria-controls="iono-chart day-night-val">
                             <span class="glass-toggle-slider"></span>
                         </label>
                         <label for="day-night-toggle" id="day-night-val" class="value-display glass-link" aria-live="polite" style="cursor: pointer;">Day Mode</label>
@@ -121,8 +121,8 @@
             <div class="control-group">
                 <label for="sunspot-ratio" id="label-sunspot-ratio" title="Brightness ratio between the dark sunspot umbra and the surrounding photosphere.">Intensity Ratio ($I_{spot}/I_{phot}$)</label>
                 <div class="control-row">
-                    <input type="range" id="sunspot-ratio" class="glass-range" min="0.01" max="1.0" step="any" value="0.3" style="flex-grow: 1;" aria-labelledby="label-sunspot-ratio" autocomplete="off" spellcheck="false">
-                    <input type="number" id="sunspot-ratio-num" class="glass-input" min="0.01" max="1.0" step="any" value="0.3" style="width: 80px;" aria-labelledby="label-sunspot-ratio" placeholder="e.g. 0.3" autocomplete="off" spellcheck="false">
+                    <input type="range" id="sunspot-ratio" class="glass-range" min="0.01" max="1.0" step="any" value="0.3" style="flex-grow: 1;" aria-labelledby="label-sunspot-ratio" autocomplete="off" spellcheck="false" aria-controls="sunspot-visual sunspot-temp">
+                    <input type="number" id="sunspot-ratio-num" class="glass-input" min="0.01" max="1.0" step="any" value="0.3" style="width: 80px;" aria-labelledby="label-sunspot-ratio" placeholder="e.g. 0.3" autocomplete="off" spellcheck="false" aria-controls="sunspot-visual sunspot-temp">
                 </div>
             </div>
             <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0;">
