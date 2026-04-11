@@ -101,3 +101,7 @@
 ## 2026-11-07 - Avoid list comprehension overhead in sum()
 **Learning:** In performance-critical paths involving scalar accumulation (e.g., calculating scalar density across multiple atmospheric layers), passing a list comprehension to the built-in `sum()` function (`sum([obj.val(x) for obj in items])`) creates and destroys a temporary list in memory, causing measurable allocation and iteration overhead compared to a plain loop.
 **Action:** Replace `sum([obj.val(x) for obj in items])` with a standard `for` loop and an accumulator variable for small sequences where creating a temporary list is unnecessary.
+
+## 2026-11-08 - Avoid isinstance tuple overhead in hot paths
+**Learning:** `isinstance(x, (int, float, np.number))` creates an implicit loop checking the tuple of types. In extremely hot mathematical paths, checking the exact type of built-ins first via `type(x) in (int, float)` followed by `isinstance` for numpy scalars is noticeably faster due to short-circuiting and bypassing the tuple checking machinery.
+**Action:** In highly optimized numerical code, use `type(x) in (int, float) or isinstance(x, np.number)` instead of `isinstance(x, (int, float, np.number))` to save fractions of a microsecond per call.

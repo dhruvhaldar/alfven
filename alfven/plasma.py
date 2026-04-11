@@ -47,6 +47,9 @@ class PlasmaState:
         self.T_k = value * _EV_TO_K
         # Optimization: Precompute square root of temperature
         self._sqrt_T_ev = math.sqrt(value)
+        # Optimization: Precompute instance-specific derived numerators based on mutables to prevent redundant operations on property access
+        self._debye_numerator = _DEBYE_CONST_SQRT * self._sqrt_T_ev
+        self._larmor_numerator = _LARMOR_CONST_SQRT * self._sqrt_T_ev
 
     @property
     def debye_length(self):
@@ -57,8 +60,8 @@ class PlasmaState:
             float: Debye length in meters.
         """
         # lambda_D = sqrt(eps0 * k_B * T / (n * e^2))
-        # Optimization: Use algebraically simplified, precomputed constant term and cached square roots for speed
-        return _DEBYE_CONST_SQRT * (self._sqrt_T_ev / self._sqrt_n)
+        # Optimization: Use precomputed instance-specific numerator to eliminate redundant constant multiplication on every access
+        return self._debye_numerator / self._sqrt_n
 
     @property
     def plasma_frequency(self):
@@ -85,5 +88,5 @@ class PlasmaState:
         """
         if B == 0:
             return float('inf')
-        # Optimization: Use algebraically simplified, precomputed constant terms and cached square root
-        return (_LARMOR_CONST_SQRT * self._sqrt_T_ev) / B
+        # Optimization: Use precomputed instance-specific numerator to eliminate redundant constant multiplication on every access
+        return self._larmor_numerator / B
