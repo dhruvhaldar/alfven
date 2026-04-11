@@ -138,3 +138,7 @@
 ## 2026-08-24 - Text Contrast on Translucent Backgrounds
 **Learning:** Subtle text elements like input placeholders and footer text often use reduced opacity (e.g., `rgba(255, 255, 255, 0.4)`) to indicate secondary importance. However, against dark backgrounds, this results in a contrast ratio around 3.6:1, which falls short of the WCAG AA 4.5:1 requirement for normal-sized text, causing readability issues for visually impaired users.
 **Action:** Ensure that all text, including placeholders and secondary footer text, maintains at least 60% opacity (`rgba(255, 255, 255, 0.6)`) or higher on dark backgrounds to satisfy WCAG AA contrast guidelines.
+
+## 2026-08-25 - Programmatic Relationships for Auto-Updating Inputs
+**Learning:** Manual "Calculate" buttons often correctly use `aria-controls` to map to their resulting UI regions. However, inputs that trigger updates automatically on interaction (like continuous sliders or toggles) frequently omit this attribute. This causes screen reader users to be unaware of which parts of the page are dynamically changing in response to their input.
+**Action:** Always apply `aria-controls` to auto-updating inputs (e.g., range sliders, checkboxes acting as toggles, synced number inputs) pointing to the IDs of the elements or containers that visually change, ensuring programmatic parity with manual calculation triggers.
