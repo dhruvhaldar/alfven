@@ -38,6 +38,7 @@
     text-transform: uppercase;
     font-weight: bold;
     letter-spacing: 1px;
+    user-select: none;
 }
 
 .glass-button:hover {
@@ -176,6 +177,7 @@ input[type="checkbox"]:focus-visible,
     width: 50px;
     height: 26px;
     margin-right: 12px;
+    user-select: none;
 }
 
 .glass-toggle input {
@@ -294,6 +296,7 @@ input[type="checkbox"]:focus-visible,
 label[for] {
     cursor: pointer;
     transition: all 0.3s ease;
+    user-select: none;
 }
 
 label[for]:hover {
@@ -321,6 +324,20 @@ label[for]:hover {
     outline-offset: 2px;
     box-shadow: 0 0 15px rgba(68, 221, 255, 0.6);
     background: rgba(255, 255, 255, 0.1);
+}
+
+/* External Links */
+a[target="_blank"]::after {
+    content: " \2197"; /* ↗ */
+    display: inline-block;
+    opacity: 0.7;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+a[target="_blank"]:hover::after,
+a[target="_blank"]:focus-visible::after {
+    transform: translate(2px, -2px);
+    opacity: 1;
 }
 
 /* Screen reader only utility class */
@@ -380,6 +397,7 @@ label[for]:hover {
     z-index: 1000;
     transition: top 0.3s ease;
     text-decoration: none;
+    user-select: none;
 }
 
 .skip-link:focus {

@@ -142,3 +142,11 @@
 ## 2026-08-25 - Programmatic Relationships for Auto-Updating Inputs
 **Learning:** Manual "Calculate" buttons often correctly use `aria-controls` to map to their resulting UI regions. However, inputs that trigger updates automatically on interaction (like continuous sliders or toggles) frequently omit this attribute. This causes screen reader users to be unaware of which parts of the page are dynamically changing in response to their input.
 **Action:** Always apply `aria-controls` to auto-updating inputs (e.g., range sliders, checkboxes acting as toggles, synced number inputs) pointing to the IDs of the elements or containers that visually change, ensuring programmatic parity with manual calculation triggers.
+
+## 2026-08-26 - External Link Visual Parity
+**Learning:** Screen reader users receive context about external links via `aria-label`s (e.g., "opens in a new tab"), but sighted users lack this preemptive warning, causing unexpected context switches when clicking links in the footer or elsewhere.
+**Action:** Always provide visual parity for external links by appending an icon (like `↗` via an `::after` pseudo-element on `a[target="_blank"]`) to explicitly communicate the "new tab" behavior to sighted users before interaction.
+
+## 2026-08-27 - Native Interactive Feel
+**Learning:** Rapidly clicking toggles, buttons, or dragging sliders can inadvertently highlight adjacent text (like labels or button text), making the web application feel unpolished and frustrating compared to native apps.
+**Action:** Apply `user-select: none;` to highly interactive elements like buttons, toggles, custom sliders, and their associated labels to prevent accidental text highlighting and provide a more robust, native-app feel.
