@@ -105,3 +105,7 @@
 ## 2026-11-08 - Avoid isinstance tuple overhead in hot paths
 **Learning:** `isinstance(x, (int, float, np.number))` creates an implicit loop checking the tuple of types. In extremely hot mathematical paths, checking the exact type of built-ins first via `type(x) in (int, float)` followed by `isinstance` for numpy scalars is noticeably faster due to short-circuiting and bypassing the tuple checking machinery.
 **Action:** In highly optimized numerical code, use `type(x) in (int, float) or isinstance(x, np.number)` instead of `isinstance(x, (int, float, np.number))` to save fractions of a microsecond per call.
+
+## 2026-11-09 - Avoid redundant DOM queries during rapid input events
+**Learning:** During high-frequency UI events like dragging a range slider or rapid typing, executing expensive DOM queries (like `querySelectorAll`) and modifying attributes repeatedly causes significant layout thrashing and measurable UI lag.
+**Action:** Before applying a visual state change (such as a 'stale' state) and modifying child elements, check if the parent container already has the target state class (e.g., `!resultsEl.classList.contains('stale-results')`). This ensures the expensive DOM manipulations only run once per state transition.

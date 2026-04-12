@@ -460,15 +460,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (resultsId && btnId) {
             const resultsEl = document.getElementById(resultsId);
             const btnEl = document.getElementById(btnId);
-        if (resultsEl) {
-            resultsEl.classList.add('stale-results');
-            const copyables = resultsEl.querySelectorAll('.copyable-result');
-            copyables.forEach(c => {
-                c.setAttribute('aria-disabled', 'true');
-                c.setAttribute('title', 'Outdated result. Click calculate to update.');
-            });
-        }
-            if (btnEl) btnEl.classList.add('needs-update');
+            // Optimization: Prevent redundant DOM queries and layout thrashing during rapid input events
+            if (resultsEl && !resultsEl.classList.contains('stale-results')) {
+                resultsEl.classList.add('stale-results');
+                const copyables = resultsEl.querySelectorAll('.copyable-result');
+                copyables.forEach(c => {
+                    c.setAttribute('aria-disabled', 'true');
+                    c.setAttribute('title', 'Outdated result. Click calculate to update.');
+                });
+            }
+            if (btnEl && !btnEl.classList.contains('needs-update')) {
+                btnEl.classList.add('needs-update');
+            }
         }
     }
 
