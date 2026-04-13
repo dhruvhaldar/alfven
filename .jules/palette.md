@@ -150,3 +150,7 @@
 ## 2026-08-27 - Native Interactive Feel
 **Learning:** Rapidly clicking toggles, buttons, or dragging sliders can inadvertently highlight adjacent text (like labels or button text), making the web application feel unpolished and frustrating compared to native apps.
 **Action:** Apply `user-select: none;` to highly interactive elements like buttons, toggles, custom sliders, and their associated labels to prevent accidental text highlighting and provide a more robust, native-app feel.
+
+## 2026-08-28 - Macro-Level Spatial Context
+**Learning:** Complex dashboards with multiple identical panels can cause users (especially keyboard navigators or users with cognitive disabilities) to lose track of their active region. While individual inputs have focus rings (micro-level context), the overall container lacks visual prominence when active.
+**Action:** Apply `:focus-within` styles to structural containers (like `.glass-panel`) with subtle border and box-shadow transitions to provide a macro-level spatial context, clearly indicating the active area without overwhelming the user.
