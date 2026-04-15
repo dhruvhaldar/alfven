@@ -154,3 +154,7 @@
 ## 2026-08-28 - Macro-Level Spatial Context
 **Learning:** Complex dashboards with multiple identical panels can cause users (especially keyboard navigators or users with cognitive disabilities) to lose track of their active region. While individual inputs have focus rings (micro-level context), the overall container lacks visual prominence when active.
 **Action:** Apply `:focus-within` styles to structural containers (like `.glass-panel`) with subtle border and box-shadow transitions to provide a macro-level spatial context, clearly indicating the active area without overwhelming the user.
+
+## 2026-08-29 - Inline Form Error Associations
+**Learning:** When form inputs become invalid, inline error messages are often visually presented next to the input. However, without a programmatic relationship (like `aria-describedby`), screen reader users focusing the input may only hear that it is invalid, but not the specific reason why (e.g., "Value must be <= 1000").
+**Action:** Always add `aria-describedby` to inputs when they are invalid to explicitly associate them with the ID of the inline error message, ensuring screen readers announce the error text upon focus. Remember to remove the attribute when the error state is cleared.
