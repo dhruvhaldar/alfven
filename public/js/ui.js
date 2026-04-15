@@ -9,6 +9,7 @@ function validateInput(input) {
     if (isNaN(val) || val <= 0 || val > max) {
         input.classList.add('invalid');
         input.setAttribute('aria-invalid', 'true');
+        input.setAttribute('aria-describedby', errorId);
 
         if (!errorEl) {
             errorEl = document.createElement('div');
@@ -43,6 +44,7 @@ function clearErrorState(e) {
      input.classList.remove('invalid');
      input.setAttribute('aria-invalid', 'false');
      input.removeAttribute('aria-errormessage');
+     input.removeAttribute('aria-describedby');
 
      const errorId = `${input.id}-error`;
      const errorEl = document.getElementById(errorId);
