@@ -7,6 +7,7 @@
 **Vulnerability:** Several frontend JavaScript files were using `element.innerHTML = '...'` to insert dynamic error messages or data into the DOM. This introduces a risk for DOM-based Cross-Site Scripting (XSS) if the input data or message ever originates from unvalidated user input or untrusted APIs.
 **Learning:** Even if the input seems safe or is purely numerical/hardcoded at the moment, relying on `innerHTML` for displaying simple text or values builds a vulnerable pattern that can be accidentally exploited in the future when the data source changes.
 **Prevention:** Always enforce the use of `element.textContent = '...'` for dynamic text assignment. For styling previously applied inline through injected HTML tags, configure the element's style directly via `element.style` or toggle CSS classes instead.
+
 ## 2026-03-01 - Missing Subresource Integrity (SRI) for External Dependencies
 **Vulnerability:** External scripts (e.g., Three.js, D3.js, Chart.js, MathJax, polyfill) were loaded from CDNs without `integrity` and `crossorigin="anonymous"` attributes.
 **Learning:** Loading scripts directly from CDNs without validating their integrity allows for a supply chain attack. If a CDN is compromised, malicious code could be injected and executed on the client-side, bypassing existing Content Security Policy (CSP) protections since the CDN domains were whitelisted.
@@ -26,6 +27,7 @@
 **Vulnerability:** Framework-generated error responses such as 422 Unprocessable Entity (from `RequestValidationError`) and 404 Not Found (from `StarletteHTTPException`) bypassed the custom `add_security_headers` HTTP middleware in FastAPI/Starlette, causing these error pages to lack critical security headers like Content-Security-Policy (CSP) and Strict-Transport-Security (HSTS).
 **Learning:** In the Starlette/FastAPI request lifecycle, handled exceptions like validation errors and 404s bypass normal middleware if they are intercepted by their specific built-in exception handlers before the middleware pipeline completes.
 **Prevention:** Define explicit exception handlers for `RequestValidationError` and `StarletteHTTPException`. Within these handlers, explicitly apply the shared security header logic before returning the response. Also ensure `exc.headers` are properly passed when overriding `StarletteHTTPException` to preserve critical protocol headers (like `WWW-Authenticate`), and use `fastapi.encoders.jsonable_encoder` to safely serialize validation error context.
+
 ## 2026-11-06 - Missing Retry-After Header in Rate Limiter
 **Vulnerability:** The `rate_limit_middleware` returned a `429 Too Many Requests` response without a `Retry-After` header. While it successfully blocked requests, it left well-behaved clients guessing when to retry, potentially leading to accidental self-inflicted Denial of Service (DoS) as clients continuously poll.
 **Learning:** Returning a `429` status code is only half of rate limiting. Without a defined back-off period, automated clients cannot efficiently manage their request rates.
@@ -40,3 +42,8 @@
 **Vulnerability:** Security headers (like CSP, HSTS, X-Frame-Options) were only applied in the FastAPI middleware, meaning they were only sent on API responses. In production, Vercel serves the static frontend assets directly, bypassing the backend and leaving the frontend vulnerable to XSS and Clickjacking.
 **Learning:** Middleware in serverless backend functions only protects the endpoints it serves. It does not apply to static assets served by the hosting platform's CDN.
 **Prevention:** Always duplicate or configure global security headers in the hosting platform's configuration file (e.g., `vercel.json`) to ensure they apply to all routes, especially static HTML files.
+
+## 2026-11-13 - [Missing Audit Logging for Rate Limit Events]
+**Vulnerability:** The rate limiter successfully blocked requests exceeding the permitted threshold but failed to log these events.
+**Learning:** Silently dropping or rejecting requests without logging leaves the application blind to ongoing DoS attacks, brute-force attempts, or abusive client behavior.
+**Prevention:** Always add explicit audit logging (e.g., `logger.warning`) when enforcing security boundaries like rate limits, including identifying information like the client IP and the requested path.

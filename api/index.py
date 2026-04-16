@@ -216,6 +216,8 @@ async def rate_limit_middleware(request: Request, call_next):
         bucket[0] -= 1
         return await call_next(request)
     else:
+        # 🛡️ Sentinel: Log security event (Rate Limit Exceeded)
+        logger.warning(f"Rate limit exceeded for IP: {client_ip} on path: {request.url.path}")
         # 🛡️ Sentinel: Add Retry-After header to 429 response
         wait_time = math.ceil((1 - bucket[0]) / REFILL_RATE)
         return JSONResponse(
