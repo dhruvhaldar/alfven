@@ -11,6 +11,8 @@ class MockRequest:
         self.client = MagicMock()
         self.client.host = client_host
         self.headers = {}
+        self.url = MagicMock()
+        self.url.path = "/api/mock"
         if x_forwarded_for:
             self.headers["X-Forwarded-For"] = x_forwarded_for
 
