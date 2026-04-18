@@ -109,3 +109,6 @@
 ## 2026-11-09 - Avoid redundant DOM queries during rapid input events
 **Learning:** During high-frequency UI events like dragging a range slider or rapid typing, executing expensive DOM queries (like `querySelectorAll`) and modifying attributes repeatedly causes significant layout thrashing and measurable UI lag.
 **Action:** Before applying a visual state change (such as a 'stale' state) and modifying child elements, check if the parent container already has the target state class (e.g., `!resultsEl.classList.contains('stale-results')`). This ensures the expensive DOM manipulations only run once per state transition.
+## 2026-11-10 - Avoid request.url in ASGI Middleware Rate Limiting Fallback
+**Learning:** In FastAPI/Starlette, accessing `request.url.path` instantiates a new `URL` object which adds minor overhead during request processing, even in fallback/error paths like rate limiting.
+**Action:** Read the path directly from the ASGI scope using `request.scope.get('path', '')` instead of `request.url.path` to avoid `URL` instantiation. In test mock objects, ensure the `scope` dictionary is mocked to prevent missing attribute errors.
