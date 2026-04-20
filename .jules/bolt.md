@@ -109,3 +109,7 @@
 ## 2026-11-09 - Avoid redundant DOM queries during rapid input events
 **Learning:** During high-frequency UI events like dragging a range slider or rapid typing, executing expensive DOM queries (like `querySelectorAll`) and modifying attributes repeatedly causes significant layout thrashing and measurable UI lag.
 **Action:** Before applying a visual state change (such as a 'stale' state) and modifying child elements, check if the parent container already has the target state class (e.g., `!resultsEl.classList.contains('stale-results')`). This ensures the expensive DOM manipulations only run once per state transition.
+
+## 2026-11-10 - Avoid redundant layout thrashing during rapid DOM updates
+**Learning:** Calling `getBoundingClientRect()` forces the browser to synchronously recalculate layout. When placed inside a function that runs frequently (like `drawMagnetosphere` during rapid slider input), it causes measurable rendering jank.
+**Action:** Extract `getBoundingClientRect()` from rapid render loops. Cache container dimensions globally, initialize them on `DOMContentLoaded`, and only update them via a `window.addEventListener('resize')` handler.
