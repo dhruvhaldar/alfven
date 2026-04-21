@@ -74,13 +74,35 @@ async function updateMagnetosphere() {
     }
 }
 
+let cachedVizWidth = 0;
+let cachedVizHeight = 0;
+
+function updateVizDimensions() {
+    const container = document.getElementById("magnetosphere-viz");
+    if (container) {
+        const rect = container.getBoundingClientRect();
+        cachedVizWidth = rect.width || 400;
+        cachedVizHeight = rect.height || 300;
+    }
+}
+
+// Update dimensions on resize to keep SVG responsive
+window.addEventListener('resize', () => {
+    // Debounce the resize slightly if needed, but for dimensions it's usually okay.
+    updateVizDimensions();
+});
+
 function drawMagnetosphere(standoff) {
     const container = d3.select("#magnetosphere-viz");
     if (container.empty()) return;
 
-    // Optimization: Reuse existing SVG to prevent DOM thrashing
-    const width = container.node().getBoundingClientRect().width || 400;
-    const height = container.node().getBoundingClientRect().height || 300;
+    if (cachedVizWidth === 0 || cachedVizHeight === 0) {
+        updateVizDimensions();
+    }
+
+    // Optimization: Reuse existing SVG and cache dimensions to prevent DOM layout thrashing
+    const width = cachedVizWidth;
+    const height = cachedVizHeight;
     const centerX = width * 0.7;
     const centerY = height / 2;
     // Scale: Fit roughly 20 Re in half width
@@ -201,6 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const velocityInput = document.getElementById('sw-velocity');
     const densityNum = document.getElementById('sw-density-num');
     const velocityNum = document.getElementById('sw-velocity-num');
+
+    // Initialize dimensions on load
+    updateVizDimensions();
 
     // Create a debounced version of the update function
     const debouncedUpdate = debounce(updateMagnetosphere, 300);
