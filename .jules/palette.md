@@ -158,3 +158,7 @@
 ## 2026-08-29 - Inline Form Error Associations
 **Learning:** When form inputs become invalid, inline error messages are often visually presented next to the input. However, without a programmatic relationship (like `aria-describedby`), screen reader users focusing the input may only hear that it is invalid, but not the specific reason why (e.g., "Value must be <= 1000").
 **Action:** Always add `aria-describedby` to inputs when they are invalid to explicitly associate them with the ID of the inline error message, ensuring screen readers announce the error text upon focus. Remember to remove the attribute when the error state is cleared.
+
+## 2026-08-30 - Persistent Stale States During Async Calculation
+**Learning:** Removing stale visual states (`.stale-results`) and re-enabling interactions (like clipboard copy on `.copyable-result` elements) at the very beginning of an asynchronous fetch request causes the UI to appear fully updated and valid *before* the new data arrives. This misleads users into copying outdated results while they are technically still "calculating."
+**Action:** Stale visual states (`.stale-results`) and disabled functional states (like `aria-disabled="true"` on results) must persist during the loading phase. Only remove these states in the `finally` block or when `isLoading = false` is explicitly set, ensuring users only copy or trust the data once the network request successfully completes and the DOM is updated with fresh values.
