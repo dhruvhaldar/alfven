@@ -78,15 +78,6 @@ function setLoading(btn, container, isLoading) {
          btn.style.cursor = "wait";
          container.setAttribute('aria-busy', 'true');
 
-         // Remove stale states when calculation starts
-         btn.classList.remove('needs-update');
-         container.classList.remove('stale-results');
-         const copyables = container.querySelectorAll('.copyable-result');
-         copyables.forEach(c => {
-             c.removeAttribute('aria-disabled');
-             c.setAttribute('title', c.dataset.originalTitle || "Click or press Enter to copy");
-         });
-
          const error = container.querySelector('.error-message');
          if(error) error.remove();
     } else {
@@ -94,6 +85,15 @@ function setLoading(btn, container, isLoading) {
          btn.disabled = false;
          btn.style.cursor = "pointer";
          container.setAttribute('aria-busy', 'false');
+
+        // Remove stale states when calculation completes
+        btn.classList.remove('needs-update');
+        container.classList.remove('stale-results');
+        const copyables = container.querySelectorAll('.copyable-result');
+        copyables.forEach(c => {
+            c.removeAttribute('aria-disabled');
+            c.setAttribute('title', c.dataset.originalTitle || "Click or press Enter to copy");
+        });
     }
 }
 
@@ -359,6 +359,9 @@ function enableEnterKey(inputId, btnId) {
 // Copy to Clipboard Helper
 function copyToClipboard(el) {
     if (el.getAttribute('aria-busy') === 'true' || el.getAttribute('aria-disabled') === 'true') return;
+
+    // Also abort if parent container is loading to prevent copying stale data during fetch
+    if (el.closest('[aria-busy="true"]')) return;
 
     // Get text, cleaning up any potential spinner text if hidden but still in DOM
     const text = el.innerText.trim();
