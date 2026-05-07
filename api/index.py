@@ -147,26 +147,33 @@ def get_client_ip(request: Request) -> str:
     # 🛡️ Sentinel: Secure IP Extraction
     # If running on Vercel (indicated by VERCEL environment variable),
     # we can trust the X-Forwarded-For header as Vercel ensures it contains the client IP.
+    raw_ip = "unknown"
     if IS_VERCEL:
         # 🛡️ Sentinel: Prefer Vercel's platform-specific non-spoofable header if available
         vercel_ip = request.headers.get("x-vercel-forwarded-for")
         if vercel_ip:
-            return vercel_ip.strip()
+            raw_ip = vercel_ip.strip()
+        else:
+            forwarded = request.headers.get("X-Forwarded-For")
+            if forwarded:
+                # 🛡️ Sentinel: Proxies append to X-Forwarded-For. The right-most IP is the real client.
+                # Taking the first IP allows an attacker to spoof their IP and bypass rate limits.
+                raw_ip = forwarded.split(",")[-1].strip()
 
-        forwarded = request.headers.get("X-Forwarded-For")
-        if forwarded:
-            # 🛡️ Sentinel: Proxies append to X-Forwarded-For. The right-most IP is the real client.
-            # Taking the first IP allows an attacker to spoof their IP and bypass rate limits.
-            return forwarded.split(",")[-1].strip()
+    if raw_ip == "unknown":
+        # Fallback to direct connection IP
+        # This is safe if not behind a proxy, or if the ASGI server is configured to handle proxy headers.
+        # Optimization: Read IP directly from ASGI scope to avoid `Address` namedtuple instantiation overhead
+        if hasattr(request, "scope"):
+            client = request.scope.get("client")
+            if client:
+                raw_ip = client[0]
+        elif getattr(request, "client", None):
+            raw_ip = request.client.host
 
-    # Fallback to direct connection IP
-    # This is safe if not behind a proxy, or if the ASGI server is configured to handle proxy headers.
-    # Optimization: Read IP directly from ASGI scope to avoid `Address` namedtuple instantiation overhead
-    if hasattr(request, "scope"):
-        client = request.scope.get("client")
-        if client:
-            return client[0]
-    return request.client.host if getattr(request, "client", None) else "unknown"
+    # 🛡️ Sentinel: Limit IP string length to prevent Memory Exhaustion DoS
+    # Max IPv6 length is 45 characters. Truncate to 45 characters.
+    return str(raw_ip)[:45]
 
 
 @app.middleware("http")

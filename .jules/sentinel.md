@@ -47,3 +47,8 @@
 **Vulnerability:** The rate limiter successfully blocked requests exceeding the permitted threshold but failed to log these events.
 **Learning:** Silently dropping or rejecting requests without logging leaves the application blind to ongoing DoS attacks, brute-force attempts, or abusive client behavior.
 **Prevention:** Always add explicit audit logging (e.g., `logger.warning`) when enforcing security boundaries like rate limits, including identifying information like the client IP and the requested path.
+
+## 2026-11-20 - [Memory Exhaustion DoS via Unbounded Header Storage]
+**Vulnerability:** The rate limiter extracted the client IP from the `X-Forwarded-For` header and used it directly as a dictionary key (`request_counts`). An attacker could provide a massive, unbounded string in this header (e.g., 1MB long), which would be allocated in memory. Since `MAX_IPS` allowed up to 2000 unique keys, this could exhaust gigabytes of memory and crash the server.
+**Learning:** Limiting the number of keys in a dictionary (e.g., LRU cache) prevents unbounded item growth, but it does not protect against unbounded memory growth if the size of the individual keys (or values) is not restricted.
+**Prevention:** Always enforce a strict maximum length (e.g., 45 characters for IPv6) when extracting string values from untrusted HTTP headers before storing them in memory or passing them to backend components.
