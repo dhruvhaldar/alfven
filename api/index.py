@@ -247,6 +247,31 @@ async def add_security_headers(request: Request, call_next):
     return response
 
 
+# Request Size Limit Middleware
+@app.middleware("http")
+async def limit_upload_size(request: Request, call_next):
+    # 🛡️ Sentinel: Enforce maximum request body size to prevent Memory Exhaustion DoS
+    if request.method in ("POST", "PUT", "PATCH"):
+        if request.headers.get("transfer-encoding", "").lower() == "chunked":
+            return JSONResponse(status_code=411, content={"detail": "Chunked encoding not supported"})
+
+        content_length = request.headers.get("content-length")
+        if content_length:
+            try:
+                if int(content_length) > 102400:  # 100 KB limit
+                    return JSONResponse(
+                        status_code=413,
+                        content={"detail": "Payload Too Large"}
+                    )
+            except ValueError:
+                return JSONResponse(
+                    status_code=400,
+                    content={"detail": "Invalid Content-Length header"}
+                )
+
+    return await call_next(request)
+
+
 # Input Models
 
 
