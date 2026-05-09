@@ -116,26 +116,24 @@ CSP_POLICY = (
 )
 
 
+_STATIC_SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Content-Security-Policy": CSP_POLICY,
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin"
+}
+
 def apply_security_headers_to_dict(headers: dict, is_api: bool):
     # 🛡️ Sentinel: Remove Server Header to obscure technology stack
     if "server" in headers:
         del headers["server"]
 
-    headers["X-Content-Type-Options"] = "nosniff"
-    headers["X-Frame-Options"] = "DENY"
-    headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-
-    headers["Content-Security-Policy"] = CSP_POLICY
-
-    # 🛡️ Sentinel: HSTS & Permissions Policy
-    headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
-    headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
-
-    # 🛡️ Sentinel: Add Cross-Origin-Opener-Policy for process isolation
-    headers["Cross-Origin-Opener-Policy"] = "same-origin"
-
-    # 🛡️ Sentinel: Add Cross-Origin-Resource-Policy to protect against cross-origin data leaks
-    headers["Cross-Origin-Resource-Policy"] = "same-origin"
+    # Optimization: Use dict.update() with precomputed static headers to avoid redundant individual assignments
+    headers.update(_STATIC_SECURITY_HEADERS)
 
     # 🛡️ Sentinel: Prevent sensitive API data from being cached by intermediate proxies and browsers
     if is_api:
