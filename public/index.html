@@ -8,19 +8,10 @@
     <link rel="stylesheet" href="css/space_theme.css">
     <link rel="stylesheet" href="css/glass.css">
     <!-- Optimization: defer external libraries to prevent render blocking and improve First Contentful Paint -->
-    <!-- Three.js -->
-    <!-- 🛡️ Sentinel: Added Subresource Integrity (SRI) to prevent execution of compromised external scripts -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
     <!-- D3.js -->
     <script defer src="https://d3js.org/d3.v7.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
     <!-- Chart.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js" integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG" crossorigin="anonymous"></script>
-    <!-- MathJax for equations -->
-    <!-- Optimization: defer mathjax config and polyfill to prevent render blocking -->
-    <script defer src="js/mathjax-config.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" integrity="sha384-Wr3l27q1bK61u689TZfFU9ZY5gqLFskmpQtEoXiM2BEoIWrnULp2zdvB0G4qVpWt" crossorigin="anonymous"></script>
-    <!-- Optimization: match MathJax execution order with its config by using defer instead of async -->
-    <script id="MathJax-script" defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js" integrity="sha384-M5jmNxKC9EVnuqeMwRHvFuYUE8Hhp0TgBruj/GZRkYtiMrCRgH7yvv5KY+Owi7TW" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -51,7 +42,7 @@
                 </div>
             </div>
             <div class="control-group">
-                <span class="result-label" id="standoff-label" title="The distance where the solar wind dynamic pressure balances the Earth's magnetic pressure.">Standoff Distance ($R_{mp}$):</span>
+                <span class="result-label" id="standoff-label" title="The distance where the solar wind dynamic pressure balances the Earth's magnetic pressure.">Standoff Distance (Rₘₚ):</span>
                 <div class="value-display copyable-result" id="standoff-display" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click or press Enter to copy" aria-labelledby="standoff-label standoff-display">
                     <span class="loading-spinner" aria-hidden="true"></span> Calculating...
                 </div>
@@ -82,7 +73,7 @@
                 <canvas id="iono-chart" role="img" aria-label="Ionosphere electron density profile chart"></canvas>
             </div>
             <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
-                Visualizes electron density ($N_e$) vs Altitude for D, E, and F layers based on Chapman production
+                Visualizes electron density (Nₑ) vs altitude for D, E, and F layers based on Chapman production
                 functions.
             </p>
         </section>
@@ -91,11 +82,11 @@
         <section class="glass-panel" aria-labelledby="plasma-title">
             <h2 class="panel-title" id="plasma-title">Plasma Parameters</h2>
             <div class="control-group">
-                <label for="plasma-n" title="Number density of electrons in the plasma.">Density ($n_e$) [m⁻³] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
+                <label for="plasma-n" title="Number density of electrons in the plasma.">Density (nₑ) [m⁻³] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
                 <input type="number" id="plasma-n" class="glass-input" value="1e6" step="any" min="0" max="1e30" required aria-required="true" placeholder="e.g. 1e6" autocomplete="off" spellcheck="false">
             </div>
             <div class="control-group">
-                <label for="plasma-T" title="Electron temperature, typical for space plasmas.">Temperature ($T_e$) [eV] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
+                <label for="plasma-T" title="Electron temperature, typical for space plasmas.">Temperature (Tₑ) [eV] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
                 <input type="number" id="plasma-T" class="glass-input" value="10" step="any" min="0" max="1e9" required aria-required="true" placeholder="e.g. 10" autocomplete="off" spellcheck="false">
             </div>
             <div class="control-group" style="margin-top: 20px;">
@@ -105,11 +96,11 @@
                 style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <!-- Results will go here -->
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span class="result-label" id="label-debye" title="The distance over which a plasma shields out electric potentials.">Debye Length ($\lambda_D$):</span>
+                    <span class="result-label" id="label-debye" title="The distance over which a plasma shields out electric potentials.">Debye Length (λᴅ):</span>
                     <span class="value-display copyable-result" id="res-debye" role="button" tabindex="0" title="Click or press Enter to copy" aria-labelledby="label-debye res-debye">-</span>
                 </div>
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span class="result-label" id="label-freq" title="The natural oscillation frequency of electrons in a plasma.">Plasma Freq ($\omega_{pe}$):</span>
+                    <span class="result-label" id="label-freq" title="The natural oscillation frequency of electrons in a plasma.">Plasma Freq (ωₚₑ):</span>
                     <span class="value-display copyable-result" id="res-freq" role="button" tabindex="0" title="Click or press Enter to copy" aria-labelledby="label-freq res-freq">-</span>
                 </div>
             </div>
@@ -119,7 +110,7 @@
         <section class="glass-panel" aria-labelledby="solar-physics-title">
             <h2 class="panel-title" id="solar-physics-title">Solar Physics (Sunspots)</h2>
             <div class="control-group">
-                <label for="sunspot-ratio" id="label-sunspot-ratio" title="Brightness ratio between the dark sunspot umbra and the surrounding photosphere.">Intensity Ratio ($I_{spot}/I_{phot}$)</label>
+                <label for="sunspot-ratio" id="label-sunspot-ratio" title="Brightness ratio between the dark sunspot umbra and the surrounding photosphere.">Intensity Ratio (Ispot/Iphot)</label>
                 <div class="control-row">
                     <input type="range" id="sunspot-ratio" class="glass-range" min="0.01" max="1.0" step="any" value="0.3" style="flex-grow: 1;" aria-labelledby="label-sunspot-ratio" autocomplete="off" spellcheck="false" aria-controls="sunspot-visual sunspot-temp">
                     <input type="number" id="sunspot-ratio-num" class="glass-input" min="0.01" max="1.0" step="any" value="0.3" style="width: 80px;" aria-labelledby="label-sunspot-ratio" placeholder="e.g. 0.3" autocomplete="off" spellcheck="false" aria-controls="sunspot-visual sunspot-temp">
@@ -131,12 +122,11 @@
                 </div>
             </div>
             <div class="control-group">
-                <span class="result-label" id="label-sunspot-temp" title="Estimated temperature of the sunspot based on brightness contrast.">Estimated Temperature ($T_{spot}$):</span>
+                <span class="result-label" id="label-sunspot-temp" title="Estimated temperature of the sunspot based on brightness contrast.">Estimated Temperature (Tspot):</span>
                 <div class="value-display copyable-result" id="sunspot-temp" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click or press Enter to copy" aria-labelledby="label-sunspot-temp sunspot-temp">- K</div>
             </div>
             <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
-                Estimates sunspot temperature based on brightness contrast with the photosphere ($T_{phot} \approx
-                5778K$).
+                Estimates sunspot temperature based on brightness contrast with the photosphere (Tphot ≈ 5778 K).
             </p>
         </section>
 
@@ -144,15 +134,15 @@
         <section class="glass-panel" aria-labelledby="aurora-title">
             <h2 class="panel-title" id="aurora-title">Aurora Power</h2>
             <div class="control-group">
-                <label for="aurora-E" title="Ionospheric convection electric field driving auroral currents.">Electric Field ($E$) [mV/m] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
+                <label for="aurora-E" title="Ionospheric convection electric field driving auroral currents.">Electric Field (E) [mV/m] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
                 <input type="number" id="aurora-E" class="glass-input" value="50" min="0" max="1e9" step="any" required aria-required="true" placeholder="e.g. 50" autocomplete="off" spellcheck="false">
             </div>
             <div class="control-group">
-                <label for="aurora-sigma" title="Height-integrated Pedersen conductivity of the auroral ionosphere.">Conductivity ($\Sigma_P$) [S] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
+                <label for="aurora-sigma" title="Height-integrated Pedersen conductivity of the auroral ionosphere.">Conductivity (Σₚ) [S] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
                 <input type="number" id="aurora-sigma" class="glass-input" value="10" min="0" max="1e6" step="any" required aria-required="true" placeholder="e.g. 10" autocomplete="off" spellcheck="false">
             </div>
             <div class="control-group">
-                <label for="aurora-area" title="Total area of the auroral precipitation region.">Area ($A$) [$10^{10} m^2$] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
+                <label for="aurora-area" title="Total area of the auroral precipitation region.">Area (A) [10¹⁰ m²] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
                 <input type="number" id="aurora-area" class="glass-input" value="1" min="0" max="1e20" step="any" required aria-required="true" placeholder="e.g. 1" autocomplete="off" spellcheck="false">
             </div>
             <div class="control-group" style="margin-top: 20px;">
@@ -161,11 +151,11 @@
             <div id="aurora-results" aria-live="polite" aria-busy="false"
                 style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span class="result-label" id="label-power" title="Total power dissipated in the auroral ionosphere.">Dissipated Power ($P$):</span>
+                    <span class="result-label" id="label-power" title="Total power dissipated in the auroral ionosphere.">Dissipated Power (P):</span>
                     <span class="value-display copyable-result" id="res-power" role="button" tabindex="0" title="Click or press Enter to copy" aria-labelledby="label-power res-power">-</span>
                 </div>
                 <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span class="result-label" id="label-current" title="Height-integrated sheet current in the aurora.">Sheet Current ($J$):</span>
+                    <span class="result-label" id="label-current" title="Height-integrated sheet current in the aurora.">Sheet Current (J):</span>
                     <span class="value-display copyable-result" id="res-current" role="button" tabindex="0" title="Click or press Enter to copy" aria-labelledby="label-current res-current">-</span>
                 </div>
             </div>

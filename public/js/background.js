@@ -1,4 +1,21 @@
 // public/js/background.js
+const THREE_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+
+function loadThreeJs() {
+    if (window.THREE) return Promise.resolve(window.THREE);
+
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = THREE_SRC;
+        script.defer = true;
+        script.crossOrigin = 'anonymous';
+        script.integrity = 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu';
+        script.onload = () => resolve(window.THREE);
+        script.onerror = () => reject(new Error('Failed to load Three.js'));
+        document.head.appendChild(script);
+    });
+}
+
 let scene, camera, renderer, stars, particles;
 let animationId; // Track animation frame ID
 
@@ -15,12 +32,12 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     container.appendChild(renderer.domElement);
 
     // Create Stars
     const starGeometry = new THREE.BufferGeometry();
-    const starCount = 10000;
+    const starCount = window.matchMedia("(max-width: 768px)").matches ? 2500 : 5000;
     const posArray = new Float32Array(starCount * 3);
     const colorArray = new Float32Array(starCount * 3);
 
@@ -99,4 +116,22 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-document.addEventListener('DOMContentLoaded', init);
+function scheduleInit() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const start = async () => {
+        try {
+            await loadThreeJs();
+            init();
+        } catch (error) {
+            console.warn(error);
+        }
+    };
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(start, { timeout: 1500 });
+    } else {
+        setTimeout(start, 300);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', scheduleInit);
