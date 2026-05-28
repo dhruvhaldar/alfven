@@ -116,3 +116,7 @@
 ## 2026-11-11 - Precomputed Dictionary Update For Static Headers
 **Learning:** Assigning multiple static security headers to a dictionary one by one via direct indexing (`headers["key"] = "value"`) on every API request introduces unnecessary Python overhead in execution time, particularly in high-throughput middleware like `add_security_headers`.
 **Action:** Extract these invariant header values into a module-level precomputed dictionary (`_STATIC_SECURITY_HEADERS`) and use `headers.update()` instead. Benchmarks indicate this reduces dictionary population time by ~40% for these static assignments, serving as a minor but compounding micro-optimization per request.
+
+## 2026-11-12 - Form Submission Caching
+**Learning:** For deterministic mathematical calculators triggered by manual form submissions (unlike slider-driven inputs which often have debounce or caching implemented), users frequently double-click or re-calculate the exact same parameters. This causes unnecessary network requests to the API and delays rendering.
+**Action:** Implement an in-memory client-side dictionary cache keyed by the concatenated input parameters (e.g., `${n}_${T}`) for form-based queries. Before making the `fetch` call, check the cache; if a hit occurs, immediately update the DOM to instantly resolve the request.

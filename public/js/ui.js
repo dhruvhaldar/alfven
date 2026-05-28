@@ -113,6 +113,9 @@ function showError(container, msg) {
      container.appendChild(errorDiv);
 }
 
+// Optimization: Cache plasma data locally to eliminate redundant API requests
+const plasmaCache = {};
+
 // Plasma Calculation
 async function calcPlasma(btn) {
     const resultsContainer = document.getElementById('plasma-results');
@@ -135,6 +138,15 @@ async function calcPlasma(btn) {
 
     const n = parseFloat(nInput.value);
     const T = parseFloat(TInput.value);
+    const cacheKey = `${n}_${T}`;
+
+    if (plasmaCache[cacheKey]) {
+        const data = plasmaCache[cacheKey];
+        document.getElementById('res-debye').innerText = data.debye_length.toExponential(2) + " m";
+        document.getElementById('res-freq').innerText = (data.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz";
+        setLoading(btn, resultsContainer, false);
+        return;
+    }
 
     setLoading(btn, resultsContainer, true);
 
@@ -145,6 +157,9 @@ async function calcPlasma(btn) {
         if (!res.ok) throw new Error();
 
         const data = await res.json();
+
+        // Save to cache
+        plasmaCache[cacheKey] = data;
 
         document.getElementById('res-debye').innerText = data.debye_length.toExponential(2) + " m";
         document.getElementById('res-freq').innerText = (data.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz";
