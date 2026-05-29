@@ -120,3 +120,7 @@
 ## 2026-11-12 - Form Submission Caching
 **Learning:** For deterministic mathematical calculators triggered by manual form submissions (unlike slider-driven inputs which often have debounce or caching implemented), users frequently double-click or re-calculate the exact same parameters. This causes unnecessary network requests to the API and delays rendering.
 **Action:** Implement an in-memory client-side dictionary cache keyed by the concatenated input parameters (e.g., `${n}_${T}`) for form-based queries. Before making the `fetch` call, check the cache; if a hit occurs, immediately update the DOM to instantly resolve the request.
+
+## 2026-11-13 - Scratchpad Cleanup
+**Learning:** Leaving temporary performance test scripts (like `test_perf.py`) in the workspace during a pull request clutters the repository and fails code review.
+**Action:** When creating temporary performance benchmark scripts to measure optimizations, ensure they are completely deleted from the workspace using `rm` before requesting a code review or committing.
