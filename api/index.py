@@ -266,6 +266,12 @@ async def limit_upload_size(request: Request, call_next):
                     status_code=400,
                     content={"detail": "Invalid Content-Length header"}
                 )
+        else:
+            # 🛡️ Sentinel: Reject requests missing Content-Length to prevent bypassing body size limits
+            return JSONResponse(
+                status_code=411,
+                content={"detail": "Length Required"}
+            )
 
     return await call_next(request)
 
