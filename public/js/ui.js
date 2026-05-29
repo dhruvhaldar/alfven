@@ -289,6 +289,10 @@ function syncSunspot(source) {
     }
 }
 
+// Optimization: Cache aurora data locally
+// This eliminates redundant network requests and server-side recalculations.
+const auroraCache = {};
+
 // Aurora Logic
 async function calcAurora(btn) {
     const resultsContainer = document.getElementById('aurora-results');
@@ -315,6 +319,18 @@ async function calcAurora(btn) {
     const E_val = parseFloat(EInput.value);
     const sigma = parseFloat(sigmaInput.value);
     const area_val = parseFloat(areaInput.value);
+    const cacheKey = `${E_val}_${sigma}_${area_val}`;
+
+    if (auroraCache[cacheKey]) {
+        const data = auroraCache[cacheKey];
+        let powerStr = data.dissipated_power.toExponential(2) + " W";
+        if (data.dissipated_power > 1e9) powerStr = (data.dissipated_power / 1e9).toFixed(2) + " GW";
+
+        document.getElementById('res-power').innerText = powerStr;
+        document.getElementById('res-current').innerText = data.sheet_current.toFixed(2) + " A/m";
+        setLoading(btn, resultsContainer, false);
+        return;
+    }
 
     setLoading(btn, resultsContainer, true);
 
@@ -331,6 +347,9 @@ async function calcAurora(btn) {
 
         if (!res.ok) throw new Error();
         const data = await res.json();
+
+        // Save to cache
+        auroraCache[cacheKey] = data;
 
         let powerStr = data.dissipated_power.toExponential(2) + " W";
         if (data.dissipated_power > 1e9) powerStr = (data.dissipated_power / 1e9).toFixed(2) + " GW";
