@@ -22,8 +22,13 @@ class PlasmaState:
             n (float): Electron density in m^-3.
             T_ev (float): Electron temperature in eV.
         """
-        self.n = n
-        self.T_ev = T_ev
+        self._n = n
+        self._T_ev = T_ev
+        self._sqrt_n = None
+        self._sqrt_T_ev = None
+        self._debye_numerator = None
+        self._larmor_numerator = None
+        self._T_k = None
 
     @property
     def n(self):
@@ -32,8 +37,7 @@ class PlasmaState:
     @n.setter
     def n(self, value):
         self._n = value
-        # Optimization: Precompute square root of density
-        self._sqrt_n = math.sqrt(value)
+        self._sqrt_n = None
 
     @property
     def T_ev(self):
@@ -42,14 +46,16 @@ class PlasmaState:
     @T_ev.setter
     def T_ev(self, value):
         self._T_ev = value
-        # Convert Temperature to Kelvin: T(K) = T(eV) * e / k_B
-        # Optimization: use precomputed conversion constant to eliminate division overhead
-        self.T_k = value * _EV_TO_K
-        # Optimization: Precompute square root of temperature
-        self._sqrt_T_ev = math.sqrt(value)
-        # Optimization: Precompute instance-specific derived numerators based on mutables to prevent redundant operations on property access
-        self._debye_numerator = _DEBYE_CONST_SQRT * self._sqrt_T_ev
-        self._larmor_numerator = _LARMOR_CONST_SQRT * self._sqrt_T_ev
+        self._sqrt_T_ev = None
+        self._debye_numerator = None
+        self._larmor_numerator = None
+        self._T_k = None
+
+    @property
+    def T_k(self):
+        if self._T_k is None:
+            self._T_k = self._T_ev * _EV_TO_K
+        return self._T_k
 
     @property
     def debye_length(self):
@@ -60,7 +66,13 @@ class PlasmaState:
             float: Debye length in meters.
         """
         # lambda_D = sqrt(eps0 * k_B * T / (n * e^2))
-        # Optimization: Use precomputed instance-specific numerator to eliminate redundant constant multiplication on every access
+        # Optimization: Use lazy evaluation and precomputed numerator to eliminate redundant operations
+        if self._sqrt_n is None:
+            self._sqrt_n = math.sqrt(self._n)
+        if self._debye_numerator is None:
+            if self._sqrt_T_ev is None:
+                self._sqrt_T_ev = math.sqrt(self._T_ev)
+            self._debye_numerator = _DEBYE_CONST_SQRT * self._sqrt_T_ev
         return self._debye_numerator / self._sqrt_n
 
     @property
@@ -72,7 +84,9 @@ class PlasmaState:
             float: Plasma frequency in rad/s.
         """
         # omega_pe = sqrt(n * e^2 / (m_e * eps_0))
-        # Optimization: Use precomputed constant term and cached square root for speed
+        # Optimization: Use precomputed constant term and lazy evaluation for speed
+        if self._sqrt_n is None:
+            self._sqrt_n = math.sqrt(self._n)
         return self._sqrt_n * _PLASMA_FREQ_CONST_SQRT
 
     def larmor_radius(self, B):
@@ -88,5 +102,9 @@ class PlasmaState:
         """
         if B == 0:
             return float('inf')
-        # Optimization: Use precomputed instance-specific numerator to eliminate redundant constant multiplication on every access
+        # Optimization: Use lazy evaluation and precomputed numerator to eliminate redundant operations
+        if self._larmor_numerator is None:
+            if self._sqrt_T_ev is None:
+                self._sqrt_T_ev = math.sqrt(self._T_ev)
+            self._larmor_numerator = _LARMOR_CONST_SQRT * self._sqrt_T_ev
         return self._larmor_numerator / B
