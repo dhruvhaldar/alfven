@@ -124,3 +124,7 @@
 ## 2026-11-13 - Scratchpad Cleanup
 **Learning:** Leaving temporary performance test scripts (like `test_perf.py`) in the workspace during a pull request clutters the repository and fails code review.
 **Action:** When creating temporary performance benchmark scripts to measure optimizations, ensure they are completely deleted from the workspace using `rm` before requesting a code review or committing.
+
+## 2026-11-14 - Lazy Initialization of Instance Properties
+**Learning:** While static physical constants should be precomputed at the module level, eagerly precomputing instance-specific derived mathematical terms (like square roots of attributes) in `@property` setters introduces redundant overhead. If the object state is rapidly updated but the derived physical properties are only accessed occasionally, the computation in the setter is wasted.
+**Action:** Use lazy initialization for expensive derived properties. Set the internal cache variables to `None` upon attribute assignment (e.g. in the setter), and only compute and cache the value upon its first access in the getter method. This drastically minimizes overhead during object instantiation and rapid state updates, speeding up execution significantly when all properties aren't accessed simultaneously.
