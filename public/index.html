@@ -47,8 +47,8 @@
                     <span class="loading-spinner" aria-hidden="true"></span> Calculating...
                 </div>
             </div>
-            <div id="magnetosphere-viz" class="viz-container"></div>
-            <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
+            <div id="magnetosphere-viz" class="viz-container" aria-describedby="mag-desc"></div>
+            <p id="mag-desc" style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
                 Visualizes the Chapman-Ferraro distance where solar wind dynamic pressure balances Earth's magnetic
                 pressure.
             </p>
@@ -70,9 +70,9 @@
                 </div>
             </div>
             <div class="chart-container">
-                <canvas id="iono-chart" role="img" aria-label="Ionosphere electron density profile chart"></canvas>
+                <canvas id="iono-chart" role="img" aria-label="Ionosphere electron density profile chart" aria-describedby="iono-desc"></canvas>
             </div>
-            <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
+            <p id="iono-desc" style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
                 Visualizes electron density (Nₑ) vs altitude for D, E, and F layers based on Chapman production
                 functions.
             </p>
@@ -117,7 +117,7 @@
                 </div>
             </div>
             <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0;">
-                <div id="sunspot-visual" role="img" aria-label="Sunspot visualization"
+                <div id="sunspot-visual" role="img" aria-label="Sunspot visualization" aria-describedby="sunspot-desc"
                     style="width: 100px; height: 100px; border-radius: 50%; background-color: #ffcc00; box-shadow: 0 0 20px #ffaa00;">
                 </div>
             </div>
@@ -125,7 +125,7 @@
                 <span class="result-label" id="label-sunspot-temp" title="Estimated temperature of the sunspot based on brightness contrast.">Estimated Temperature (Tspot):</span>
                 <div class="value-display copyable-result" id="sunspot-temp" style="font-size: 1.5rem;" aria-live="polite" role="button" tabindex="0" title="Click or press Enter to copy" aria-labelledby="label-sunspot-temp sunspot-temp">- K</div>
             </div>
-            <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
+            <p id="sunspot-desc" style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
                 Estimates sunspot temperature based on brightness contrast with the photosphere (Tphot ≈ 5778 K).
             </p>
         </section>
