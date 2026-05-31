@@ -162,3 +162,7 @@
 ## 2026-08-30 - Persistent Stale States During Async Calculation
 **Learning:** Removing stale visual states (`.stale-results`) and re-enabling interactions (like clipboard copy on `.copyable-result` elements) at the very beginning of an asynchronous fetch request causes the UI to appear fully updated and valid *before* the new data arrives. This misleads users into copying outdated results while they are technically still "calculating."
 **Action:** Stale visual states (`.stale-results`) and disabled functional states (like `aria-disabled="true"` on results) must persist during the loading phase. Only remove these states in the `finally` block or when `isLoading = false` is explicitly set, ensuring users only copy or trust the data once the network request successfully completes and the DOM is updated with fresh values.
+
+## 2026-08-31 - Associate Visual Descriptions with Visualizations
+**Learning:** Data visualizations (`<canvas>`, `<svg>`, or CSS-styled `<div>` elements) often have descriptive text nearby explaining what the visualization represents. Without a programmatic link, screen reader users interact with the visualization but miss out on this crucial contextual explanation.
+**Action:** Always assign an `id` to the descriptive text (e.g., `<p id="chart-desc">`) and use the `aria-describedby` attribute on the visualization element (e.g., `<canvas aria-describedby="chart-desc">`) to ensure the explanation is announced along with the element's label and role.
