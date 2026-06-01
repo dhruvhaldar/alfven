@@ -166,3 +166,7 @@
 ## 2026-08-31 - Associate Visual Descriptions with Visualizations
 **Learning:** Data visualizations (`<canvas>`, `<svg>`, or CSS-styled `<div>` elements) often have descriptive text nearby explaining what the visualization represents. Without a programmatic link, screen reader users interact with the visualization but miss out on this crucial contextual explanation.
 **Action:** Always assign an `id` to the descriptive text (e.g., `<p id="chart-desc">`) and use the `aria-describedby` attribute on the visualization element (e.g., `<canvas aria-describedby="chart-desc">`) to ensure the explanation is announced along with the element's label and role.
+
+## 2026-09-01 - Dynamic SVG Accessible Names
+**Learning:** While static visualizations (like `<canvas>`) often correctly implement `aria-label` and `aria-describedby` in the HTML, dynamically generated SVGs (e.g., via D3.js) frequently omit these attributes. This causes the element to be exposed as a generic image or graphic without context to screen reader users.
+**Action:** When creating dynamic visualizations using JS libraries like D3, always chain `.attr("aria-label", "...")` and `.attr("aria-describedby", "...")` to the root `<svg>` element creation to ensure parity with static DOM accessible names.
