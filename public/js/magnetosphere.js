@@ -114,7 +114,9 @@ function drawMagnetosphere(standoff) {
         svg = container.append("svg")
             .attr("width", "100%")
             .attr("height", "100%")
-            .attr("role", "img");
+            .attr("role", "img")
+            .attr("aria-label", "Magnetosphere standoff visualization")
+            .attr("aria-describedby", "mag-desc");
 
         // Static definitions
         const defs = svg.append("defs");
@@ -162,7 +164,8 @@ function drawMagnetosphere(standoff) {
 
     // 2. Update Attributes for all elements
     svg.attr("viewBox", `0 0 ${width} ${height}`)
-       .attr("aria-label", `Magnetosphere visualization. Standoff distance is ${standoff.toFixed(1)} Earth Radii.`);
+       .attr("aria-label", `Magnetosphere visualization. Standoff distance is ${standoff.toFixed(1)} Earth Radii.`)
+       .attr("aria-describedby", "mag-desc");
 
     // Update Earth
     svg.select(".earth")
