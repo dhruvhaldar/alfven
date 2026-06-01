@@ -224,6 +224,11 @@ async def rate_limit_middleware(request: Request, call_next):
         # 🛡️ Sentinel: Log security event (Rate Limit Exceeded)
         # Optimization: Use request.scope.get("path") instead of request.url.path to avoid expensive URL instantiation
         path = request.scope.get("path", "") if hasattr(request, "scope") else "unknown"
+
+        # 🛡️ Sentinel: Sanitize path to prevent Log Injection/Forging
+        if isinstance(path, str):
+            path = path.replace("\n", "\\n").replace("\r", "\\r")
+
         logger.warning(f"Rate limit exceeded for IP: {client_ip} on path: {path}")
         # 🛡️ Sentinel: Add Retry-After header to 429 response
         wait_time = math.ceil((1 - bucket[0]) / REFILL_RATE)
