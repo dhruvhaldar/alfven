@@ -232,11 +232,14 @@ async def rate_limit_middleware(request: Request, call_next):
         logger.warning(f"Rate limit exceeded for IP: {client_ip} on path: {path}")
         # 🛡️ Sentinel: Add Retry-After header to 429 response
         wait_time = math.ceil((1 - bucket[0]) / REFILL_RATE)
-        return JSONResponse(
+        response = JSONResponse(
             status_code=429,
             content={"detail": "Too many requests"},
             headers={"Retry-After": str(wait_time)}
         )
+        is_api = request.scope.get("path", "").startswith("/api/") if hasattr(request, "scope") else False
+        apply_security_headers_to_dict(response.headers, is_api)
+        return response
 
 
 # Security Headers Middleware
@@ -255,28 +258,34 @@ async def add_security_headers(request: Request, call_next):
 async def limit_upload_size(request: Request, call_next):
     # 🛡️ Sentinel: Enforce maximum request body size to prevent Memory Exhaustion DoS
     if request.method in ("POST", "PUT", "PATCH"):
+        response = None
         if request.headers.get("transfer-encoding", "").lower() == "chunked":
-            return JSONResponse(status_code=411, content={"detail": "Chunked encoding not supported"})
-
-        content_length = request.headers.get("content-length")
-        if content_length:
-            try:
-                if int(content_length) > 102400:  # 100 KB limit
-                    return JSONResponse(
-                        status_code=413,
-                        content={"detail": "Payload Too Large"}
-                    )
-            except ValueError:
-                return JSONResponse(
-                    status_code=400,
-                    content={"detail": "Invalid Content-Length header"}
-                )
+            response = JSONResponse(status_code=411, content={"detail": "Chunked encoding not supported"})
         else:
-            # 🛡️ Sentinel: Reject requests missing Content-Length to prevent bypassing body size limits
-            return JSONResponse(
-                status_code=411,
-                content={"detail": "Length Required"}
-            )
+            content_length = request.headers.get("content-length")
+            if content_length:
+                try:
+                    if int(content_length) > 102400:  # 100 KB limit
+                        response = JSONResponse(
+                            status_code=413,
+                            content={"detail": "Payload Too Large"}
+                        )
+                except ValueError:
+                    response = JSONResponse(
+                        status_code=400,
+                        content={"detail": "Invalid Content-Length header"}
+                    )
+            else:
+                # 🛡️ Sentinel: Reject requests missing Content-Length to prevent bypassing body size limits
+                response = JSONResponse(
+                    status_code=411,
+                    content={"detail": "Length Required"}
+                )
+
+        if response is not None:
+            is_api = request.scope.get("path", "").startswith("/api/") if hasattr(request, "scope") else False
+            apply_security_headers_to_dict(response.headers, is_api)
+            return response
 
     return await call_next(request)
 

@@ -62,3 +62,8 @@
 **Vulnerability:** The rate limit middleware logged the requested path (`request.scope.get("path")`) when a limit was exceeded. Because URL paths are typically URL-decoded by ASGI servers, an attacker could supply a path containing `%0A` (newline) or `%0D` (carriage return). When logged verbatim by `logger.warning`, this allowed the attacker to inject arbitrary, fake log entries on new lines (Log Forging / Log Injection).
 **Learning:** Any data originating from the HTTP request (including paths, headers, and query parameters) is inherently untrusted. Standard Python logging functions do not automatically escape newlines within the message string, allowing log structure to be manipulated if inputs aren't sanitized.
 **Prevention:** To prevent Log Injection / Log Forging vulnerabilities, always explicitly sanitize untrusted request data by escaping control characters (e.g., `path.replace("\n", "\\n").replace("\r", "\\r")`) before passing it to the application logger.
+
+## 2025-05-18 - Middleware Short-Circuit Security Header Bypass
+**Vulnerability:** Security headers were missing on early-return error responses (429, 413, 411) from rate limiting and upload size middlewares.
+**Learning:** In FastAPI, middleware is executed in reverse order. If an outer middleware returns a response directly, it bypasses inner middlewares, including the one responsible for applying security headers.
+**Prevention:** Apply security headers directly to early-return responses in middleware or use a custom Exception to leverage centralized exception handlers instead of returning responses directly.
