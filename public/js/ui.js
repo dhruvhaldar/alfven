@@ -507,6 +507,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     c.setAttribute('aria-disabled', 'true');
                     c.setAttribute('title', 'Outdated result. Click calculate to update.');
                 });
+
+                const announcer = document.getElementById('sr-announcer');
+                if (announcer) {
+                    announcer.textContent = 'Inputs modified. Results are now outdated. Press calculate to update.';
+                    setTimeout(() => { announcer.textContent = ''; }, 4000);
+                }
             }
             if (btnEl && !btnEl.classList.contains('needs-update')) {
                 btnEl.classList.add('needs-update');
