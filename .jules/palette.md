@@ -170,3 +170,11 @@
 ## 2026-09-01 - Dynamic SVG Accessible Names
 **Learning:** While static visualizations (like `<canvas>`) often correctly implement `aria-label` and `aria-describedby` in the HTML, dynamically generated SVGs (e.g., via D3.js) frequently omit these attributes. This causes the element to be exposed as a generic image or graphic without context to screen reader users.
 **Action:** When creating dynamic visualizations using JS libraries like D3, always chain `.attr("aria-label", "...")` and `.attr("aria-describedby", "...")` to the root `<svg>` element creation to ensure parity with static DOM accessible names.
+
+## 2026-09-02 - Double-Stacked Opacity on Disabled States
+**Learning:** Disabled buttons often double-stack opacity reductions (e.g., setting `opacity: 0.5` on the button *and* `color: rgba(255, 255, 255, 0.5)` on the text). Against dark backgrounds, this results in an effective text opacity of 25%, making critical loading text (like "Calculating...") illegible and failing WCAG contrast guidelines.
+**Action:** Avoid double-stacking opacities on disabled states. Ensure the effective text contrast remains legible by keeping the element's overall opacity slightly higher and text color near 80% opacity.
+
+## 2026-09-02 - Proactive Stale State Announcements
+**Learning:** When users modify inputs, the results visually turn translucent (`.stale-results`) to indicate they are outdated. However, screen reader users do not perceive this visual change and might unknowingly assume the results are still valid until they try to copy them and hear the "Outdated" title.
+**Action:** Whenever an asynchronous result container visually transitions to a "stale" state due to input modifications, proactively announce the change via an `aria-live` region so screen reader users are immediately aware that a recalculation is required.
