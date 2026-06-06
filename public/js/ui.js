@@ -1,56 +1,55 @@
+// Inline Error Helpers (Exposed globally for reuse)
+window.showInlineError = function(input, msg) {
+    input.classList.add('invalid');
+    input.setAttribute('aria-invalid', 'true');
+    const errorId = `${input.id}-error`;
+    input.setAttribute('aria-describedby', errorId);
+    let errorEl = document.getElementById(errorId);
+    if (!errorEl) {
+        errorEl = document.createElement('div');
+        errorEl.id = errorId;
+        errorEl.className = 'inline-error';
+        errorEl.setAttribute('role', 'alert');
+        input.parentNode.appendChild(errorEl);
+    }
+    errorEl.textContent = msg;
+};
+
+window.removeInlineError = function(input) {
+    input.classList.remove('invalid');
+    input.setAttribute('aria-invalid', 'false');
+    input.removeAttribute('aria-describedby');
+    input.removeAttribute('aria-errormessage');
+    const errorEl = document.getElementById(`${input.id}-error`);
+    if (errorEl) errorEl.remove();
+};
+
 // Form Validation Helper
 function validateInput(input) {
     const val = parseFloat(input.value);
     const maxAttr = input.getAttribute('max');
     const max = maxAttr ? parseFloat(maxAttr) : Infinity;
-    const errorId = `${input.id}-error`;
-    let errorEl = document.getElementById(errorId);
 
     if (isNaN(val) || val <= 0 || val > max) {
-        input.classList.add('invalid');
-        input.setAttribute('aria-invalid', 'true');
-        input.setAttribute('aria-describedby', errorId);
-
-        if (!errorEl) {
-            errorEl = document.createElement('div');
-            errorEl.id = errorId;
-            errorEl.className = 'inline-error';
-            errorEl.setAttribute('role', 'alert');
-            input.parentNode.appendChild(errorEl);
-        }
-
-        if (isNaN(val) || val <= 0) {
-            errorEl.textContent = '⚠️ Please enter a positive number.';
-        } else if (val > max) {
+        let msg = "Value must be positive.";
+        if (!isNaN(val) && val > 0) {
             const maxStr = max > 10000 ? max.toExponential() : max;
-            errorEl.textContent = `⚠️ Value must be \u2264 ${maxStr}.`;
+            msg = `⚠️ Value must be \u2264 ${maxStr}.`;
+        } else {
+            msg = '⚠️ Please enter a positive number.';
         }
-
-        input.setAttribute('aria-errormessage', errorId);
+        window.showInlineError(input, msg);
+        input.setAttribute('aria-errormessage', `${input.id}-error`);
         return false;
+    } else {
+        window.removeInlineError(input);
+        return true;
     }
-
-    input.classList.remove('invalid');
-    input.setAttribute('aria-invalid', 'false');
-    input.removeAttribute('aria-errormessage');
-    if (errorEl) {
-        errorEl.remove();
-    }
-    return true;
 }
 
 function clearErrorState(e) {
      const input = e.target;
-     input.classList.remove('invalid');
-     input.setAttribute('aria-invalid', 'false');
-     input.removeAttribute('aria-errormessage');
-     input.removeAttribute('aria-describedby');
-
-     const errorId = `${input.id}-error`;
-     const errorEl = document.getElementById(errorId);
-     if (errorEl) {
-         errorEl.remove();
-     }
+     window.removeInlineError(input);
 
      // Also clear any global error message in the container
      const container = input.closest('.glass-panel');
@@ -250,11 +249,25 @@ function syncSunspot(source) {
     let val = parseFloat(source.value);
 
     if (isNaN(val)) return;
-    if (val < 0.01) val = 0.01;
-    if (val > 1.0) val = 1.0;
+
+    // Add inline error feedback instead of silent clamping
+    if (val < 0.01 || val > 1.0) {
+        if (source === numInput) {
+            window.showInlineError(numInput, `Value must be between 0.01 and 1.0.`);
+            return;
+        } else {
+            if (val < 0.01) val = 0.01;
+            if (val > 1.0) val = 1.0;
+        }
+    }
+
+    if (source === numInput) {
+        window.removeInlineError(numInput);
+    }
 
     if (source === slider) {
         numInput.value = val;
+        window.removeInlineError(numInput);
     } else {
         slider.value = val;
     }
@@ -556,8 +569,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sunspotSlider) {
         sunspotSlider.addEventListener('input', (e) => syncSunspot(e.target));
     }
+    function clampSunspotInput() {
+        const slider = document.getElementById('sunspot-ratio');
+        const numInput = document.getElementById('sunspot-ratio-num');
+        if (!slider || !numInput) return;
+
+        let val = parseFloat(numInput.value);
+        if (isNaN(val)) val = 0.01;
+        if (val < 0.01) val = 0.01;
+        if (val > 1.0) val = 1.0;
+
+        numInput.value = val;
+        window.removeInlineError(numInput);
+
+        if (slider.value != val) {
+            slider.value = val;
+            updateSunspotVisuals(val);
+            debouncedFetchSunspot();
+        }
+    }
+
     if (sunspotNum) {
         sunspotNum.addEventListener('input', (e) => syncSunspot(e.target));
+        sunspotNum.addEventListener('change', clampSunspotInput);
     }
 
     // Initial calculations

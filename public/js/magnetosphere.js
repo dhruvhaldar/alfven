@@ -262,8 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateFromRange(rangeInput, numberInput) {
         numberInput.value = rangeInput.value;
-        numberInput.classList.remove('invalid');
-        numberInput.setAttribute('aria-invalid', 'false');
+        if (window.removeInlineError) window.removeInlineError(numberInput);
+
         const density = parseFloat(document.getElementById('sw-density-num').value);
         const velocity = parseFloat(document.getElementById('sw-velocity-num').value);
         triggerUpdate(density, velocity);
@@ -276,13 +276,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Allow partial typing, but don't update if invalid
         if (isNaN(val) || val < min || val > max) {
-            numberInput.classList.add('invalid');
-            numberInput.setAttribute('aria-invalid', 'true');
+            if (window.showInlineError) {
+                window.showInlineError(numberInput, `Value must be between ${min} and ${max}.`);
+            }
             return;
         }
 
-        numberInput.classList.remove('invalid');
-        numberInput.setAttribute('aria-invalid', 'false');
+        if (window.removeInlineError) window.removeInlineError(numberInput);
+
         rangeInput.value = val;
         const density = parseFloat(document.getElementById('sw-density-num').value);
         const velocity = parseFloat(document.getElementById('sw-velocity-num').value);
@@ -299,8 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (val > max) val = max;
 
         numberInput.value = val;
-        numberInput.classList.remove('invalid');
-        numberInput.setAttribute('aria-invalid', 'false');
+        if (window.removeInlineError) window.removeInlineError(numberInput);
 
         // Only update if effective change or to ensure sync
         if (rangeInput.value != val) {

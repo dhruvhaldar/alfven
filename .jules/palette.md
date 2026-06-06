@@ -178,3 +178,7 @@
 ## 2026-09-02 - Proactive Stale State Announcements
 **Learning:** When users modify inputs, the results visually turn translucent (`.stale-results`) to indicate they are outdated. However, screen reader users do not perceive this visual change and might unknowingly assume the results are still valid until they try to copy them and hear the "Outdated" title.
 **Action:** Whenever an asynchronous result container visually transitions to a "stale" state due to input modifications, proactively announce the change via an `aria-live` region so screen reader users are immediately aware that a recalculation is required.
+
+## 2026-09-03 - Contextual Feedback for Synced Inputs
+**Learning:** Silent bounds validation (where invalid states are styled with a red border but lack a descriptive message) leaves users guessing what the acceptable range of values is for number inputs synced with range sliders.
+**Action:** Always provide explicit inline error messages (e.g., "Value must be between X and Y") and link them programmatically using `aria-describedby` to the input so screen readers can properly announce the context behind the invalid state.
