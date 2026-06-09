@@ -182,3 +182,7 @@
 ## 2026-09-03 - Contextual Feedback for Synced Inputs
 **Learning:** Silent bounds validation (where invalid states are styled with a red border but lack a descriptive message) leaves users guessing what the acceptable range of values is for number inputs synced with range sliders.
 **Action:** Always provide explicit inline error messages (e.g., "Value must be between X and Y") and link them programmatically using `aria-describedby` to the input so screen readers can properly announce the context behind the invalid state.
+
+## 2026-06-09 - Accessible Contrast for Stale Visual States
+**Learning:** Applying extreme opacity reductions (e.g., `opacity: 0.6`) to structural containers like `.stale-results` double-stacks with inner text opacity, leading to contrast failures for visually impaired users trying to read the outdated data or the disabled state warning.
+**Action:** Use a combination of `filter: grayscale()` and higher opacity (e.g., `opacity: 0.8`) for stale visual states. This ensures text remains legible and meets WCAG contrast guidelines while clearly communicating the disabled or outdated nature of the UI element.
