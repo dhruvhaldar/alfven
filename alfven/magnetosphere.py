@@ -15,10 +15,46 @@ class Magnetopause:
             velocity (float): Solar wind velocity in m/s.
             Bz (float): IMF Bz component in Tesla. Default 0.
         """
-        self.density = density
-        self.velocity = velocity
-        self.Bz = Bz
-        self.B0 = _B0
+        self._density = density
+        self._velocity = velocity
+        self._Bz = Bz
+        self._B0 = _B0
+        self._radius_re = None
+
+    @property
+    def density(self):
+        return self._density
+
+    @density.setter
+    def density(self, value):
+        self._density = value
+        self._radius_re = None
+
+    @property
+    def velocity(self):
+        return self._velocity
+
+    @velocity.setter
+    def velocity(self, value):
+        self._velocity = value
+        self._radius_re = None
+
+    @property
+    def Bz(self):
+        return self._Bz
+
+    @Bz.setter
+    def Bz(self, value):
+        self._Bz = value
+
+    @property
+    def B0(self):
+        return self._B0
+
+    @B0.setter
+    def B0(self, value):
+        self._B0 = value
+        self._radius_re = None
 
     @property
     def radius_re(self):
@@ -28,17 +64,19 @@ class Magnetopause:
         (R/Re)^6 = B0^2 / (mu_0 * rho * v^2)
         Assuming specular reflection (factor of 2 in dynamic pressure).
         """
-        v = self.velocity
-        P_dyn_scaled = self.density * (v * v)
+        if self._radius_re is None:
+            v = self._velocity
+            P_dyn_scaled = self._density * (v * v)
 
-        if P_dyn_scaled <= 0:
-            return float('inf')
+            if P_dyn_scaled <= 0:
+                return float('inf')
 
-        # Use precomputed constant if B0 hasn't been dynamically overridden
-        if self.B0 == _B0:
-            R_ratio_6 = _B0_SQ_DIV_MU0_MP / P_dyn_scaled
-        else:
-            # Fallback if self.B0 was modified
-            R_ratio_6 = (self.B0 * self.B0) / (mu_0 * m_p * P_dyn_scaled)
+            # Use precomputed constant if B0 hasn't been dynamically overridden
+            if self._B0 == _B0:
+                R_ratio_6 = _B0_SQ_DIV_MU0_MP / P_dyn_scaled
+            else:
+                # Fallback if self._B0 was modified
+                R_ratio_6 = (self._B0 * self._B0) / (mu_0 * m_p * P_dyn_scaled)
 
-        return R_ratio_6**(1/6)
+            self._radius_re = R_ratio_6**(1/6)
+        return self._radius_re
