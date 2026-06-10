@@ -186,3 +186,7 @@
 ## 2026-06-09 - Accessible Contrast for Stale Visual States
 **Learning:** Applying extreme opacity reductions (e.g., `opacity: 0.6`) to structural containers like `.stale-results` double-stacks with inner text opacity, leading to contrast failures for visually impaired users trying to read the outdated data or the disabled state warning.
 **Action:** Use a combination of `filter: grayscale()` and higher opacity (e.g., `opacity: 0.8`) for stale visual states. This ensures text remains legible and meets WCAG contrast guidelines while clearly communicating the disabled or outdated nature of the UI element.
+
+## 2026-06-10 - Copyable UI Selection and Contrast
+**Learning:** Users rapidly clicking copyable elements can inadvertently highlight text, and subtle icon opacities (like 0.4) on translucent elements fail contrast guidelines.
+**Action:** Apply `user-select: none;` to highly interactive textual elements and ensure baseline opacities remain at least 0.7 for sufficient visibility.
