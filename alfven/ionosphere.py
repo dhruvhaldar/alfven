@@ -68,7 +68,9 @@ class ChapmanProfile:
         z -= h0_inv_H_arr
 
         # Calculate term: n_max_exp * exp(-0.5 * (z + exp(-z)))
-        term = np.exp(-z)
+        # Optimization: use np.negative(z) and out parameter to avoid allocating a temporary array for -z
+        term = np.negative(z)
+        np.exp(term, out=term)
         term += z
         term *= -0.5
         np.exp(term, out=term)

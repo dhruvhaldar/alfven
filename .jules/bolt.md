@@ -131,3 +131,6 @@
 ## 2026-11-15 - Array Compatibility vs Math Module
 **Learning:** In scientific Python codebases, replacing native arithmetic operators (like `x**0.25`) with `math` module functions (like `math.sqrt`) for micro-optimization can break vectorization, because `math` functions only accept scalars and throw `TypeError` when passed NumPy arrays.
 **Action:** Avoid replacing arithmetic operators with `math` functions in numerical code unless explicitly dealing with known scalars and where the performance gain outweighs the loss of array compatibility.
+## 2026-11-16 - Avoid Intermediate Array Allocation in NumPy Functions
+**Learning:** When executing mathematical functions over NumPy arrays (like `np.exp(-z)`), Python first allocates a new array to store the result of `-z`, and then allocates a second new array for the output of `np.exp()`. The intermediate array is immediately discarded, wasting time on memory allocation.
+**Action:** In performance-critical NumPy operations, avoid intermediate arrays by explicitly separating operations and using the `out=` parameter. For example, allocate the first array via `term = np.negative(z)` and then perform the next operation in-place: `np.exp(term, out=term)`.
