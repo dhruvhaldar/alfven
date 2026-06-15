@@ -91,7 +91,7 @@ function setLoading(btn, container, isLoading) {
         const copyables = container.querySelectorAll('.copyable-result');
         copyables.forEach(c => {
             c.removeAttribute('aria-disabled');
-            c.setAttribute('title', c.dataset.originalTitle || "Click or press Enter to copy");
+            c.setAttribute('title', c.dataset.originalTitle || "Click, or press Enter or Space to copy");
         });
     }
 }
@@ -429,7 +429,7 @@ function copyToClipboard(el) {
 
         setTimeout(() => {
             el.classList.remove('copied');
-            el.setAttribute('title', el.dataset.originalTitle || "Click or press Enter to copy");
+            el.setAttribute('title', el.dataset.originalTitle || "Click, or press Enter or Space to copy");
         }, 2000);
     }).catch(err => {
         console.error('Failed to copy: ', err);
@@ -440,7 +440,7 @@ function initCopyableResults() {
     const results = document.querySelectorAll('.copyable-result');
     results.forEach(el => {
         // Store original title for restoration
-        el.dataset.originalTitle = el.getAttribute('title') || "Click or press Enter to copy";
+        el.dataset.originalTitle = el.getAttribute('title') || "Click, or press Enter or Space to copy";
 
         // Announce custom shortcuts to screen readers
         el.setAttribute('aria-keyshortcuts', 'Enter Space');
