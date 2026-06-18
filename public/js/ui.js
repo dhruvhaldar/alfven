@@ -65,6 +65,7 @@ function setLoading(btn, container, isLoading) {
     if (!btn) return;
     if (isLoading) {
          btn.dataset.text = btn.innerText;
+         btn.dataset.originalTitle = btn.getAttribute('title') || '';
 
          // 🛡️ Sentinel: Prevent XSS by using textContent and createElement instead of innerHTML
          btn.textContent = ' Calculating...';
@@ -73,7 +74,8 @@ function setLoading(btn, container, isLoading) {
          spinner.setAttribute('aria-hidden', 'true');
          btn.prepend(spinner);
 
-         btn.disabled = true;
+         btn.setAttribute('aria-disabled', 'true');
+         btn.setAttribute('title', 'Please wait, calculation in progress...');
          btn.style.cursor = "wait";
          container.setAttribute('aria-busy', 'true');
 
@@ -81,7 +83,12 @@ function setLoading(btn, container, isLoading) {
          if(error) error.remove();
     } else {
          btn.innerText = btn.dataset.text || "Calculate";
-         btn.disabled = false;
+         btn.removeAttribute('aria-disabled');
+         if (btn.dataset.originalTitle) {
+             btn.setAttribute('title', btn.dataset.originalTitle);
+         } else {
+             btn.removeAttribute('title');
+         }
          btn.style.cursor = "pointer";
          container.setAttribute('aria-busy', 'false');
 
@@ -117,6 +124,7 @@ const plasmaCache = {};
 
 // Plasma Calculation
 async function calcPlasma(btn) {
+    if (btn && btn.getAttribute('aria-disabled') === 'true') return;
     const resultsContainer = document.getElementById('plasma-results');
     const nInput = document.getElementById('plasma-n');
     const TInput = document.getElementById('plasma-T');
@@ -308,6 +316,7 @@ const auroraCache = {};
 
 // Aurora Logic
 async function calcAurora(btn) {
+    if (btn && btn.getAttribute('aria-disabled') === 'true') return;
     const resultsContainer = document.getElementById('aurora-results');
     const EInput = document.getElementById('aurora-E');
     const sigmaInput = document.getElementById('aurora-sigma');

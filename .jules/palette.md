@@ -190,3 +190,7 @@
 ## 2026-06-10 - Copyable UI Selection and Contrast
 **Learning:** Users rapidly clicking copyable elements can inadvertently highlight text, and subtle icon opacities (like 0.4) on translucent elements fail contrast guidelines.
 **Action:** Apply `user-select: none;` to highly interactive textual elements and ensure baseline opacities remain at least 0.7 for sufficient visibility.
+
+## 2026-09-04 - Maintaining Focus During Loading States
+**Learning:** Using the native `disabled` attribute on buttons while an async operation is loading removes the button from the tab order. For keyboard users, this causes focus to jump unpredictably or get lost entirely, and makes the loading state "invisible" since they cannot focus the element to hear any updates or descriptions.
+**Action:** Use `aria-disabled='true'` instead of `disabled` to maintain focusability. Provide state context by updating the button's `title` (e.g. "Please wait, calculation in progress...") and ensuring logic (like `calcPlasma`) gracefully ignores clicks while the element is logically disabled.
