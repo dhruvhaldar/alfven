@@ -28,12 +28,12 @@ class ChapmanProfile:
             float or np.ndarray: Electron density in m^-3.
         """
         if not self.layers:
-            # Optimization: Use isinstance(h, (int, float, np.number)) instead of np.isscalar(h).
+            # Optimization: Use type(h) in (int, float) or isinstance(h, np.number) instead of np.isscalar(h) for scalars.
             # np.isscalar() has significant overhead compared to a built-in type check.
-            # Using isinstance is ~4x faster for array-like inputs and moderately faster for scalars.
-            return 0.0 if isinstance(h, (int, float, np.number)) else np.zeros_like(h)
+            # Using type/isinstance is faster for array-like inputs and moderately faster for scalars.
+            return 0.0 if type(h) in (int, float) or isinstance(h, np.number) else np.zeros_like(h)
 
-        if isinstance(h, (int, float, np.number)):
+        if type(h) in (int, float) or isinstance(h, np.number):
             # Fallback for scalars: sum is fast and avoids array overhead
             # Optimization: Use a simple loop instead of list comprehension and sum() to avoid allocation overhead
             res = 0.0
@@ -165,15 +165,23 @@ class ChapmanLayer:
         # z = h * _inv_H - _h0_inv_H
         z = h * self._inv_H - self._h0_inv_H
 
-        # Optimization: Use isinstance(h, (int, float, np.number)) instead of np.isscalar(h).
+        # Optimization: Use type(h) in (int, float) or isinstance(h, np.number) instead of np.isscalar(h) for scalars.
         # np.isscalar() has significant overhead compared to a built-in type check.
-        # Using isinstance is ~4x faster for array-like inputs and moderately faster for scalars.
-        if isinstance(h, (int, float, np.number)):
+        # Using type/isinstance is faster for array-like inputs and moderately faster for scalars.
+        if type(h) in (int, float) or isinstance(h, np.number):
             # Optimization: Algebraically expand exp(0.5 * (1 - z - exp(-z)))
             # to exp(0.5) * exp(-0.5 * (z + exp(-z))), precompute n_max * exp(0.5),
             # and use Python's built-in math.exp for scalar inputs.
             return self._n_max_exp_half * math.exp(-0.5 * (z + math.exp(-z)))
-        return self._n_max_exp_half * np.exp(-0.5 * (z + np.exp(-z)))
+
+        # Optimization: use np.negative(z) and out parameter to avoid allocating a temporary array for -z
+        term = np.negative(z)
+        np.exp(term, out=term)
+        term += z
+        term *= -0.5
+        np.exp(term, out=term)
+        term *= self._n_max_exp_half
+        return term
 
     def __add__(self, other):
         if isinstance(other, ChapmanLayer):
