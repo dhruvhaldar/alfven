@@ -56,11 +56,11 @@
     box-shadow: 0 0 10px rgba(100, 200, 255, 0.5);
 }
 
-.glass-button:active:not(:disabled) {
+.glass-button:active:not(:disabled):not([aria-disabled="true"]) {
     transform: scale(0.98);
 }
 
-.glass-button:disabled {
+.glass-button:disabled, .glass-button[aria-disabled="true"] {
     opacity: 0.8;
     cursor: not-allowed;
     background: rgba(100, 200, 255, 0.1);
