@@ -115,6 +115,7 @@ function drawMagnetosphere(standoff) {
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("role", "img")
+            .attr("tabindex", "0")
             .attr("aria-label", "Magnetosphere standoff visualization")
             .attr("aria-describedby", "mag-desc");
 
