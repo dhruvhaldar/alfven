@@ -194,3 +194,7 @@
 ## 2026-09-04 - Maintaining Focus During Loading States
 **Learning:** Using the native `disabled` attribute on buttons while an async operation is loading removes the button from the tab order. For keyboard users, this causes focus to jump unpredictably or get lost entirely, and makes the loading state "invisible" since they cannot focus the element to hear any updates or descriptions.
 **Action:** Use `aria-disabled='true'` instead of `disabled` to maintain focusability. Provide state context by updating the button's `title` (e.g. "Please wait, calculation in progress...") and ensuring logic (like `calcPlasma`) gracefully ignores clicks while the element is logically disabled.
+
+## 2026-09-05 - Focusability of Complex Visualizations
+**Learning:** While simple decorative or static images should not be in the tab order, complex interactive-feeling data visualizations (like D3 charts and Canvas graphs) in dashboards are easily missed by keyboard-only navigators if they lack `tabindex="0"`. Even if they have `aria-label`s, tabbing past them without a focus stop breaks the spatial context of the panel.
+**Action:** Always add `tabindex="0"` and `:focus-visible` outline styles to root visualization elements (`<svg>`, `<canvas>`, or `<div role="img">`) so keyboard users can explicitly focus them and hear their associated descriptions.
