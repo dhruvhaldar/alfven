@@ -41,7 +41,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     response = JSONResponse(
         status_code=500, content={"detail": "Internal Server Error"}
     )
-    is_api = request.scope["path"].startswith("/api/")
+    is_api = request.scope.get("path", "").startswith("/api/")
     apply_security_headers_to_dict(response.headers, is_api)
     return response
 
@@ -59,7 +59,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         status_code=422,
         content={"detail": jsonable_encoder(sanitized_errors)}
     )
-    is_api = request.scope["path"].startswith("/api/")
+    is_api = request.scope.get("path", "").startswith("/api/")
     apply_security_headers_to_dict(response.headers, is_api)
     return response
 
@@ -78,7 +78,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
             status_code=exc.status_code,
             content={"detail": exc.detail}
         )
-    is_api = request.scope["path"].startswith("/api/")
+    is_api = request.scope.get("path", "").startswith("/api/")
     apply_security_headers_to_dict(response.headers, is_api)
     return response
 
@@ -247,7 +247,7 @@ async def rate_limit_middleware(request: Request, call_next):
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
 
-    is_api = request.scope["path"].startswith("/api/")
+    is_api = request.scope.get("path", "").startswith("/api/")
     apply_security_headers_to_dict(response.headers, is_api)
 
     return response
