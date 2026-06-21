@@ -198,3 +198,7 @@
 ## 2026-09-05 - Focusability of Complex Visualizations
 **Learning:** While simple decorative or static images should not be in the tab order, complex interactive-feeling data visualizations (like D3 charts and Canvas graphs) in dashboards are easily missed by keyboard-only navigators if they lack `tabindex="0"`. Even if they have `aria-label`s, tabbing past them without a focus stop breaks the spatial context of the panel.
 **Action:** Always add `tabindex="0"` and `:focus-visible` outline styles to root visualization elements (`<svg>`, `<canvas>`, or `<div role="img">`) so keyboard users can explicitly focus them and hear their associated descriptions.
+
+## 2026-09-06 - Dynamic Visualization States
+**Learning:** Even when root visualization elements (`<canvas>` or `<div role="img">`) correctly have static `aria-label`s, they fail to convey changes in their visual state when manipulated by user inputs. Screen reader users miss out on the visual feedback that sighted users receive during interaction.
+**Action:** Always update the `aria-label` of interactive visualization elements dynamically in JavaScript to reflect their current visual state or parameters (e.g., appending the current mode or calculated value), ensuring parity with the dynamic visual changes.
