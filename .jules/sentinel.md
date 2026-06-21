@@ -67,3 +67,8 @@
 **Vulnerability:** Security headers were missing on early-return error responses (429, 413, 411) from rate limiting and upload size middlewares.
 **Learning:** In FastAPI, middleware is executed in reverse order. If an outer middleware returns a response directly, it bypasses inner middlewares, including the one responsible for applying security headers.
 **Prevention:** Apply security headers directly to early-return responses in middleware or use a custom Exception to leverage centralized exception handlers instead of returning responses directly.
+
+## 2026-03-01 - [Denial of Service & Header Leakage via KeyError in Exception Handlers]
+**Vulnerability:** The custom global exception handler and other HTTP error handlers directly accessed `request.scope["path"]` to determine if a request was an API call. If a malformed request or unexpected ASGI scope was processed (e.g., missing the "path" key), this line would throw a `KeyError`, crashing the exception handler itself and returning a raw 500 error that bypassed the `add_security_headers` middleware and leaked information.
+**Learning:** In ASGI middleware and exception handlers, you cannot strictly guarantee the presence of every dictionary key in `request.scope`, particularly during edge cases or internal routing errors. Crashing within an exception handler breaks the fallback defense-in-depth safety nets.
+**Prevention:** In ASGI exception handlers and middlewares, always use `request.scope.get('path', '')` instead of direct dictionary access like `request.scope['path']`.
