@@ -97,6 +97,11 @@ function drawChart(data) {
     const canvas = document.getElementById('iono-chart');
     if (!canvas) return;
 
+    // Dynamically update ARIA label to match visual state for screen readers
+    const toggle = document.getElementById('day-night-toggle');
+    const isDay = toggle ? toggle.checked : true;
+    canvas.setAttribute('aria-label', `Ionosphere electron density profile chart in ${isDay ? 'Day' : 'Night'} Mode`);
+
     const ctx = canvas.getContext('2d');
 
     // Prepare data points {x: density, y: altitude}
