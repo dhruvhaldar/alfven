@@ -229,6 +229,10 @@ async def rate_limit_middleware(request: Request, call_next):
         if isinstance(path, str):
             path = path.replace("\n", "\\n").replace("\r", "\\r")
 
+        # 🛡️ Sentinel: Sanitize IP to prevent Log Injection/Forging
+        if isinstance(client_ip, str):
+            client_ip = client_ip.replace("\n", "\\n").replace("\r", "\\r")
+
         logger.warning(f"Rate limit exceeded for IP: {client_ip} on path: {path}")
         # 🛡️ Sentinel: Add Retry-After header to 429 response
         wait_time = math.ceil((1 - bucket[0]) / REFILL_RATE)
