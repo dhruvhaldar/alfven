@@ -11,6 +11,7 @@ import math
 import os
 import time
 import logging
+import urllib.parse
 from alfven import (
     PlasmaState,
     ParkerSpiral,
@@ -227,11 +228,11 @@ async def rate_limit_middleware(request: Request, call_next):
 
         # 🛡️ Sentinel: Sanitize path to prevent Log Injection/Forging
         if isinstance(path, str):
-            path = path.replace("\n", "\\n").replace("\r", "\\r")
+            path = urllib.parse.unquote(path).replace("\n", "\\n").replace("\r", "\\r")
 
         # 🛡️ Sentinel: Sanitize IP to prevent Log Injection/Forging
         if isinstance(client_ip, str):
-            client_ip = client_ip.replace("\n", "\\n").replace("\r", "\\r")
+            client_ip = urllib.parse.unquote(client_ip).replace("\n", "\\n").replace("\r", "\\r")
 
         logger.warning(f"Rate limit exceeded for IP: {client_ip} on path: {path}")
         # 🛡️ Sentinel: Add Retry-After header to 429 response

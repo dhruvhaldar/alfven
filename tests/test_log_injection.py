@@ -11,7 +11,7 @@ def test_log_injection(caplog):
     caplog.set_level(logging.WARNING, logger="alfven")
 
     # Exceed rate limit
-    for _ in range(RATE_LIMIT):
+    for _ in range(RATE_LIMIT + 10):
         client.get("/api/health")
 
     # Now this will be logged
