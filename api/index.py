@@ -269,7 +269,7 @@ async def limit_upload_size(request: Request, call_next):
     # 🛡️ Sentinel: Enforce maximum request body size to prevent Memory Exhaustion DoS
     if request.method in ("POST", "PUT", "PATCH"):
         response = None
-        if request.headers.get("transfer-encoding", "").lower() == "chunked":
+        if "chunked" in request.headers.get("transfer-encoding", "").lower():
             response = JSONResponse(status_code=411, content={"detail": "Chunked encoding not supported"})
         else:
             content_length = request.headers.get("content-length")
