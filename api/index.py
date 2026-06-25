@@ -128,18 +128,23 @@ _STATIC_SECURITY_HEADERS = {
     "Cross-Origin-Resource-Policy": "same-origin"
 }
 
+# Optimization: Precompute API-specific headers to eliminate individual dictionary assignments on every API request
+_STATIC_API_SECURITY_HEADERS = _STATIC_SECURITY_HEADERS.copy()
+_STATIC_API_SECURITY_HEADERS.update({
+    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    "Pragma": "no-cache"
+})
+
 def apply_security_headers_to_dict(headers: dict, is_api: bool):
     # 🛡️ Sentinel: Remove Server Header to obscure technology stack
     if "server" in headers:
         del headers["server"]
 
     # Optimization: Use dict.update() with precomputed static headers to avoid redundant individual assignments
-    headers.update(_STATIC_SECURITY_HEADERS)
-
-    # 🛡️ Sentinel: Prevent sensitive API data from being cached by intermediate proxies and browsers
     if is_api:
-        headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        headers["Pragma"] = "no-cache"
+        headers.update(_STATIC_API_SECURITY_HEADERS)
+    else:
+        headers.update(_STATIC_SECURITY_HEADERS)
 
 
 def get_client_ip(request: Request) -> str:
