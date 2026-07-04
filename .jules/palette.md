@@ -202,3 +202,7 @@
 ## 2026-09-06 - Dynamic Visualization States
 **Learning:** Even when root visualization elements (`<canvas>` or `<div role="img">`) correctly have static `aria-label`s, they fail to convey changes in their visual state when manipulated by user inputs. Screen reader users miss out on the visual feedback that sighted users receive during interaction.
 **Action:** Always update the `aria-label` of interactive visualization elements dynamically in JavaScript to reflect their current visual state or parameters (e.g., appending the current mode or calculated value), ensuring parity with the dynamic visual changes.
+
+## 2026-09-07 - Fluid Grid Layouts on Mobile
+**Learning:** Using `grid-template-columns: repeat(auto-fit, minmax(350px, 1fr))` on a container with fixed padding causes horizontal scrolling on viewports narrower than the minimum width plus padding (e.g., standard 375px mobile screens). This breaks the responsive experience and forces users to pan horizontally.
+**Action:** Always use `minmax(min(100%, 350px), 1fr)` for CSS grids to ensure columns can shrink below their optimal minimum on small screens, preventing horizontal overflow, and reduce container padding via media queries for compact viewports.
