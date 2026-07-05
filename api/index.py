@@ -153,16 +153,25 @@ def get_client_ip(request: Request) -> str:
     # we can trust the X-Forwarded-For header as Vercel ensures it contains the client IP.
     raw_ip = "unknown"
     if IS_VERCEL:
+        # Optimization: Extract headers directly from ASGI scope to avoid `request.headers`
+        # dict instantiation overhead which iterates and parses the entire tuple list.
+        vercel_ip = None
+        forwarded = None
+        if hasattr(request, "scope"):
+            for k, v in request.scope.get("headers", []):
+                if k == b"x-vercel-forwarded-for":
+                    vercel_ip = v.decode("latin1")
+                    break
+                elif k == b"x-forwarded-for":
+                    forwarded = v.decode("latin1")
+
         # 🛡️ Sentinel: Prefer Vercel's platform-specific non-spoofable header if available
-        vercel_ip = request.headers.get("x-vercel-forwarded-for")
         if vercel_ip:
             raw_ip = vercel_ip.strip()
-        else:
-            forwarded = request.headers.get("X-Forwarded-For")
-            if forwarded:
-                # 🛡️ Sentinel: Proxies append to X-Forwarded-For. The right-most IP is the real client.
-                # Taking the first IP allows an attacker to spoof their IP and bypass rate limits.
-                raw_ip = forwarded.split(",")[-1].strip()
+        elif forwarded:
+            # 🛡️ Sentinel: Proxies append to X-Forwarded-For. The right-most IP is the real client.
+            # Taking the first IP allows an attacker to spoof their IP and bypass rate limits.
+            raw_ip = forwarded.split(",")[-1].strip()
 
     if raw_ip == "unknown":
         # Fallback to direct connection IP
@@ -269,11 +278,22 @@ async def limit_upload_size(request: Request, call_next):
     # 🛡️ Sentinel: Enforce maximum request body size to prevent Memory Exhaustion DoS
     if request.method in ("POST", "PUT", "PATCH"):
         response = None
-        if "chunked" in request.headers.get("transfer-encoding", "").lower():
+
+        # Optimization: Extract headers directly from ASGI scope to avoid `request.headers`
+        # dict instantiation overhead which iterates and parses the entire tuple list.
+        transfer_encoding = b""
+        content_length = None
+        if hasattr(request, "scope"):
+            for k, v in request.scope.get("headers", []):
+                if k == b"transfer-encoding":
+                    transfer_encoding = v
+                elif k == b"content-length":
+                    content_length = v
+
+        if b"chunked" in transfer_encoding.lower():
             response = JSONResponse(status_code=411, content={"detail": "Chunked encoding not supported"})
         else:
-            content_length = request.headers.get("content-length")
-            if content_length:
+            if content_length is not None:
                 try:
                     if int(content_length) > 102400:  # 100 KB limit
                         response = JSONResponse(
