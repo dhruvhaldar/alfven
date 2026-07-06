@@ -286,7 +286,10 @@ async def limit_upload_size(request: Request, call_next):
         if hasattr(request, "scope"):
             for k, v in request.scope.get("headers", []):
                 if k == b"transfer-encoding":
-                    transfer_encoding = v
+                    if transfer_encoding:
+                        transfer_encoding += b"," + v
+                    else:
+                        transfer_encoding = v
                 elif k == b"content-length":
                     content_length = v
 
