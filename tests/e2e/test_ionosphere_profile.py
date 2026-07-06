@@ -1,3 +1,4 @@
+import json
 from api.index import get_ionosphere_profile, IonosphereInput, LayerParams
 
 import pytest
@@ -19,7 +20,8 @@ async def test_ionosphere_profile_endpoint_logic():
         steps=5
     )
 
-    result = await get_ionosphere_profile(input_data)
+    result_response = await get_ionosphere_profile(input_data)
+    result = json.loads(result_response.body)
 
     assert "altitude" in result
     assert "density" in result
@@ -41,7 +43,8 @@ async def test_ionosphere_profile_empty_layers():
         steps=5
     )
 
-    result = await get_ionosphere_profile(input_data)
+    result_response = await get_ionosphere_profile(input_data)
+    result = json.loads(result_response.body)
 
     assert result["altitude"] == []
     assert result["density"] == []
