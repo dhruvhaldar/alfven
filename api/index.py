@@ -476,8 +476,13 @@ async def get_ionosphere_profile(data: IonosphereInput):
     if layers:
         profile = ChapmanProfile(layers)
         result = profile.get_profile_data(data.min_h, data.max_h, data.steps)
-        return result
-    return {"altitude": [], "density": []}
+        # Optimization: Explicitly return JSONResponse to bypass fastapi's recursive jsonable_encoder
+        # on large arrays. The lists of floats are already natively JSON serializable.
+        # This speeds up large payload serialization significantly.
+        return JSONResponse(content=result)
+
+    # Optimization: Also bypass jsonable_encoder for empty fallback
+    return JSONResponse(content={"altitude": [], "density": []})
 
 
 @app.post("/api/aurora/power")
