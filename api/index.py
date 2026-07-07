@@ -163,7 +163,10 @@ def get_client_ip(request: Request) -> str:
                     vercel_ip = v.decode("latin1")
                     break
                 elif k == b"x-forwarded-for":
-                    forwarded = v.decode("latin1")
+                    if forwarded:
+                        forwarded += "," + v.decode("latin1")
+                    else:
+                        forwarded = v.decode("latin1")
 
         # 🛡️ Sentinel: Prefer Vercel's platform-specific non-spoofable header if available
         if vercel_ip:
