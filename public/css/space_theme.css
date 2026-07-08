@@ -26,6 +26,10 @@ body {
     margin: 0 auto;
 }
 
+#main-content:focus {
+    outline: none;
+}
+
 @media (max-width: 768px) {
     .dashboard {
         padding: 20px;
