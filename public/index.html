@@ -31,14 +31,14 @@
                 <label for="sw-density" id="label-sw-density" title="Number density of protons in the solar wind.">Solar Wind Density (cm⁻³)</label>
                 <div class="control-row">
                     <input type="range" id="sw-density" class="glass-range" min="1" max="100" step="any" value="5" style="flex-grow: 1;" aria-labelledby="label-sw-density" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz">
-                    <input type="number" id="sw-density-num" class="glass-input" min="1" max="100" step="any" value="5" style="width: 80px;" aria-labelledby="label-sw-density" placeholder="e.g. 5" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz">
+                    <input type="number" id="sw-density-num" class="glass-input" min="1" max="100" step="any" value="5" style="width: 80px;" aria-labelledby="label-sw-density" placeholder="e.g. 5" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz" inputmode="decimal">
                 </div>
             </div>
             <div class="control-group">
                 <label for="sw-velocity" id="label-sw-velocity" title="Speed of the solar wind plasma relative to Earth.">Solar Wind Velocity (km/s)</label>
                 <div class="control-row">
                     <input type="range" id="sw-velocity" class="glass-range" min="200" max="1500" step="any" value="400" style="flex-grow: 1;" aria-labelledby="label-sw-velocity" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz">
-                    <input type="number" id="sw-velocity-num" class="glass-input" min="200" max="1500" step="any" value="400" style="width: 80px;" aria-labelledby="label-sw-velocity" placeholder="e.g. 400" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz">
+                    <input type="number" id="sw-velocity-num" class="glass-input" min="200" max="1500" step="any" value="400" style="width: 80px;" aria-labelledby="label-sw-velocity" placeholder="e.g. 400" autocomplete="off" spellcheck="false" aria-controls="standoff-display magnetosphere-viz" inputmode="decimal">
                 </div>
             </div>
             <div class="control-group">
@@ -113,7 +113,7 @@
                 <label for="sunspot-ratio" id="label-sunspot-ratio" title="Brightness ratio between the dark sunspot umbra and the surrounding photosphere.">Intensity Ratio (Ispot/Iphot)</label>
                 <div class="control-row">
                     <input type="range" id="sunspot-ratio" class="glass-range" min="0.01" max="1.0" step="any" value="0.3" style="flex-grow: 1;" aria-labelledby="label-sunspot-ratio" autocomplete="off" spellcheck="false" aria-controls="sunspot-visual sunspot-temp">
-                    <input type="number" id="sunspot-ratio-num" class="glass-input" min="0.01" max="1.0" step="any" value="0.3" style="width: 80px;" aria-labelledby="label-sunspot-ratio" placeholder="e.g. 0.3" autocomplete="off" spellcheck="false" aria-controls="sunspot-visual sunspot-temp">
+                    <input type="number" id="sunspot-ratio-num" class="glass-input" min="0.01" max="1.0" step="any" value="0.3" style="width: 80px;" aria-labelledby="label-sunspot-ratio" placeholder="e.g. 0.3" autocomplete="off" spellcheck="false" aria-controls="sunspot-visual sunspot-temp" inputmode="decimal">
                 </div>
             </div>
             <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0;">
@@ -135,15 +135,15 @@
             <h2 class="panel-title" id="aurora-title">Aurora Power</h2>
             <div class="control-group">
                 <label for="aurora-E" title="Ionospheric convection electric field driving auroral currents.">Electric Field (E) [mV/m] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="aurora-E" class="glass-input" value="50" min="0" max="1e9" step="any" required aria-required="true" placeholder="e.g. 50" autocomplete="off" spellcheck="false">
+                <input type="number" id="aurora-E" class="glass-input" value="50" min="0" max="1e9" step="any" required aria-required="true" placeholder="e.g. 50" autocomplete="off" spellcheck="false" inputmode="decimal">
             </div>
             <div class="control-group">
                 <label for="aurora-sigma" title="Height-integrated Pedersen conductivity of the auroral ionosphere.">Conductivity (Σₚ) [S] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="aurora-sigma" class="glass-input" value="10" min="0" max="1e6" step="any" required aria-required="true" placeholder="e.g. 10" autocomplete="off" spellcheck="false">
+                <input type="number" id="aurora-sigma" class="glass-input" value="10" min="0" max="1e6" step="any" required aria-required="true" placeholder="e.g. 10" autocomplete="off" spellcheck="false" inputmode="decimal">
             </div>
             <div class="control-group">
                 <label for="aurora-area" title="Total area of the auroral precipitation region.">Area (A) [10¹⁰ m²] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
-                <input type="number" id="aurora-area" class="glass-input" value="1" min="0" max="1e20" step="any" required aria-required="true" placeholder="e.g. 1" autocomplete="off" spellcheck="false">
+                <input type="number" id="aurora-area" class="glass-input" value="1" min="0" max="1e20" step="any" required aria-required="true" placeholder="e.g. 1" autocomplete="off" spellcheck="false" inputmode="decimal">
             </div>
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" id="btn-calc-aurora" aria-controls="aurora-results" style="width: 100%;">Calculate Power</button>
@@ -161,11 +161,12 @@
             </div>
         </section>
 
-        <footer>
-            &copy; 2026 <a href="https://dhruvhaldar.vercel.app/" target="_blank" class="glass-link" rel="noopener noreferrer" aria-label="Dhruv Haldar (opens in a new tab)">Dhruv Haldar</a>. MIT License. | <a href="https://github.com/dhruvhaldar/alfven" target="_blank"
-                rel="noopener noreferrer" class="glass-link" aria-label="GitHub repository (opens in a new tab)">GitHub</a>
-        </footer>
     </main>
+
+    <footer>
+        &copy; 2026 <a href="https://dhruvhaldar.vercel.app/" target="_blank" class="glass-link" rel="noopener noreferrer" aria-label="Dhruv Haldar (opens in a new tab)">Dhruv Haldar</a>. MIT License. | <a href="https://github.com/dhruvhaldar/alfven" target="_blank"
+            rel="noopener noreferrer" class="glass-link" aria-label="GitHub repository (opens in a new tab)">GitHub</a>
+    </footer>
 
     <!-- Optimization: defer local scripts to maintain execution order with external deferred libraries -->
     <!-- Global Screen Reader Announcer -->

@@ -206,3 +206,11 @@
 ## 2026-09-07 - Fluid Grid Layouts on Mobile
 **Learning:** Using `grid-template-columns: repeat(auto-fit, minmax(350px, 1fr))` on a container with fixed padding causes horizontal scrolling on viewports narrower than the minimum width plus padding (e.g., standard 375px mobile screens). This breaks the responsive experience and forces users to pan horizontally.
 **Action:** Always use `minmax(min(100%, 350px), 1fr)` for CSS grids to ensure columns can shrink below their optimal minimum on small screens, preventing horizontal overflow, and reduce container padding via media queries for compact viewports.
+
+## 2026-09-08 - Contentinfo Landmark Visibility
+**Learning:** Placing a `<footer>` element inside a `<main>` container strips it of its implicit `contentinfo` ARIA landmark role according to W3C specifications. Screen reader users relying on landmark navigation will not be able to find the footer easily.
+**Action:** Always ensure the primary `<footer>` is a direct child of the `<body>` (or at least outside of `<main>`, `<article>`, `<section>`, etc.) so it retains its `contentinfo` role and remains discoverable via landmark navigation.
+
+## 2026-09-08 - Skip Link Focus Rings
+**Learning:** When skip links navigate to a structural container (like `<main tabindex="-1">`), browsers draw a large, unsightly focus ring around the entire page content, which degrades the visual experience of using accessibility features.
+**Action:** Always apply `outline: none;` to the skip link target (e.g., `#main-content:focus`) to ensure the focus shifts programmatically for screen readers and keyboard users without breaking the visual polish.
