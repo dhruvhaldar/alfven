@@ -294,7 +294,10 @@ async def limit_upload_size(request: Request, call_next):
                     else:
                         transfer_encoding = v
                 elif k == b"content-length":
-                    content_length = v
+                    if content_length:
+                        content_length += b"," + v
+                    else:
+                        content_length = v
 
         if b"chunked" in transfer_encoding.lower():
             response = JSONResponse(status_code=411, content={"detail": "Chunked encoding not supported"})
