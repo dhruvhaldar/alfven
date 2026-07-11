@@ -160,8 +160,10 @@ def get_client_ip(request: Request) -> str:
         if hasattr(request, "scope"):
             for k, v in request.scope.get("headers", []):
                 if k == b"x-vercel-forwarded-for":
-                    vercel_ip = v.decode("latin1")
-                    break
+                    if vercel_ip:
+                        vercel_ip += "," + v.decode("latin1")
+                    else:
+                        vercel_ip = v.decode("latin1")
                 elif k == b"x-forwarded-for":
                     if forwarded:
                         forwarded += "," + v.decode("latin1")
@@ -170,7 +172,7 @@ def get_client_ip(request: Request) -> str:
 
         # 🛡️ Sentinel: Prefer Vercel's platform-specific non-spoofable header if available
         if vercel_ip:
-            raw_ip = vercel_ip.strip()
+            raw_ip = vercel_ip.split(",")[-1].strip()
         elif forwarded:
             # 🛡️ Sentinel: Proxies append to X-Forwarded-For. The right-most IP is the real client.
             # Taking the first IP allows an attacker to spoof their IP and bypass rate limits.
