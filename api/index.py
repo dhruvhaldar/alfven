@@ -281,26 +281,32 @@ async def add_security_headers(request: Request, call_next):
 @app.middleware("http")
 async def limit_upload_size(request: Request, call_next):
     # 🛡️ Sentinel: Enforce maximum request body size to prevent Memory Exhaustion DoS
-    if request.method in ("POST", "PUT", "PATCH"):
-        response = None
+    # We must enforce this on all methods (including GET/DELETE) because an attacker can
+    # send a massive payload in the body of any request to exhaust server memory.
+    response = None
 
-        # Optimization: Extract headers directly from ASGI scope to avoid `request.headers`
-        # dict instantiation overhead which iterates and parses the entire tuple list.
-        transfer_encoding = b""
-        content_length = None
-        if hasattr(request, "scope"):
-            for k, v in request.scope.get("headers", []):
-                if k == b"transfer-encoding":
-                    if transfer_encoding:
-                        transfer_encoding += b"," + v
-                    else:
-                        transfer_encoding = v
-                elif k == b"content-length":
-                    if content_length:
-                        content_length += b"," + v
-                    else:
-                        content_length = v
+    # Optimization: Extract headers directly from ASGI scope to avoid `request.headers`
+    # dict instantiation overhead which iterates and parses the entire tuple list.
+    transfer_encoding = b""
+    content_length = None
+    if hasattr(request, "scope"):
+        for k, v in request.scope.get("headers", []):
+            if k == b"transfer-encoding":
+                if transfer_encoding:
+                    transfer_encoding += b"," + v
+                else:
+                    transfer_encoding = v
+            elif k == b"content-length":
+                if content_length:
+                    content_length += b"," + v
+                else:
+                    content_length = v
 
+    # Check for body-related headers
+    has_body = bool(content_length or transfer_encoding)
+
+    # Only enforce limit if there is actually a body, or if the method typically expects a body.
+    if has_body or request.method in ("POST", "PUT", "PATCH"):
         if b"chunked" in transfer_encoding.lower():
             response = JSONResponse(status_code=411, content={"detail": "Chunked encoding not supported"})
         else:
