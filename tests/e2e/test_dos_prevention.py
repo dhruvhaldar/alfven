@@ -78,3 +78,10 @@ def test_request_body_size_limit_chunked():
     response = client.post("/api/ionosphere/profile", content=generate_chunks(), headers={"Content-Type": "application/json"})
     assert response.status_code == 411
     assert response.json()["detail"] == "Chunked encoding not supported"
+
+def test_request_body_size_limit_get():
+    """Test that GET requests with a large body are rejected."""
+    payload = b"A" * 105000
+    response = client.request("GET", "/api/health", content=payload)
+    assert response.status_code == 413
+    assert response.json()["detail"] == "Payload Too Large"
