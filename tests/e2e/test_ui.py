@@ -21,6 +21,20 @@ def test_page_loads_and_title(page: Page):
     page.goto("http://127.0.0.1:8000")
     expect(page).to_have_title(re.compile("Alfven"))
 
+def test_starfield_renders_and_animates(page: Page):
+    page.goto("http://127.0.0.1:8000")
+    canvas = page.locator("#canvas-container canvas")
+    expect(canvas).to_be_attached()
+
+    first_frame = canvas.evaluate("element => element.toDataURL()")
+    page.wait_for_timeout(500)
+    second_frame = canvas.evaluate("element => element.toDataURL()")
+
+    assert first_frame != second_frame
+    assert page.locator("#canvas-container").evaluate(
+        "element => getComputedStyle(element).zIndex"
+    ) == "0"
+
 def test_footer_link(page: Page):
     page.goto("http://127.0.0.1:8000")
     footer_link = page.locator('footer a.glass-link[href="https://github.com/dhruvhaldar/alfven"]')
@@ -42,6 +56,13 @@ def test_copy_ux(page: Page, context):
 
     display = page.locator("#standoff-display")
     initial_text = display.inner_text().strip()
+
+    assert display.evaluate("element => getComputedStyle(element).display") == "flex"
+    assert display.evaluate("element => getComputedStyle(element).gap") == "8px"
+    assert display.evaluate(
+        "element => getComputedStyle(element, '::after').position"
+    ) == "static"
+    assert display.evaluate("element => getComputedStyle(element).color") == "rgb(68, 221, 255)"
 
     if "Re" not in initial_text:
         time.sleep(2)

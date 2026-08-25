@@ -1,137 +1,97 @@
-// public/js/background.js
-const THREE_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-
-function loadThreeJs() {
-    if (window.THREE) return Promise.resolve(window.THREE);
-
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = THREE_SRC;
-        script.defer = true;
-        script.crossOrigin = 'anonymous';
-        script.integrity = 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu';
-        script.onload = () => resolve(window.THREE);
-        script.onerror = () => reject(new Error('Failed to load Three.js'));
-        document.head.appendChild(script);
-    });
-}
-
-let scene, camera, renderer, stars, particles;
-let animationId; // Track animation frame ID
-
-function init() {
+// Lightweight, dependency-free animated starfield.
+(() => {
     const container = document.getElementById('canvas-container');
     if (!container) return;
 
-    scene = new THREE.Scene();
-    // Add fog for depth
-    scene.fog = new THREE.FogExp2(0x000000, 0.001);
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d', { alpha: true });
+    if (!context) return;
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.z = 500;
+    canvas.setAttribute('aria-hidden', 'true');
+    container.appendChild(canvas);
 
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-    container.appendChild(renderer.domElement);
-
-    // Create Stars
-    const starGeometry = new THREE.BufferGeometry();
-    const starCount = window.matchMedia("(max-width: 768px)").matches ? 2500 : 5000;
-    const posArray = new Float32Array(starCount * 3);
-    const colorArray = new Float32Array(starCount * 3);
-
-    const colors = [
-        new THREE.Color(0x44ddff), // Blue
-        new THREE.Color(0xffffff), // White
-        new THREE.Color(0xffaa00)  // Orange
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const palette = [
+        [68, 221, 255],
+        [255, 255, 255],
+        [168, 128, 255],
+        [255, 190, 92]
     ];
 
-    for(let i = 0; i < starCount * 3; i+=3) {
-        // Random position in a large sphere
-        const r = 1000 * Math.random() + 500; // Radius between 500 and 1500
-        const theta = 2 * Math.PI * Math.random();
-        const phi = Math.acos(2 * Math.random() - 1);
+    let width = 0;
+    let height = 0;
+    let pixelRatio = 1;
+    let stars = [];
+    let animationId = null;
+    let lastFrame = 0;
 
-        posArray[i] = r * Math.sin(phi) * Math.cos(theta);
-        posArray[i+1] = r * Math.sin(phi) * Math.sin(theta);
-        posArray[i+2] = r * Math.cos(phi);
-
-        // Random color
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        colorArray[i] = color.r;
-        colorArray[i+1] = color.g;
-        colorArray[i+2] = color.b;
+    function makeStar(randomY = true) {
+        const depth = Math.random();
+        return {
+            x: Math.random() * width,
+            y: randomY ? Math.random() * height : -4,
+            radius: 0.45 + depth * 1.35,
+            speed: 2.5 + depth * 10,
+            phase: Math.random() * Math.PI * 2,
+            twinkle: 0.45 + Math.random() * 1.1,
+            color: palette[Math.floor(Math.random() * palette.length)]
+        };
     }
 
-    starGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    starGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+    function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
 
-    const starMaterial = new THREE.PointsMaterial({
-        size: 2,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending
-    });
+        canvas.width = Math.round(width * pixelRatio);
+        canvas.height = Math.round(height * pixelRatio);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
-    stars = new THREE.Points(starGeometry, starMaterial);
-    scene.add(stars);
+        const density = width <= 768 ? 0.00032 : 0.0002;
+        const starCount = Math.max(180, Math.min(520, Math.round(width * height * density)));
+        stars = Array.from({ length: starCount }, () => makeStar(true));
+    }
 
-    window.addEventListener('resize', onWindowResize, false);
+    function draw(timestamp) {
+        const elapsed = Math.min((timestamp - lastFrame) / 1000 || 0, 0.05);
+        lastFrame = timestamp;
+        const motionScale = prefersReducedMotion.matches ? 0.18 : 1;
 
-    // Optimization: Pause animation when tab is not visible
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+        context.clearRect(0, 0, width, height);
 
-    animate();
-}
+        for (const star of stars) {
+            star.y += star.speed * elapsed * motionScale;
+            if (star.y > height + 4) Object.assign(star, makeStar(false));
 
-function handleVisibilityChange() {
-    if (document.hidden) {
-        if (animationId) {
+            const pulse = 0.58 + Math.sin(timestamp * 0.001 * star.twinkle + star.phase) * 0.28;
+            const [red, green, blue] = star.color;
+
+            context.beginPath();
+            context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${pulse})`;
+            context.shadowColor = `rgba(${red}, ${green}, ${blue}, 0.65)`;
+            context.shadowBlur = star.radius > 1.25 ? 5 : 2;
+            context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+            context.fill();
+        }
+
+        context.shadowBlur = 0;
+        animationId = requestAnimationFrame(draw);
+    }
+
+    function handleVisibilityChange() {
+        if (document.hidden && animationId !== null) {
             cancelAnimationFrame(animationId);
             animationId = null;
-        }
-    } else {
-        if (!animationId) {
-            animate();
+        } else if (!document.hidden && animationId === null) {
+            lastFrame = 0;
+            animationId = requestAnimationFrame(draw);
         }
     }
-}
 
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-function animate() {
-    animationId = requestAnimationFrame(animate);
-
-    if (stars) {
-        stars.rotation.y += 0.0002;
-        stars.rotation.x += 0.0001;
-    }
-
-    renderer.render(scene, camera);
-}
-
-function scheduleInit() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const start = async () => {
-        try {
-            await loadThreeJs();
-            init();
-        } catch (error) {
-            console.warn(error);
-        }
-    };
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(start, { timeout: 1500 });
-    } else {
-        setTimeout(start, 300);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', scheduleInit);
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    animationId = requestAnimationFrame(draw);
+})();
