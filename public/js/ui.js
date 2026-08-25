@@ -122,19 +122,43 @@ function showError(container, msg) {
 // Optimization: Cache plasma data locally to eliminate redundant API requests
 const plasmaCache = {};
 
+function renderPlasmaResults(data) {
+    document.getElementById('res-debye').innerText = data.debye_length.toExponential(2) + " m";
+    document.getElementById('res-freq').innerText = (data.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz";
+
+    const larmor = data.larmor_radius >= 1000
+        ? (data.larmor_radius / 1000).toExponential(2) + " km"
+        : data.larmor_radius.toExponential(2) + " m";
+    document.getElementById('res-larmor').innerText = larmor;
+    document.getElementById('res-temp-k').innerText = data.temperature_k.toExponential(2) + " K";
+    document.getElementById('res-thermal-speed').innerText = (data.thermal_speed / 1000).toExponential(2) + " km/s";
+    document.getElementById('res-gyrofrequency').innerText = (data.electron_gyrofrequency / (2 * Math.PI)).toExponential(2) + " Hz";
+
+    const isCollective = data.plasma_parameter > 1;
+    const state = document.getElementById('res-plasma-state');
+    state.innerText = isCollective ? "Collective plasma" : "Weakly collective";
+    state.setAttribute('title', `Particles per Debye sphere: ${data.plasma_parameter.toExponential(2)}`);
+    document.getElementById('plasma-interpretation').innerText = isCollective
+        ? `Nᴅ = ${data.plasma_parameter.toExponential(2)}: many particles share each Debye sphere, so collective plasma behavior is expected.`
+        : `Nᴅ = ${data.plasma_parameter.toExponential(2)}: too few particles occupy a Debye sphere for a strong collective approximation.`;
+}
+
 // Plasma Calculation
 async function calcPlasma(btn) {
     if (btn && btn.getAttribute('aria-disabled') === 'true') return;
     const resultsContainer = document.getElementById('plasma-results');
     const nInput = document.getElementById('plasma-n');
     const TInput = document.getElementById('plasma-T');
+    const BInput = document.getElementById('plasma-B');
 
     const nValid = validateInput(nInput);
     const TValid = validateInput(TInput);
+    const BValid = validateInput(BInput);
 
-    if (!nValid || !TValid) {
+    if (!nValid || !TValid || !BValid) {
         if (!nValid && nInput) nInput.focus();
         else if (!TValid && TInput) TInput.focus();
+        else if (!BValid && BInput) BInput.focus();
 
         // Remove existing global error if any
         const existingError = resultsContainer.querySelector('.error-message');
@@ -145,12 +169,12 @@ async function calcPlasma(btn) {
 
     const n = parseFloat(nInput.value);
     const T = parseFloat(TInput.value);
-    const cacheKey = `${n}_${T}`;
+    const B = parseFloat(BInput.value) * 1e-9;
+    const cacheKey = `${n}_${T}_${B}`;
 
     if (plasmaCache[cacheKey]) {
         const data = plasmaCache[cacheKey];
-        document.getElementById('res-debye').innerText = data.debye_length.toExponential(2) + " m";
-        document.getElementById('res-freq').innerText = (data.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz";
+        renderPlasmaResults(data);
         setLoading(btn, resultsContainer, false);
         return;
     }
@@ -159,7 +183,7 @@ async function calcPlasma(btn) {
 
     try {
         // Optimization: Batch API calls
-        const res = await fetch(`/api/plasma/parameters?n=${n}&T_ev=${T}`);
+        const res = await fetch(`/api/plasma/parameters?n=${n}&T_ev=${T}&B=${B}`);
 
         if (!res.ok) throw new Error();
 
@@ -168,12 +192,77 @@ async function calcPlasma(btn) {
         // Save to cache
         plasmaCache[cacheKey] = data;
 
-        document.getElementById('res-debye').innerText = data.debye_length.toExponential(2) + " m";
-        document.getElementById('res-freq').innerText = (data.plasma_frequency / (2 * Math.PI)).toExponential(2) + " Hz";
+        renderPlasmaResults(data);
     } catch (e) {
         showError(resultsContainer, "Calculation failed.");
         document.getElementById('res-debye').innerText = "-";
         document.getElementById('res-freq').innerText = "-";
+        document.getElementById('res-larmor').innerText = "-";
+        document.getElementById('res-temp-k').innerText = "-";
+        document.getElementById('res-thermal-speed').innerText = "-";
+        document.getElementById('res-gyrofrequency').innerText = "-";
+        document.getElementById('res-plasma-state').innerText = "-";
+        document.getElementById('plasma-interpretation').innerText = "Unable to evaluate the plasma state.";
+    } finally {
+        setLoading(btn, resultsContainer, false);
+    }
+}
+
+// Alfven-speed calculation for a proton-dominated plasma
+const alfvenCache = {};
+
+async function calcAlfven(btn) {
+    if (btn && btn.getAttribute('aria-disabled') === 'true') return;
+    const resultsContainer = document.getElementById('alfven-results');
+    const densityInput = document.getElementById('alfven-density');
+    const BInput = document.getElementById('alfven-B');
+    const flowInput = document.getElementById('alfven-flow');
+
+    const densityValid = validateInput(densityInput);
+    const BValid = validateInput(BInput);
+    const flowValid = validateInput(flowInput);
+    if (!densityValid || !BValid || !flowValid) {
+        if (!densityValid) densityInput.focus();
+        else if (!BValid) BInput.focus();
+        else flowInput.focus();
+        return;
+    }
+
+    const densityCm3 = parseFloat(densityInput.value);
+    const BnT = parseFloat(BInput.value);
+    const flowKmS = parseFloat(flowInput.value);
+    const cacheKey = `${densityCm3}_${BnT}`;
+
+    const render = (data) => {
+        const speedKmS = data.alfven_speed / 1000;
+        const mach = flowKmS / speedKmS;
+        document.getElementById('res-alfven-speed').innerText = speedKmS.toFixed(1) + " km/s";
+        document.getElementById('res-alfven-mach').innerText = mach.toFixed(2);
+        document.getElementById('alfven-regime').innerText = mach > 1
+            ? "Super-Alfvénic flow: disturbances cannot propagate upstream."
+            : "Sub-Alfvénic flow: magnetic disturbances can propagate upstream.";
+    };
+
+    if (alfvenCache[cacheKey]) {
+        render(alfvenCache[cacheKey]);
+        setLoading(btn, resultsContainer, false);
+        return;
+    }
+
+    setLoading(btn, resultsContainer, true);
+    try {
+        const densityM3 = densityCm3 * 1e6;
+        const Btesla = BnT * 1e-9;
+        const response = await fetch(`/api/plasma/alfven-speed?ion_density=${densityM3}&B=${Btesla}`);
+        if (!response.ok) throw new Error();
+        const data = await response.json();
+        alfvenCache[cacheKey] = data;
+        render(data);
+    } catch (error) {
+        showError(resultsContainer, "Calculation failed.");
+        document.getElementById('res-alfven-speed').innerText = "-";
+        document.getElementById('res-alfven-mach').innerText = "-";
+        document.getElementById('alfven-regime').innerText = "Unable to classify the flow.";
     } finally {
         setLoading(btn, resultsContainer, false);
     }
@@ -513,6 +602,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (inputId.startsWith('plasma-')) {
             resultsId = 'plasma-results';
             btnId = 'btn-calc-plasma';
+        } else if (inputId.startsWith('alfven-')) {
+            resultsId = 'alfven-results';
+            btnId = 'btn-calc-alfven';
         } else if (inputId.startsWith('aurora-')) {
             resultsId = 'aurora-results';
             btnId = 'btn-calc-aurora';
@@ -543,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Attach listeners for auto-clearing errors and validation on blur
-    ['plasma-n', 'plasma-T', 'aurora-E', 'aurora-sigma', 'aurora-area'].forEach(id => {
+    ['plasma-n', 'plasma-T', 'plasma-B', 'alfven-density', 'alfven-B', 'alfven-flow', 'aurora-E', 'aurora-sigma', 'aurora-area'].forEach(id => {
          const el = document.getElementById(id);
          if(el) {
              el.addEventListener('input', clearErrorState);
@@ -559,6 +651,15 @@ document.addEventListener('DOMContentLoaded', () => {
              // If clicked on icon inside button, target might be span. Find closest button.
              const btn = e.target.closest('button');
              if (btn) calcPlasma(btn);
+        });
+    }
+
+    // Alfven Speed Button
+    const btnAlfven = document.getElementById('btn-calc-alfven');
+    if (btnAlfven) {
+        btnAlfven.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (btn) calcAlfven(btn);
         });
     }
 
@@ -605,6 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial calculations
     calcPlasma(null);
+    calcAlfven(null);
     calcAurora(null);
 
     // Auto-select text in inputs on focus for easier overwriting
@@ -622,6 +724,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Enable Enter key for better keyboard accessibility
     enableEnterKey('plasma-n', 'btn-calc-plasma');
     enableEnterKey('plasma-T', 'btn-calc-plasma');
+    enableEnterKey('plasma-B', 'btn-calc-plasma');
+    enableEnterKey('alfven-density', 'btn-calc-alfven');
+    enableEnterKey('alfven-B', 'btn-calc-alfven');
+    enableEnterKey('alfven-flow', 'btn-calc-alfven');
     enableEnterKey('aurora-E', 'btn-calc-aurora');
     enableEnterKey('aurora-sigma', 'btn-calc-aurora');
     enableEnterKey('aurora-area', 'btn-calc-aurora');

@@ -97,6 +97,8 @@ function drawChart(data) {
     const canvas = document.getElementById('iono-chart');
     if (!canvas) return;
 
+    updateProfileSummary(data);
+
     // Dynamically update ARIA label to match visual state for screen readers
     const toggle = document.getElementById('day-night-toggle');
     const isDay = toggle ? toggle.checked : true;
@@ -190,6 +192,22 @@ function drawChart(data) {
             }
         }
     });
+}
+
+function updateProfileSummary(data) {
+    if (!data.altitude.length || data.altitude.length !== data.density.length) return;
+
+    let peakIndex = 0;
+    let tec = 0;
+    for (let i = 1; i < data.density.length; i++) {
+        if (data.density[i] > data.density[peakIndex]) peakIndex = i;
+        const deltaMeters = (data.altitude[i] - data.altitude[i - 1]) * 1000;
+        tec += 0.5 * (data.density[i] + data.density[i - 1]) * deltaMeters;
+    }
+
+    document.getElementById('iono-peak-density').innerText = data.density[peakIndex].toExponential(2) + " m⁻³";
+    document.getElementById('iono-peak-altitude').innerText = data.altitude[peakIndex].toFixed(0) + " km";
+    document.getElementById('iono-tec').innerText = (tec / 1e16).toFixed(1) + " TECU";
 }
 
 document.addEventListener('DOMContentLoaded', () => {

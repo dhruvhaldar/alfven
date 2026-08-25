@@ -1,14 +1,31 @@
 import math
-from .utils import e, m_e, eps_0, k_B
+from .utils import e, m_e, m_p, mu_0, eps_0, k_B
 
 # Optimization: Precompute physical constant combinations and algebraically simplify formula terms
 _DEBYE_CONST_SQRT = math.sqrt(eps_0 / e)
 _PLASMA_FREQ_CONST = (e**2) / (m_e * eps_0)
 _LARMOR_CONST_SQRT = math.sqrt(m_e / e)
+_THERMAL_SPEED_CONST_SQRT = math.sqrt(e / m_e)
 _EV_TO_K = e / k_B
 
 # Optimization: Precompute square root of _PLASMA_FREQ_CONST for direct use
 _PLASMA_FREQ_CONST_SQRT = math.sqrt(_PLASMA_FREQ_CONST)
+
+
+def alfven_speed(B, ion_density, ion_mass=m_p):
+    """Calculate the ideal-MHD Alfven speed in a singly ionized plasma.
+
+    Args:
+        B (float): Magnetic-field magnitude in tesla.
+        ion_density (float): Ion number density in m^-3.
+        ion_mass (float): Ion mass in kg; defaults to a proton plasma.
+
+    Returns:
+        float: Alfven speed in m/s.
+    """
+    if B <= 0 or ion_density <= 0 or ion_mass <= 0:
+        raise ValueError("B, ion_density, and ion_mass must be positive")
+    return B / math.sqrt(mu_0 * ion_density * ion_mass)
 
 class PlasmaState:
     """
@@ -88,6 +105,25 @@ class PlasmaState:
         if self._sqrt_n is None:
             self._sqrt_n = math.sqrt(self._n)
         return self._sqrt_n * _PLASMA_FREQ_CONST_SQRT
+
+    @property
+    def plasma_parameter(self):
+        """Return the approximate number of electrons in a Debye sphere."""
+        return (4.0 * math.pi / 3.0) * self._n * self.debye_length**3
+
+    @property
+    def thermal_speed(self):
+        """Return the characteristic electron thermal speed in m/s."""
+        if self._sqrt_T_ev is None:
+            self._sqrt_T_ev = math.sqrt(self._T_ev)
+        return _THERMAL_SPEED_CONST_SQRT * self._sqrt_T_ev
+
+    @staticmethod
+    def electron_gyrofrequency(B):
+        """Return the electron gyrofrequency in rad/s for magnetic field B in tesla."""
+        if B <= 0:
+            raise ValueError("B must be positive")
+        return e * B / m_e
 
     def larmor_radius(self, B):
         """

@@ -72,6 +72,20 @@
             <div class="chart-container">
                 <canvas id="iono-chart" role="img" tabindex="0" aria-label="Ionosphere electron density profile chart" aria-describedby="iono-desc"></canvas>
             </div>
+            <div class="result-grid" id="iono-summary" aria-live="polite">
+                <div class="result-item">
+                    <span class="result-label" id="label-iono-peak">Peak Density:</span>
+                    <span class="value-display copyable-result" id="iono-peak-density" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-iono-peak iono-peak-density">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label" id="label-iono-altitude">Peak Altitude:</span>
+                    <span class="value-display copyable-result" id="iono-peak-altitude" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-iono-altitude iono-peak-altitude">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label" id="label-iono-tec" title="Vertical total electron content integrated from 60 to 600 km.">Vertical TEC:</span>
+                    <span class="value-display copyable-result" id="iono-tec" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-iono-tec iono-tec">-</span>
+                </div>
+            </div>
             <p id="iono-desc" style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">
                 Visualizes electron density (Nₑ) vs altitude for D, E, and F layers based on Chapman production
                 functions.
@@ -89,6 +103,10 @@
                 <label for="plasma-T" title="Electron temperature, typical for space plasmas.">Temperature (Tₑ) [eV] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
                 <input type="number" id="plasma-T" class="glass-input" value="10" step="any" min="0" max="1e9" required aria-required="true" placeholder="e.g. 10" autocomplete="off" spellcheck="false">
             </div>
+            <div class="control-group">
+                <label for="plasma-B" title="Magnetic-field magnitude used to calculate the electron Larmor radius.">Magnetic Field (B) [nT] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true" title="Required field">*</span></label>
+                <input type="number" id="plasma-B" class="glass-input" value="5" step="any" min="0" max="1e14" required aria-required="true" placeholder="e.g. 5" autocomplete="off" spellcheck="false" inputmode="decimal">
+            </div>
             <div class="control-group" style="margin-top: 20px;">
                 <button class="glass-button" id="btn-calc-plasma" aria-controls="plasma-results" style="width: 100%;">Calculate</button>
             </div>
@@ -103,6 +121,59 @@
                     <span class="result-label" id="label-freq" title="The natural oscillation frequency of electrons in a plasma.">Plasma Freq (ωₚₑ):</span>
                     <span class="value-display copyable-result" id="res-freq" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-freq res-freq">-</span>
                 </div>
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span class="result-label" id="label-larmor" title="Thermal electron gyroradius in the selected magnetic field.">Larmor Radius (rₗ):</span>
+                    <span class="value-display copyable-result" id="res-larmor" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-larmor res-larmor">-</span>
+                </div>
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span class="result-label" id="label-temp-k">Temperature:</span>
+                    <span class="value-display copyable-result" id="res-temp-k" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-temp-k res-temp-k">-</span>
+                </div>
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span class="result-label" id="label-thermal-speed" title="Characteristic thermal speed of electrons at the selected temperature.">Thermal Speed (vₜₕ):</span>
+                    <span class="value-display copyable-result" id="res-thermal-speed" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-thermal-speed res-thermal-speed">-</span>
+                </div>
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span class="result-label" id="label-gyrofrequency" title="Electron cyclotron frequency in the selected magnetic field.">Gyrofrequency (f꜀ₑ):</span>
+                    <span class="value-display copyable-result" id="res-gyrofrequency" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-gyrofrequency res-gyrofrequency">-</span>
+                </div>
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span class="result-label" id="label-plasma-state" title="A plasma behaves collectively when many particles occupy each Debye sphere.">Collective State:</span>
+                    <span class="value-display" id="res-plasma-state" aria-live="polite" aria-labelledby="label-plasma-state res-plasma-state">-</span>
+                </div>
+                <div class="plasma-regime" id="plasma-interpretation">Calculate to evaluate collective behavior and electron magnetization.</div>
+            </div>
+        </section>
+
+        <!-- Alfven Speed Panel -->
+        <section class="glass-panel" aria-labelledby="alfven-speed-title">
+            <h2 class="panel-title" id="alfven-speed-title">Alfvén Speed</h2>
+            <p class="card-intro">Estimate how quickly magnetic disturbances travel through a proton plasma.</p>
+            <div class="control-group">
+                <label for="alfven-density" title="Ion number density, using a proton-dominated plasma.">Ion Density (nᵢ) [cm⁻³] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true">*</span></label>
+                <input type="number" id="alfven-density" class="glass-input" value="5" step="any" min="0" max="1e24" required aria-required="true" placeholder="e.g. 5" autocomplete="off" spellcheck="false" inputmode="decimal">
+            </div>
+            <div class="control-group">
+                <label for="alfven-B" title="Magnetic-field magnitude in nanotesla.">Magnetic Field (B) [nT] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true">*</span></label>
+                <input type="number" id="alfven-B" class="glass-input" value="5" step="any" min="0" max="1e14" required aria-required="true" placeholder="e.g. 5" autocomplete="off" spellcheck="false" inputmode="decimal">
+            </div>
+            <div class="control-group">
+                <label for="alfven-flow" title="Bulk plasma speed used to calculate the Alfvén Mach number.">Flow Speed [km/s] <span style="color: #ff6b6b; margin-left: 4px; font-weight: bold;" aria-hidden="true">*</span></label>
+                <input type="number" id="alfven-flow" class="glass-input" value="400" step="any" min="0" max="300000" required aria-required="true" placeholder="e.g. 400" autocomplete="off" spellcheck="false" inputmode="decimal">
+            </div>
+            <div class="control-group" style="margin-top: 20px;">
+                <button class="glass-button" id="btn-calc-alfven" aria-controls="alfven-results" style="width: 100%;">Calculate</button>
+            </div>
+            <div id="alfven-results" aria-live="polite" aria-busy="false" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                <div class="result-item">
+                    <span class="result-label" id="label-alfven-speed" title="Ideal-MHD wave speed for a proton plasma.">Alfvén Speed (vₐ):</span>
+                    <span class="value-display copyable-result" id="res-alfven-speed" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-alfven-speed res-alfven-speed">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label" id="label-alfven-mach" title="Flow speed divided by the Alfvén speed.">Alfvén Mach (Mₐ):</span>
+                    <span class="value-display copyable-result" id="res-alfven-mach" role="button" tabindex="0" title="Click, or press Enter or Space to copy" aria-labelledby="label-alfven-mach res-alfven-mach">-</span>
+                </div>
+                <div class="plasma-regime" id="alfven-regime">Enter solar-wind conditions to classify the flow.</div>
             </div>
         </section>
 

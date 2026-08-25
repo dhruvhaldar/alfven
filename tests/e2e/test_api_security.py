@@ -21,6 +21,10 @@ def test_api_security_invalid_inputs():
     response = client.get("/api/plasma/frequency?n=-1")
     assert response.status_code == 422
 
+    # Test Alfven speed with zero magnetic field
+    response = client.get("/api/plasma/alfven-speed?ion_density=5e6&B=0")
+    assert response.status_code == 422
+
     # Test Parker Spiral with negative r
     response = client.get("/api/solar/parker?r=-1")
     assert response.status_code == 422

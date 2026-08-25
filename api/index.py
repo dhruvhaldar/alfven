@@ -14,6 +14,7 @@ import logging
 import urllib.parse
 from alfven import (
     PlasmaState,
+    alfven_speed,
     ParkerSpiral,
     Magnetopause,
     ChapmanLayer,
@@ -411,15 +412,22 @@ async def get_debye_length(
 
 @app.get("/api/plasma/parameters")
 async def get_plasma_parameters(
-    n: float = Query(..., ge=0.1, le=1e30), T_ev: float = Query(..., ge=0.01, le=1e9)
+    n: float = Query(..., ge=0.1, le=1e30),
+    T_ev: float = Query(..., ge=0.01, le=1e9),
+    B: float = Query(5e-9, ge=1e-12, le=1e5),
 ):
     """
-    Calculate both Debye Length and Plasma Frequency.
+    Calculate Debye length, frequencies, scales, and collective-plasma diagnostics.
     """
     plasma = PlasmaState(n, T_ev)
     return {
         "debye_length": plasma.debye_length,
         "plasma_frequency": plasma.plasma_frequency,
+        "larmor_radius": plasma.larmor_radius(B),
+        "temperature_k": plasma.T_k,
+        "plasma_parameter": plasma.plasma_parameter,
+        "thermal_speed": plasma.thermal_speed,
+        "electron_gyrofrequency": plasma.electron_gyrofrequency(B),
     }
 
 
@@ -446,6 +454,15 @@ async def get_plasma_frequency(n: float = Query(..., ge=0.1, le=1e30)):
     """
     plasma = PlasmaState(n, 1.0)  # T doesn't matter
     return {"plasma_frequency": plasma.plasma_frequency}
+
+
+@app.get("/api/plasma/alfven-speed")
+async def get_alfven_speed(
+    ion_density: float = Query(..., ge=0.1, le=1e30),
+    B: float = Query(..., ge=1e-12, le=1e5),
+):
+    """Calculate the Alfven speed for a proton plasma."""
+    return {"alfven_speed": alfven_speed(B, ion_density)}
 
 
 @app.get("/api/solar/parker")

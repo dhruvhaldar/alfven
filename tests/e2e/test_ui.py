@@ -20,6 +20,23 @@ def start_server():
 def test_page_loads_and_title(page: Page):
     page.goto("http://127.0.0.1:8000")
     expect(page).to_have_title(re.compile("Alfven"))
+    expect(page.get_by_role("heading", name="Alfvén Speed")).to_be_visible()
+
+def test_expanded_science_outputs(page: Page):
+    page.goto("http://127.0.0.1:8000")
+
+    expect(page.locator("#iono-peak-density")).not_to_have_text("-", timeout=10000)
+    expect(page.locator("#iono-peak-altitude")).to_contain_text("km")
+    expect(page.locator("#iono-tec")).to_contain_text("TECU")
+
+    expect(page.locator("#res-larmor")).not_to_have_text("-", timeout=10000)
+    expect(page.locator("#res-temp-k")).to_contain_text("K")
+    expect(page.locator("#res-thermal-speed")).to_contain_text("km/s")
+    expect(page.locator("#res-gyrofrequency")).to_contain_text("Hz")
+    expect(page.locator("#res-plasma-state")).to_contain_text("plasma")
+
+    expect(page.locator("#res-alfven-speed")).to_contain_text("km/s", timeout=10000)
+    expect(page.locator("#res-alfven-mach")).not_to_have_text("-")
 
 def test_starfield_renders_and_animates(page: Page):
     page.goto("http://127.0.0.1:8000")

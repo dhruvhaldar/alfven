@@ -2,7 +2,7 @@
 
 **Alfven** is a computational toolkit and interactive dashboard for **EF2240 Space Physics**. It bridges the gap between theoretical magnetohydrodynamics (MHD) and observable space weather through a highly visual, web-based interface.
 
-The project features a **Space-Themed Glassmorphism UI**, where floating, translucent panels sit atop a live, 3D-rendered starfield, allowing students to manipulate plasma parameters and visualize the Earth's magnetic shield in real-time.
+The project features a **Space-Themed Glassmorphism UI**, where floating, translucent panels sit atop a live animated starfield, allowing students to manipulate plasma parameters and visualize the Earth's magnetic shield in real-time.
 
 ## 📚 Syllabus Mapping (EF2240)
 
@@ -10,10 +10,11 @@ This project strictly adheres to the course learning outcomes:
 
 | Module | Syllabus Topic | Implemented Features |
 | --- | --- | --- |
-| **Plasma State** | *Define and classify plasmas* | Calculator for **Debye Length** ($\lambda_D$), **Plasma Frequency** ($\omega_{pe}$), and **Larmor Radius** ($r_L$). |
+| **Plasma State** | *Define and classify plasmas* | Calculator for **Debye Length** ($\lambda_D$), **Plasma Frequency** ($\omega_{pe}$), **Larmor Radius** ($r_L$), electron thermal speed, gyrofrequency, temperature conversion, and collective-plasma classification. |
+| **MHD Waves** | *Typical properties of space plasmas; model phenomena using basic physical laws* | **Alfvén Speed** ($v_A$) and **Alfvén Mach Number** ($M_A$) calculator for proton-dominated solar-wind plasma. |
 | **The Sun** | *Sun and solar wind* | **Parker Spiral** model for the Interplanetary Magnetic Field (IMF) and sunspot temperature estimation. |
 | **Magnetosphere** | *Model the form of the magnetosphere* | **Chapman-Ferraro** distance calculator to determine Magnetopause location ($R_{mp}$) under solar wind pressure. |
-| **Ionosphere** | *Origin, structure and dynamics* | **Chapman Layer** profiling to model Electron Density ($N_e$) vs. Altitude for D, E, and F layers. |
+| **Ionosphere** | *Origin, structure and dynamics* | **Chapman Layer** profiling with Electron Density ($N_e$), peak altitude, peak density, and vertical total electron content (**TEC**) for D, E, and F layers. |
 | **Aurora** | *Power dissipated in the aurora* | Current sheet estimation and Joule heating calculations for geomagnetic storms. |
 
 ## 📊 Visualizations & Artifacts
@@ -66,6 +67,12 @@ profile.plot_altitude_profile(0, 600)
 
 > *Figure 2: Ionospheric Layers. The plot shows Electron Density ($N_e$) vs Altitude ($h$). The distinct E and F layers are visible. The dashboard uses semi-transparent fills to represent plasma density, adhering to the glassmorphism theme.*
 
+The profile card also derives three compact diagnostics from the modeled altitude samples:
+
+- peak electron density in $m^{-3}$;
+- altitude of the density maximum in km;
+- vertical total electron content in TECU, calculated by trapezoidal integration from 60 to 600 km.
+
 ### 3. Solar Wind (Parker Spiral)
 
 *A top-down view of the solar system showing the spiral structure of the Interplanetary Magnetic Field (IMF).*
@@ -87,6 +94,18 @@ profile.plot_altitude_profile(0, 600)
 ### 5. Aurora Power (Auroral Physics)
 
 *Calculates the total power dissipated in the auroral ionosphere and the height-integrated sheet current, given the ionospheric electric field ($E$), Pedersen conductivity ($\Sigma_P$), and the area of the active region.*
+
+### 6. Alfvén Speed and Flow Regime
+
+*Calculates the ideal-MHD Alfvén speed for a proton-dominated plasma from magnetic-field strength and ion density:*
+
+$$v_A = \frac{B}{\sqrt{\mu_0 n_i m_p}}$$
+
+The dashboard compares the result with a selected bulk-flow speed to calculate the Alfvén Mach number, $M_A = v_{flow}/v_A$, and classifies the flow as sub-Alfvénic or super-Alfvénic. With typical solar-wind values of $n_i=5\,cm^{-3}$ and $B=5\,nT$, the calculator returns approximately $49\,km/s$.
+
+### 7. Expanded Plasma Diagnostics
+
+The Plasma Parameters card now accepts a magnetic-field magnitude and reports electron Larmor radius, electron temperature in kelvin, thermal speed, gyrofrequency, and the number of particles per Debye sphere alongside Debye length and plasma frequency. The latter supports a simple collective-plasma classification tied directly to the course objective of defining and classifying plasmas.
 
 ## 🧪 Testing Strategy
 
